@@ -2,6 +2,8 @@
 
 Filter | Aggregate | Format
 
+Reference: https://library.humio.com/
+
 ## Optimizing steps
 
 When writing queries, it is best to follow the following process in order:
@@ -121,7 +123,7 @@ Grouping with `count()` and `collect()` functions
 | groupBy([tld])
 ```
 
-ReOrder for Effeciency
+ReOrder for Effeciency 1s 800ms .. better :-)
 
 ```f#
 #event_simpleName=DnsRequest
@@ -138,6 +140,14 @@ ReOrder for Effeciency
 | tld := format("%s.%s", field=[lastButOneValue, lastValue])
 | drop([lastIndex, lastButOneIndex, lastButOneValue, lastValue, _outLength])
 | groupBy([tld])
+```
+## Formatting Strings and Date Time
+
+```
+"data-analysis"
+| formatTime(format="%F",field=@timestamp,as=fmttime)
+| groupBy(fmttime)
+| logcount := math:log(_count)
 ```
 
 ## Complex Query
