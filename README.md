@@ -224,6 +224,13 @@ if(regex("^5", field=statuscode), then="server error", else=
 }
 ```
 
+## Mask sensitive data
+
+```f#
+| regex("^.*(?<last5char>.{5}$)", field=myFieldName)
+| format(format="*********%s"
+, field=[last5char], as=myFieldName)
+```
 
 ## Regex and Then negative Filter then Filter.. (seems backwards can test this) 2s 482ms
 
@@ -261,14 +268,6 @@ ReOrder for Effeciency 1s 800ms .. better :-)
 | tld := format("%s.%s", field=[lastButOneValue, lastValue])
 | drop([lastIndex, lastButOneIndex, lastButOneValue, lastValue, _outLength])
 | groupBy([tld])
-```
-## Formatting Strings and Date Time
-
-```
-"data-analysis"
-| formatTime(format="%F",field=@timestamp,as=fmttime)
-| groupBy(fmttime)
-| logcount := math:log(_count)
 ```
 
 ## Chained functions() network asn geoip rdns as builtins
