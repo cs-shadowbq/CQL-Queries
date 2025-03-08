@@ -330,12 +330,19 @@ using default(), and test()
 
 # metaprogramming
 
-use format(), setfield(), sometimes eval()
+use format(), setfield(), getfield(), and sometimes eval()
 
 ```f#
 | tld := format("%s.%s", field=[lastButOneValue, lastValue])
 | item := 4
 | setField(target="foo", value=item + 10)
 | setField(target="baaz", value=if(item == 4, then="OK", else="not OK"))
+
+// on the fly function
 | eval(itembytes = item * 1024)
+
+// last index of array
+| index := array:length("foo[]")-1
+| fieldName := format("foo[%s]", field=[index])
+| result := getField(fieldName)
 ```
