@@ -40,6 +40,13 @@ When writing queries, it is best to follow the following process in order:
 ... | groupBy([ComputerName], function=[tail(1)]) | ...
 ```
 
+## common sort & timestamp
+
+```f#
+| sort(field=timestamp, order=asc, limit=10000)
+| timestamp := formatTime("%Y-%m-%d %H:%M:%S", field=timestamp, locale=en_US, timezone=Z)
+```
+
 ## Network Events
 
 ```f#
