@@ -55,7 +55,13 @@ When writing queries, it is best to follow the following process in order:
 
 there are some functions that will grab the day of the only builtin
 
-## Network Events
+## testing for a value as a filter, more than regex or equal
+
+```f#
+| test(myFieldName<5)
+```
+
+## Network Events - table() vs select()
 
 ```f#
  #event_simpleName = Network*
@@ -72,6 +78,8 @@ They look extremely similar, but table() is actually and aggregation where selec
 | groupBy([ComputerName], function=[tail(1)]) 
 | select([CommunityID, #event_simpleName, ComputerName, aip, LocalIP, LocalPort, RemoteIP, RemotePort, Protocol]) | rename(field="aip", as="ExternalIP")
 ```
+
+
 
 ## Detections
 
@@ -243,6 +251,34 @@ ReOrder for Effeciency 1s 800ms .. better :-)
 | formatTime(format="%F",field=@timestamp,as=fmttime)
 | groupBy(fmttime)
 | logcount := math:log(_count)
+```
+
+## Chained functions() network asn geoip rdns as builtins
+
+using default(), and test()
+
+```f# 
+// Get ASN Details
+| asn(OriginSourceIpAddress, as=asn)
+// Omit ZScaler infra
+| asn.org!=/ZSCALER/
+//Get IP Location
+| ipLocation(OriginSourceIpAddress)
+// Get geohash; precision can be adjusted as desired
+| geoHash := geohash(lat=OriginSourceIpAddress.lat, lon=OriginSourceIpAddress.lon, precision=2)
+// Get RDNS value if available
+| rdns(OriginSourceIpAddress, as=rdns)
+//Set default values for blank fields
+| default(value="Unknown Country", field=[OriginSourceIpAddress.country])
+| default(value="Unknown City", field=[OriginSourceIpAddress.city])
+| default(value="Unknown ASN", field=[asn.org])
+| default(value="Unknown RDNS", field=[rdns])
+// Create unified IP details field
+| format(format="%s (%s, %s) [%s] - %s", field=[OriginSourceIpAddress, OriginSourceIpAddress.country, OriginSourceIpAddress.city, asn.org, rdns], as=ipDetails)
+// Aggregate by UserId and geoHash
+| groupBy([UserId, geoHash], function=([count(as=logonCount), min(@timestamp, as=firstLogon), max(@timestamp, as=lastLogon), collect(ipDetails)]))
+// Look for geohashes with fewer than 5 logins; can be adjusted as desired
+| test(logonCount<5)
 ```
 
 ## Complex Query
