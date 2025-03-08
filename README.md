@@ -186,6 +186,18 @@ file with single column of relevant data
 | in(field="event_platform", values=[Lin, Win])
 ```
 
+## Human Readable numbers (kb,mb,gb,tb)
+
+```f#
+| case {
+    SumSize>=1099511627776 | Transfered:=unit:convert(SumSize, to=T) | format("%,.2f TB",field=["Transfered"], as="Transfered");
+    SumSize>=1073741824 | Transfered:=unit:convert(SumSize, to=G) | format("%,.2f GB",field=["Transfered"], as="Transfered");
+    SumSize>=1048576| Transfered:=unit:convert(SumSize, to=M) | format("%,.2f MB",field=["Transfered"], as="Transfered");
+    SumSize>=1024 | Transfered:=unit:convert(SumSize, to=k) | format("%,.2f KB",field=["Transfered"], as="Transfered");
+    * | Transfered:=format("%,.2f Bytes",field=["SumSize"]);
+}
+```
+
 
 ## Regex and Then negative Filter then Filter.. (seems backwards can test this) 2s 482ms
 
