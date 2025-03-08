@@ -114,12 +114,20 @@ Grouping with `count()` and `collect()` functions
     * => * ;
   }
 ```
+## enrichment via match file
 
-## enrichment via lookup file
+file with single column of relevant data
+
+```f#
+// enrich events with severity name
+| match("list.csv",field="cisco_severity")
+```
+
+## enrichment via join & lookup file
 
 ```f#
 | join(query={
-    readFile("ai-list.csv")
+    readFile("list.csv")
     | rename("domainName", as="tld")
 }, field=[tld], include=[*])
 ```
