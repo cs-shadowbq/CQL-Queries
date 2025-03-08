@@ -194,6 +194,14 @@ file with single column of relevant data
 | in(field="event_platform", values=[Lin, Win])
 ```
 
+## Enrichment with if .. then .. else ..
+
+```f#
+| success := if(status < 500, then=if(status!=404, then=1, else=0), else=0)
+
+| critical_status := if((in(status, values=["500", "404"])), then="Critical", else="Non-Critical")
+```
+
 ## Human Readable numbers (kb,mb,gb,tb)
 
 ```f#
