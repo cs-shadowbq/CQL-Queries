@@ -97,6 +97,33 @@ Grouping with `count()` and `collect()` functions
 | sort(_count)
 ```
 
+## enrichment with match
+
+`severity` of 3 means "error" so put that text in a new field `severity_level`
+
+```f#
+| severity match { 
+    0 => severity_level:="emergency" ;
+    1 => severity_level:="alert" ;
+    2 => severity_level:="critical" ;
+    3 => severity_level:="error" ;
+    4 => severity_level:="warning" ;
+    5 => severity_level:="notification" ;
+    6 => severity_level:="informational" ;
+    7 => severity_level:="debug" ;
+    * => * ;
+  }
+```
+
+## enrichment via lookup file
+
+```f#
+| join(query={
+    readFile("ai-list.csv")
+    | rename("domainName", as="tld")
+}, field=[tld], include=[*])
+```
+
 ## using in() to ensure the value is present?
 
 ```f#
