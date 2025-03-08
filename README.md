@@ -328,3 +328,12 @@ using default(), and test()
 }, field=[tld], include=[*])
 ```
 
+# metaprogramming
+
+use format() and setfield()
+
+```
+| tld := format("%s.%s", field=[lastButOneValue, lastValue])
+| item := 4
+| setField(target="foo", value=item + 10)
+```
