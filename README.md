@@ -196,6 +196,8 @@ file with single column of relevant data
 
 ## Enrichment with if .. then .. else ..
 
+Unlike a case or match statement, the if() can be embedded into other functions and expressions.
+
 ```f#
 | statusClass :=
 if(regex("^1", field=statuscode), then="informational", else=
