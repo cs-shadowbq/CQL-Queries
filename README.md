@@ -156,6 +156,11 @@ file with single column of relevant data
 | match("list.csv",field="cisco_severity")
 ```
 
+```f#
+// Enrich required fields from large csv
+| aid=~match(file="aid_master_main.csv", column=[aid], include=[ProductType, Version, MAC, SystemManufacturer, SystemProductName, FirstSeen, Time], strict=false)
+```
+
 ## enrichment via join & lookup file
 
 ```f#
@@ -175,6 +180,12 @@ file with single column of relevant data
 | in(hostname, values=[*], ignoreCase=true) 
 | groupBy([@id], function=tail(1),limit=10000)
 ```
+
+```f#
+// Narrow search to only include Linux, Container, and K8 systems
+| in(field="event_platform", values=[Lin, Win])
+```
+
 
 ## Regex and Then negative Filter then Filter.. (seems backwards can test this) 2s 482ms
 
