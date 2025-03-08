@@ -47,6 +47,14 @@ When writing queries, it is best to follow the following process in order:
 | timestamp := formatTime("%Y-%m-%d %H:%M:%S", field=timestamp, locale=en_US, timezone=Z)
 ```
 
+## get just date from timestamp
+
+```f#
+| date := formatTime("%Y-%m-%d", field=@timestamp, locale=en_US, timezone=Z)
+```
+
+there are some functions that will grab the day of the only builtin
+
 ## Network Events
 
 ```f#
