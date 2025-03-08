@@ -2,7 +2,11 @@
 
 Filter | Aggregate | Format
 
-Reference: https://library.humio.com/
+## Reference: 
+
+https://library.humio.com/
+
+https://github.com/CrowdStrike/logscale-community-content
 
 ## Optimizing steps
 
