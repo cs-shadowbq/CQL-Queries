@@ -226,11 +226,15 @@ if(regex("^5", field=statuscode), then="server error", else=
 
 ## Mask sensitive data
 
+print a bunch of * then the last five characters of the string
+
 ```f#
 | regex("^.*(?<last5char>.{5}$)", field=myFieldName)
-| format(format="*********%s"
-, field=[last5char], as=myFieldName)
+| format(format="*********%s", field=[last5char], as=myFieldName)
 ```
+
+masking api_keys
+
 
 ## Regex and Then negative Filter then Filter.. (seems backwards can test this) 2s 482ms
 
