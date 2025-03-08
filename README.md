@@ -197,6 +197,14 @@ file with single column of relevant data
 ## Enrichment with if .. then .. else ..
 
 ```f#
+| statusClass :=
+if(regex("^1", field=statuscode), then="informational", else=
+if(regex("^2", field=statuscode), then="successful", else=
+if(regex("^3", field=statuscode), then="redirection", else=
+if(regex("^4", field=statuscode), then="client error", else=
+if(regex("^5", field=statuscode), then="server error", else=
+"unknown")))))
+
 | success := if(status < 500, then=if(status!=404, then=1, else=0), else=0)
 
 | critical_status := if((in(status, values=["500", "404"])), then="Critical", else="Non-Critical")
