@@ -332,8 +332,10 @@ using default(), and test()
 
 use format() and setfield()
 
-```
+```f#
 | tld := format("%s.%s", field=[lastButOneValue, lastValue])
 | item := 4
 | setField(target="foo", value=item + 10)
+| setField(target="baaz", value=if(item == 4, then="OK", else="not OK"))
+
 ```
