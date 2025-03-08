@@ -233,8 +233,11 @@ print a bunch of * then the last five characters of the string
 | format(format="*********%s", field=[last5char], as=myFieldName)
 ```
 
-masking api_keys
+masking a field you may want to save the hash the data for comparing or grouping
 
+```f#
+| crypto:sha256([api_keys], as=key_hash)
+```
 
 ## Regex and Then negative Filter then Filter.. (seems backwards can test this) 2s 482ms
 
