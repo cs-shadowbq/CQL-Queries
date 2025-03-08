@@ -103,6 +103,24 @@ Grouping with `count()` and `collect()` functions
 | groupBy([FileName], function=([count(FileName), collect([ShortFilePath, ImageFileName])]))
 | sort(_count)
 ```
+## enrichment via case
+
+if fieldName value is equal to regex (AND n more matches) then do X (often assign a value)
+
+```f#
+| case {
+       FileName=/net1?\.exe/ AND netFlag="start" | behaviorWeight := "4" ;
+       FileName=/net1?\.exe/ AND netFlag="stop" AND CommandLine=/falcon/i | behaviorWeight := "25" ;
+       FileName=/sc\.exe/ AND netFlag="start" | behaviorWeight := "4" ;
+       FileName=/sc\.exe/ AND netFlag="stop" | behaviorWeight := "4" ;
+       FileName=/sc\.exe/ AND netFlag=/(query|stop)/i AND CommandLine=/csagent/i | behaviorWeight := "25" ;
+       FileName=/net1?\.exe/ AND netFlag="share" | behaviorWeight := "2" ;
+       FileName=/net1?\.exe/ AND netFlag="user" AND CommandLine=/\/delete/i | behaviorWeight := "10" ;
+       FileName=/net1?\.exe/ AND netFlag="localgroup" AND CommandLine=/\/delete/i | behaviorWeight := "10" ;
+       FileName=/ipconfig\.exe/ | behaviorWeight := "3" ;
+ * }
+| default(field=behaviorWeight, value=1)
+```
 
 ## enrichment with match
 
