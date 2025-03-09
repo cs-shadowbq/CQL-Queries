@@ -16,6 +16,7 @@ tests:
 - 'Feb 11 18:43:49 dnsmasq[633]: query[A] app.warp.dev from 192.168.1.174'
 fieldsToBeRemovedBeforeParsing: []
 $schema: https://schemas.humio.com/parser/v0.2.0
+script: |-
 /*
 			parser: webapp
 			version 0.0.1
@@ -45,7 +46,21 @@ $schema: https://schemas.humio.com/parser/v0.2.0
 
       v0.0.1: - Inital parser
 
+			The CrowdStrike Parsing Standard (CPS) 1.0 builds upon the Elastic Common Schema (ECS) version 8. CPS-compliant parsers use tags for additional fields like #ecs.version, #event.dataset, #event.kind, #event.module, and #observer.type
+
    */
+
+  //remove carriage returns and new lines this causes issues parsing JSON
+  replace(regex="\n", replacement="")|
+  replace(regex="\r", replacement="")|
+  
+  Parser.version := "0.0.1"
+  | Vendor := "webapp"
+  | ecs.version := "8.11.0"
+  | event.module := "websecurity"
+  | Cps.version := "1.0.0"
+  | event.kind := "event"
+
   case {
 
     // query logs
@@ -61,3 +76,8 @@ $schema: https://schemas.humio.com/parser/v0.2.0
   }
 tagFields:
 - log_type
+- Cps.version
+- Vendor
+- ecs.version
+- event.kind
+- event.module
