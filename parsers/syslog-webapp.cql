@@ -61,7 +61,7 @@ script: |-
   | Cps.version := "1.0.0"
   | event.kind := "event"
 
-  case {
+  | case {
 
     // query logs
     log_type := "query" | regex("^(?<timestamp>\\w+\\s+\\d+\\s+\\d+:\\d+:\\d+)\\s+dnsmasq\\[(?<process_id>\\d+)\\]:\\s+(?<type>(?:gravity blocked|cached|config|forwarded|reply|special|query\\[(?<query_type>\\w+)\\]))\\s+(?<domain_name>[^\\s]+)(?:\\s+is\\s+|\\s+from\\s+|\\s+to\\s+)(?<dns_response>[^\\s]+(?:\\s+[^\\s]+)?)");
