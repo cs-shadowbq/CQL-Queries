@@ -286,12 +286,16 @@ createEvents(["src=john,dst=apples,cnt=12", "src=john,dst=bananas,cnt=1", "src=j
 | sankey(source="src", target="dst", weight=(sum(cnt)))
 ```
 
+![sankey](https://github.com/user-attachments/assets/2d2ba074-0fb1-41d8-87fa-856c11130a24)
+
+
 if you wanted to get the Event Table values instead of a SANKEY
 
 ```f#
 createEvents(["src=john,dst=apples,cnt=12", "src=john,dst=bananas,cnt=1", "src=joe,dst=apples,cnt=1", "src=sarah,dst=apples,cnt=1", "src=sarah,dst=apples,cnt=1", "src=sarah,dst=apples,cnt=1"])| kvParse()
 | groupBy([dst, src], function=([sum(cnt), collect([dst, src])]))
 ```
+![groupby](https://github.com/user-attachments/assets/ceb491c3-93ed-4ed8-9028-4d775c994ad4)
 
 
 ## Chained functions() network asn geoip rdns as builtins
