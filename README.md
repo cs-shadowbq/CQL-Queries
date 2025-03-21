@@ -277,6 +277,23 @@ ReOrder for Effeciency 1s 800ms .. better :-)
 | groupBy([tld])
 ```
 
+## Using example data with pre-aggregated fields to cast()
+
+SanKey Chart
+
+```f#
+createEvents(["src=john,dst=apples,cnt=12", "src=john,dst=bananas,cnt=1", "src=joe,dst=apples,cnt=1", "src=sarah,dst=apples,cnt=1", "src=sarah,dst=apples,cnt=1", "src=sarah,dst=apples,cnt=1"])| kvParse()
+| sankey(source="src", target="dst", weight=(sum(cnt)))
+```
+
+if you wanted to get the Event Table values instead of a SANKEY
+
+```f#
+createEvents(["src=john,dst=apples,cnt=12", "src=john,dst=bananas,cnt=1", "src=joe,dst=apples,cnt=1", "src=sarah,dst=apples,cnt=1", "src=sarah,dst=apples,cnt=1", "src=sarah,dst=apples,cnt=1"])| kvParse()
+| groupBy([dst, src], function=([sum(cnt), collect([dst, src])]))
+```
+
+
 ## Chained functions() network asn geoip rdns as builtins
 
 using default(), and test()
