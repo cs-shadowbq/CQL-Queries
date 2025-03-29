@@ -26,6 +26,8 @@ When writing queries, it is best to follow the following process in order:
 
     Aggregate | Aggregate your data utilizing any aggregate functions, such as a sum(), top(), or a groupBy()
 
+    rename | Rename fields prior to the view 
+
     View |      Perform any final visualization processing such as sorting or table functions.
 
 ## Get all available fields in the query
