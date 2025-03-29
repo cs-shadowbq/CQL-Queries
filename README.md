@@ -8,6 +8,21 @@ https://library.humio.com/
 
 https://github.com/CrowdStrike/logscale-community-content
 
+## adhoc Tables
+
+definetables() vs join()
+
+In many scenarios, ad-hoc tables can be used in place of the join() function. However, LogScale generally recommends using ad-hoc tables.
+
+good for using against from repos. 
+
+```f#
+defineTable(query={*}, name="tablename", include=[name,username])
+```
+
+https://library.humio.com/data-analysis/query-joins-methods-adhoc-tables.html#query-joins-methods-adhoc-tables-join
+
+
 ## Optimizing steps
 
 When writing queries, it is best to follow the following process in order:
