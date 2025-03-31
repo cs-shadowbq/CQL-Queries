@@ -361,11 +361,17 @@ defineTable(name="USFarmers",query={country=UnitedStates},include=[name, ph])
 
 With createEvent() data.. 
 
-* `createEvents(["name=john,ph=555-1234", "name=joe,ph=555-9999", "name=sarah,ph=555-3366", "name=megan,ph=555-2244"])| kvParse() `
-* ![Screenshot 2025-03-31 at 4 19 05 PM](https://github.com/user-attachments/assets/3263fbd1-98dc-4058-81e4-c9798353b956)
+```f#
+// Users_Table
+createEvents(["name=john,ph=555-1234", "name=joe,ph=555-9999", "name=sarah,ph=555-3366", "name=megan,ph=555-2244"])| kvParse()
+```
+![Screenshot 2025-03-31 at 4 19 05 PM](https://github.com/user-attachments/assets/3263fbd1-98dc-4058-81e4-c9798353b956)
 
-* `createEvents(["name=john,product=apples,cnt=12", "name=john,product=bananas,cnt=1", "name=joe,product=apples,cnt=1", "name=sarah,product=apples,cnt=1", "name=sarah,product=apples,cnt=1", "name=holly,product=apples,cnt=1"])| kvParse()`
-* ![Screenshot 2025-03-31 at 4 18 56 PM](https://github.com/user-attachments/assets/7aaeb311-7385-4200-abbf-7aa3210f371f)
+```f#
+// Logs or Product_Table
+createEvents(["name=john,product=apples,cnt=12", "name=john,product=bananas,cnt=1", "name=joe,product=apples,cnt=1", "name=sarah,product=apples,cnt=1", "name=sarah,product=apples,cnt=1", "name=holly,product=apples,cnt=1"])| kvParse()`
+```
+![Screenshot 2025-03-31 at 4 18 56 PM](https://github.com/user-attachments/assets/7aaeb311-7385-4200-abbf-7aa3210f371f)
 
 
 #### Left Join() as a defineTables()
