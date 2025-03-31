@@ -359,7 +359,7 @@ defineTable(name="USFarmers",query={country=UnitedStates},include=[name, ph])
 
 With createEvent() data.. 
 
-* strict=false will return `holly` even though she does not have a `ph`
+* `strict=false` will return `holly` even though she does not have a `ph`
 
 ```f#
 defineTable(name="users_table",query={createEvents(["name=john,ph=555-1234", "name=joe,ph=555-9999", "name=sarah,ph=555-3366", "name=megan,ph=555-2244"])| kvParse() |ph=*},include=[name, ph])
