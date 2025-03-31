@@ -33,39 +33,7 @@ When writing queries, it is best to follow the following process in order:
 
     View |      Perform any final visualization processing such as sorting or table functions.
 
-## Adhoc Tables
 
-definetables() vs join()
-
-In many scenarios, ad-hoc tables can be used in place of the join() function. However, LogScale generally recommends using ad-hoc tables.
-
-good for using against from repos. 
-
-```f#
-defineTable(query={*}, name="custom_tablename", include=[field1, field2])
-```
-
-### Find Apple Farmers Name and Phone in the Unites States
-
-```f#
-defineTable(name="USFarmers",query={country=UnitedStates},include=[name, ph])
-| #repo=Fruits
-| products=Apples
-| ...
-| match(table=USFarmers, field=name, strict=false)
-| select([name, ph])
-```
-
-With createEvent() data.. 
-
-```f$
-defineTable(name="users_table",query={createEvents(["name=john,ph=555-1234", "name=joe,ph=555-9999", "name=sarah,ph=555-3366"])| kvParse() |ph=*},include=[name, ph])
-| createEvents(["name=john,product=apples,cnt=12", "name=john,product=bananas,cnt=1", "name=joe,product=apples,cnt=1", "name=sarah,product=apples,cnt=1", "name=sarah,product=apples,cnt=1"])
-| kvParse()
-| match(table=users_table, field=name)
-```
-
-https://library.humio.com/data-analysis/query-joins-methods-adhoc-tables.html#query-joins-methods-adhoc-tables-join
 
 
 ## Get all available fields in the query
@@ -365,6 +333,44 @@ using default(), and test()
 // Look for geohashes with fewer than 5 logins; can be adjusted as desired
 | test(logonCount<5)
 ```
+
+## Adhoc Tables Joining data 
+
+definetables() vs join()
+
+In many scenarios, ad-hoc tables can be used in place of the join() function. However, LogScale generally recommends using ad-hoc tables.
+
+good for using against from repos. 
+
+```f#
+defineTable(query={*}, name="custom_tablename", include=[field1, field2])
+```
+
+### Find Apple Farmers Name and Phone in the Unites States
+
+```f#
+defineTable(name="USFarmers",query={country=UnitedStates},include=[name, ph])
+| #repo=Fruits
+| products=Apples
+| ...
+| match(table=USFarmers, field=name, strict=false)
+| select([name, ph])
+```
+
+With createEvent() data.. 
+
+* strict=false will return `holly` even though she does not have a `ph`
+
+```f#
+defineTable(name="users_table",query={createEvents(["name=john,ph=555-1234", "name=joe,ph=555-9999", "name=sarah,ph=555-3366", "name=megan,ph=555-2244"])| kvParse() |ph=*},include=[name, ph])
+| createEvents(["name=john,product=apples,cnt=12", "name=john,product=bananas,cnt=1", "name=joe,product=apples,cnt=1", "name=sarah,product=apples,cnt=1", "name=sarah,product=apples,cnt=1", "name=holly,product=apples,cnt=1"])
+| kvParse()
+| match(table=users_table, field=name, strict=false)
+```
+![Screenshot 2025-03-31 at 1 13 50 PM](https://github.com/user-attachments/assets/23c541a7-6e74-4463-ab43-d1e85a59fe6f)
+
+
+https://library.humio.com/data-analysis/query-joins-methods-adhoc-tables.html#query-joins-methods-adhoc-tables-join
 
 ## Complex Query
 
