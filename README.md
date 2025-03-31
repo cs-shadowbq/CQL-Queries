@@ -8,20 +8,6 @@ https://library.humio.com/
 
 https://github.com/CrowdStrike/logscale-community-content
 
-## adhoc Tables
-
-definetables() vs join()
-
-In many scenarios, ad-hoc tables can be used in place of the join() function. However, LogScale generally recommends using ad-hoc tables.
-
-good for using against from repos. 
-
-```f#
-defineTable(query={*}, name="tablename", include=[name,username])
-```
-
-https://library.humio.com/data-analysis/query-joins-methods-adhoc-tables.html#query-joins-methods-adhoc-tables-join
-
 
 ## Optimizing steps
 
@@ -41,9 +27,37 @@ When writing queries, it is best to follow the following process in order:
 
     Aggregate | Aggregate your data utilizing any aggregate functions, such as a sum(), top(), or a groupBy()
 
-    rename | Rename fields prior to the view 
+    Rename | Rename fields prior to the view 
+
+    Join Data | Merge data from multiple queries together using adhox tables, or join statements
 
     View |      Perform any final visualization processing such as sorting or table functions.
+
+## Adhoc Tables
+
+definetables() vs join()
+
+In many scenarios, ad-hoc tables can be used in place of the join() function. However, LogScale generally recommends using ad-hoc tables.
+
+good for using against from repos. 
+
+```f#
+defineTable(query={*}, name="custom_tablename", include=[field1, field2])
+```
+
+### Find Apple Farmers Name and Phone in the Unites States
+
+```f#
+defineTable(name="USFarmers",query={country=UnitedStates},include=[name, ph])
+| #repo=Fruits
+| products=Apples
+| ...
+| match(table=USFarmers, field=name, strict=false)
+| select([name, ph])
+```
+
+https://library.humio.com/data-analysis/query-joins-methods-adhoc-tables.html#query-joins-methods-adhoc-tables-join
+
 
 ## Get all available fields in the query
 
