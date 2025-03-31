@@ -56,6 +56,15 @@ defineTable(name="USFarmers",query={country=UnitedStates},include=[name, ph])
 | select([name, ph])
 ```
 
+With createEvent() data.. 
+
+```f$
+defineTable(name="users_table",query={createEvents(["name=john,ph=555-1234", "name=joe,ph=555-9999", "name=sarah,ph=555-3366"])| kvParse() |ph=*},include=[name, ph])
+| createEvents(["name=john,product=apples,cnt=12", "name=john,product=bananas,cnt=1", "name=joe,product=apples,cnt=1", "name=sarah,product=apples,cnt=1", "name=sarah,product=apples,cnt=1"])
+| kvParse()
+| match(table=users_table, field=name)
+```
+
 https://library.humio.com/data-analysis/query-joins-methods-adhoc-tables.html#query-joins-methods-adhoc-tables-join
 
 
