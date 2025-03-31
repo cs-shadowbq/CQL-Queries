@@ -388,6 +388,19 @@ defineTable(name="users_table",query={createEvents(["name=john,ph=555-1234", "na
 
 ![Screenshot 2025-03-31 at 3 23 32 PM](https://github.com/user-attachments/assets/214798f1-6707-4388-9df3-d9da045b2728)
 
+#### Inner Join() as a defineTable()
+
+* we going to use `name=john` as the inner join filter
+
+```f#
+∫defineTable(name="users_table",query={createEvents(["name=john,ph=555-1234", "name=joe,ph=555-9999", "name=sarah,ph=555-3366", "name=megan,ph=555-2244"])| kvParse() |name=john},include=[name, ph])
+| createEvents(["name=john,product=apples,cnt=12", "name=john,product=bananas,cnt=1", "name=joe,product=apples,cnt=1", "name=sarah,product=apples,cnt=1", "name=sarah,product=apples,cnt=1", "name=holly,product=apples,cnt=1"])| kvParse()
+| name=john
+| match(table=users_table, field=name, strict=false)
+```
+
+![Screenshot 2025-03-31 at 4 16 06 PM](https://github.com/user-attachments/assets/bc858f0e-ed21-4dc5-b9b1-9ca958c08d06)
+
 
 https://library.humio.com/data-analysis/query-joins-methods-adhoc-tables.html#query-joins-methods-adhoc-tables-join
 
