@@ -375,7 +375,8 @@ defineTable(name="users_table",query={createEvents(["name=john,ph=555-1234", "na
 #### Right Join() as a definedTables()
 
 * `strict=false` will return `megan` even though she does not have a `product`
-* Note: `readFile()` is used to load the dataTable. This is necessary because 2 x `defineTable()` are created. 
+* Note: `readFile()` is used to load the dataTable. This is necessary because 2 x `defineTable()` are created.
+* Lack of: There is NO longer a `@timestamp`, `@timestamp.nanos` or `@rawstring` because two tables are now being joined.
 
 ```f#
 defineTable(name="users_table",query={createEvents(["name=john,ph=555-1234", "name=joe,ph=555-9999", "name=sarah,ph=555-3366", "name=megan,ph=555-2244"])| kvParse() |ph=*},include=[name, ph])
