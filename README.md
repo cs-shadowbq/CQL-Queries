@@ -359,6 +359,8 @@ defineTable(name="USFarmers",query={country=UnitedStates},include=[name, ph])
 
 With createEvent() data.. 
 
+#### Left Join() as a defineTables()
+
 * `strict=false` will return `holly` even though she does not have a `ph`
 
 ```f#
@@ -368,6 +370,22 @@ defineTable(name="users_table",query={createEvents(["name=john,ph=555-1234", "na
 | match(table=users_table, field=name, strict=false)
 ```
 ![Screenshot 2025-03-31 at 1 13 50 PM](https://github.com/user-attachments/assets/23c541a7-6e74-4463-ab43-d1e85a59fe6f)
+
+
+#### Right Join() as a definedTables()
+
+* `strict=false` will return `megan` even though she does not have a `product`
+* Note: `readFile()` is used to load the dataTable. This is necessary because 2 x `defineTable()` are created. 
+
+```f#
+defineTable(name="users_table",query={createEvents(["name=john,ph=555-1234", "name=joe,ph=555-9999", "name=sarah,ph=555-3366", "name=megan,ph=555-2244"])| kvParse() |ph=*},include=[name, ph])
+| defineTable(name="product_table", query={createEvents(["name=john,product=apples,cnt=12", "name=john,product=bananas,cnt=1", "name=joe,product=apples,cnt=1", "name=sarah,product=apples,cnt=1", "name=sarah,product=apples,cnt=1", "name=holly,product=apples,cnt=1"])| kvParse()},include=[name,product,cnt] )
+| readFile("users_table")
+| match(table=product_table, field=name, strict=false)
+| table(fields=[name,ph,product])
+```
+
+![Screenshot 2025-03-31 at 3 23 32 PM](https://github.com/user-attachments/assets/214798f1-6707-4388-9df3-d9da045b2728)
 
 
 https://library.humio.com/data-analysis/query-joins-methods-adhoc-tables.html#query-joins-methods-adhoc-tables-join
