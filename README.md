@@ -34,28 +34,28 @@ When writing queries, it is best to follow the following process in order:
     View |      Perform any final visualization processing such as sorting or table functions.
 
 
+## Examples
 
-
-## Get all available fields in the query
+### Get all available fields in the query
 
 ```f#
 ... | fieldset() | sort(field)
 ```
 
-## Deduplicate Lines
+### Deduplicate Lines
 
 ```f#
 ... | groupBy([ComputerName], function=[tail(1)]) | ...
 ```
 
-## common sort & timestamp
+### common sort & timestamp
 
 ```f#
 | sort(field=timestamp, order=asc, limit=10000)
 | timestamp := formatTime("%Y-%m-%d %H:%M:%S", field=timestamp, locale=en_US, timezone=Z)
 ```
 
-## get just date from timestamp
+### get just date from timestamp
 
 ```f#
 | date := formatTime("%Y-%m-%d", field=@timestamp, locale=en_US, timezone=Z)
@@ -63,13 +63,15 @@ When writing queries, it is best to follow the following process in order:
 
 there are some functions that will grab the day of the only builtin
 
-## testing for a value as a filter, more than regex or equal
+### testing for a value as a filter, more than regex or equal
 
 ```f#
 | test(myFieldName<5)
 ```
 
-## Network Events - table() vs select()
+### `table()` vs `select()`
+
+ Network Events - Example
 
 ```f#
  #event_simpleName = Network*
@@ -87,9 +89,11 @@ They look extremely similar, but table() is actually and aggregation where selec
 | select([CommunityID, #event_simpleName, ComputerName, aip, LocalIP, LocalPort, RemoteIP, RemotePort, Protocol]) | rename(field="aip", as="ExternalIP")
 ```
 
+## Groupby Example
 
+### Groupby() with implied Count() 
 
-## Detections
+CrowdStrike Detections 
 
 ```f# 
 EventType="Event_ExternalApiEvent" 
@@ -99,6 +103,7 @@ EventType="Event_ExternalApiEvent"
 | sort(field=_count, order=desc)
 ```
 
+### Groupby() with collect()
 Detections with collection to show additional data without `_count`
 
 ```f#
@@ -109,14 +114,14 @@ EventType="Event_ExternalApiEvent"
 | sort(field=_count, order=desc)
 ```
 
-## More GroupBy with explict Counts
+### GroupBy() with explict count()
 
 ```f#
 "#event_simpleName" = DnsRequest
 | GroupBy(field=event_platform, function=(count()))
 ```
 
-Grouping with `count()` and `collect()` functions
+### Groupby() with `count()` and `collect()` functions
 
 ```f#
 #event_simpleName=ProcessRollup2 
@@ -127,7 +132,10 @@ Grouping with `count()` and `collect()` functions
 | groupBy([FileName], function=([count(FileName), collect([ShortFilePath, ImageFileName])]))
 | sort(_count)
 ```
-## enrichment via case
+
+## Enrichments
+
+### enrichment via case
 
 if fieldName value is equal to regex (AND n more matches) then do X (often assign a value)
 
@@ -146,7 +154,7 @@ if fieldName value is equal to regex (AND n more matches) then do X (often assig
 | default(field=behaviorWeight, value=1)
 ```
 
-## enrichment with match
+### enrichment with match
 
 `severity` of 3 means "error" so put that text in a new field `severity_level`
 
@@ -163,7 +171,8 @@ if fieldName value is equal to regex (AND n more matches) then do X (often assig
     * => * ;
   }
 ```
-## enrichment via match file
+
+### enrichment via match file
 
 file with single column of relevant data
 
@@ -177,7 +186,7 @@ file with single column of relevant data
 | aid=~match(file="aid_master_main.csv", column=[aid], include=[ProductType, Version, MAC, SystemManufacturer, SystemProductName, FirstSeen, Time], strict=false)
 ```
 
-## enrichment via join & lookup file
+### enrichment via join & lookup file
 
 ```f#
 | join(query={
@@ -186,7 +195,7 @@ file with single column of relevant data
 }, field=[tld], include=[*])
 ```
 
-## using in() to ensure the value is present?
+### using in() to ensure the value is present?
 
 ```f#
 #repo="falcon_for_it" 
@@ -202,7 +211,7 @@ file with single column of relevant data
 | in(field="event_platform", values=[Lin, Win])
 ```
 
-## Enrichment with if .. then .. else ..
+### Enrichment with if .. then .. else ..
 
 Unlike a case or match statement, the if() can be embedded into other functions and expressions.
 
@@ -220,7 +229,9 @@ if(regex("^5", field=statuscode), then="server error", else=
 | critical_status := if((in(status, values=["500", "404"])), then="Critical", else="Non-Critical")
 ```
 
-## Human Readable numbers (kb,mb,gb,tb)
+## Formatting
+
+### Human Readable numbers (kb,mb,gb,tb)
 
 ```f#
 | case {
@@ -234,6 +245,28 @@ if(regex("^5", field=statuscode), then="server error", else=
 
 ## Mask sensitive data
 
+### Using hashrewrite() and hashmatch
+
+* Replace the value in the `sensitivefield` field with the hash of the existing value, also replacing it in `@rawstring`
+
+Hide it in parsing
+
+```f#
+...
+| hashRewrite(sensitivefield, salt="mysalt")
+```
+
+Search for it in query
+
+```f#
+...
+| sensitivefield =~ hashMatch("SecretData", salt="mysalt")
+```
+
+ref: https://library.humio.com/data-analysis/functions-hashrewrite.html
+
+### Using format() with `*`
+
 print a bunch of * then the last five characters of the string
 
 ```f#
@@ -241,13 +274,19 @@ print a bunch of * then the last five characters of the string
 | format(format="*********%s", field=[last5char], as=myFieldName)
 ```
 
-masking a field you may want to save the hash the data for comparing or grouping
+### Using crypto()
+
+calculate a field you may want to save the hash the data for comparing or grouping
+
+* note `@rawstring` still has the `api_keys` value in this case. 
 
 ```f#
 | crypto:sha256([api_keys], as=key_hash)
 ```
 
-## Regex and Then negative Filter then Filter.. (seems backwards can test this) 2s 482ms
+## Negative Queries / Negation
+
+### Regex and Then negative Filter then Filter.. (seems backwards can test this) 2s 482ms
 
 ```f#
 #event_simpleName=DnsRequest
@@ -285,7 +324,7 @@ ReOrder for Effeciency 1s 800ms .. better :-)
 | groupBy([tld])
 ```
 
-## Using example data with pre-aggregated fields to cast()
+## Using example data with pre-aggregated fields to cast to Array from String
 
 SanKey Chart
 
@@ -334,9 +373,7 @@ using default(), and test()
 | test(logonCount<5)
 ```
 
-## Adhoc Tables Joining data 
-
-definetables() vs join()
+## Adhoc Tables Joining data - `defineTable()` vs `join()`
 
 In many scenarios, ad-hoc tables can be used in place of the join() function. However, LogScale generally recommends using ad-hoc tables.
 
@@ -448,7 +485,7 @@ https://library.humio.com/data-analysis/query-joins-methods-adhoc-tables.html#qu
 }, field=[tld], include=[*])
 ```
 
-# metaprogramming
+## metaprogramming
 
 use format(), setfield(), getfield(), and sometimes eval()
 
