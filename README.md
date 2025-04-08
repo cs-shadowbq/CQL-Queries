@@ -198,6 +198,9 @@ createEvents(["ipv4=17.32.15.5","ipv4=45.67.89.12","ipv4=23.45.67.89","ipv4=54.3
 | select([@timestamp, ipv4, FlagCountry, Country])
 ```
 
+![Screenshot 2025-04-08 at 4 55 34 PM](https://github.com/user-attachments/assets/15d0144a-8bc0-42f0-9f08-20e7f3c17253)
+
+
 Group by Country
 
 ```f#
@@ -211,6 +214,9 @@ createEvents(["ipv4=17.32.15.5","ipv4=45.67.89.12","ipv4=23.45.67.89","ipv4=54.3
 | groupBy([Country], function=([count(Country), collect([Country, FlagCountry, _count])]))
 | sort(_count)
 ```
+
+![Screenshot 2025-04-08 at 4 46 52 PM](https://github.com/user-attachments/assets/daed9fcf-f465-47c3-baf1-d86e9b2cc002)
+
 
 ### enrichment via join & lookup file
 
