@@ -186,6 +186,32 @@ file with single column of relevant data
 | aid=~match(file="aid_master_main.csv", column=[aid], include=[ProductType, Version, MAC, SystemManufacturer, SystemProductName, FirstSeen, Time], strict=false)
 ```
 
+#### Country Code Lookup
+
+```f#
+createEvents(["ipv4=17.32.15.5","ipv4=45.67.89.12","ipv4=23.45.67.89","ipv4=54.32.10.8","ipv4=67.89.123.4","ipv4=34.56.78.90","ipv4=98.76.54.32","ipv4=123.45.67.8","ipv4=56.78.90.12","ipv4=78.90.123.4","ipv4=89.123.45.6","ipv4=90.12.34.56","ipv4=12.34.56.78","ipv4=34.78.90.12","ipv4=45.89.123.6","ipv4=67.12.34.56","ipv4=78.45.67.89","ipv4=89.67.12.34","ipv4=90.78.45.67","ipv4=12.89.67.45","ipv4=34.90.78.12","ipv4=45.12.89.67","ipv4=67.34.90.78","ipv4=78.45.12.89","ipv4=89.67.34.90","ipv4=90.78.45.12","ipv4=12.89.67.34","ipv4=34.90.78.45","ipv4=45.12.89.90","ipv4=67.34.12.78"]) | kvParse()
+| !cidr(ipv4, subnet=["224.0.0.0/4", "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "127.0.0.0/8", "169.254.0.0/16", "0.0.0.0/32"])
+| ipLocation(ipv4)
+| match(file="cc_lookup.csv", column="ISO3166-1-Alpha-2", field=ipv4.country, include=["char", "name"], ignoreCase=true, strict=false)
+| rename(field="char", as="FlagCountry")
+| rename(field="name", as="Country")
+| select([@timestamp, ipv4, FlagCountry, Country])
+```
+
+Group by Country
+
+```f#
+createEvents(["ipv4=17.32.15.5","ipv4=45.67.89.12","ipv4=23.45.67.89","ipv4=54.32.10.8","ipv4=67.89.123.4","ipv4=34.56.78.90","ipv4=98.76.54.32","ipv4=123.45.67.8","ipv4=56.78.90.12","ipv4=78.90.123.4","ipv4=89.123.45.6","ipv4=90.12.34.56","ipv4=12.34.56.78","ipv4=34.78.90.12","ipv4=45.89.123.6","ipv4=67.12.34.56","ipv4=78.45.67.89","ipv4=89.67.12.34","ipv4=90.78.45.67","ipv4=12.89.67.45","ipv4=34.90.78.12","ipv4=45.12.89.67","ipv4=67.34.90.78","ipv4=78.45.12.89","ipv4=89.67.34.90","ipv4=90.78.45.12","ipv4=12.89.67.34","ipv4=34.90.78.45","ipv4=45.12.89.90","ipv4=67.34.12.78"]) | kvParse()
+| !cidr(ipv4, subnet=["224.0.0.0/4", "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "127.0.0.0/8", "169.254.0.0/16", "0.0.0.0/32"])
+| ipLocation(ipv4)
+| match(file="cc_lookup.csv", column="ISO3166-1-Alpha-2", field=ipv4.country, include=["char", "name"], ignoreCase=true, strict=false)
+| rename(field="char", as="FlagCountry")
+| rename(field="name", as="Country")
+| select([@timestamp, ipv4, FlagCountry, Country])
+| groupBy([Country], function=([count(Country), collect([Country, FlagCountry, _count])]))
+| sort(_count)
+```
+
 ### enrichment via join & lookup file
 
 ```f#
