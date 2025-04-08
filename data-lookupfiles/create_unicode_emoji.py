@@ -5,15 +5,29 @@
 # Usage:
 # python create_unicode_emoji.py --output emoji.csv
 
-# usage: create_unicode_emoji.py[-h][-k][-o OUTPUT]
+# usage: create_unicode_emoji.py[-h][-v][-V][--use - cached][--local - emoji - filepath LOCAL_EMOJI_FILEPATH][--local - country - codes - filepath LOCAL_COUNTRY_CODES_FILEPATH]
+# [-k][-j][-o OUTPUT][-x]
 #
-# Download and process emoji data.
+# Create a country code lookup files for ISO3166 - 1 Alpha2 and Alpha3 to Emoji(15.1.0) Country Flags and TLD.
 #
 # options:
-#  -h, --help            show this help message and exit
-#  -k, --ignore - ssl      Ignore SSL certificate warnings
-#  -o OUTPUT, --output OUTPUT
-#  Output CSV file name
+#   -h, --help            show this help message and exit
+#   -v, --verbose         Enable verbose output
+#   -V, --version         Show version number and exit
+#
+# Fetch options:
+#   --use - cached          Use local emoji and country - codes files if available
+#   --local - emoji - filepath LOCAL_EMOJI_FILEPATH
+#   Use local emoji.json file if available
+#   --local - country - codes - filepath LOCAL_COUNTRY_CODES_FILEPATH
+#   Use local country - codes.csv file if available
+#   -k, --ignore - ssl      Ignore SSL certificate warnings
+#
+# Output options:
+#   -j, --json            Output JSON file instead of CSV
+#   -o OUTPUT, --output OUTPUT
+#   Output file name default: cc_lookup.csv or cc_lookup.json
+#   -x, --no - cleanup      Do not delete downloaded files after processing
 
 # Summary:
 # The output file will be created in the current directory with the name emoji.csv by default
@@ -45,7 +59,7 @@ import argparse
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-VERSION = "1.0"
+VERSION = "1.0.1"
 EMOJI_VERSION = "15.1.0"
 
 # Set up logging
@@ -376,7 +390,7 @@ def main():
 
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument('-v', '--verbose', action='store_true', default=False, help='Enable verbose output')
-    parser.add_argument('-V', '--version', action='version', version='%(prog)s ' + VERSION, help='Show version number and exit')
+    parser.add_argument('-V', '--version', action='version', version='%(prog)s ' + VERSION + ' - EMOJI (v' + EMOJI_VERSION + ')', help='Show version number and exit')
 
     fetch = parser.add_argument_group('Fetch options')
     # use local file if available
