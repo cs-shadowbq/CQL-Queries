@@ -1,0 +1,2351 @@
+[
+    {
+        "char": "🇦🇨",
+        "name": "Ascension Island",
+        "region_name": "Africa",
+        "sub_region_name": "Sub-Saharan Africa",
+        "ISO3166-1-Alpha-2": "AC",
+        "ISO3166-1-Alpha-3": "ASC",
+        "tld": ".ac"
+    },
+    {
+        "char": "🇦🇩",
+        "name": "Andorra",
+        "region_name": "Europe",
+        "sub_region_name": "Southern Europe",
+        "ISO3166-1-Alpha-2": "AD",
+        "ISO3166-1-Alpha-3": "AND",
+        "tld": ".ad"
+    },
+    {
+        "char": "🇦🇪",
+        "name": "United Arab Emirates",
+        "region_name": "Asia",
+        "sub_region_name": "Western Asia",
+        "ISO3166-1-Alpha-2": "AE",
+        "ISO3166-1-Alpha-3": "ARE",
+        "tld": ".ae"
+    },
+    {
+        "char": "🇦🇫",
+        "name": "Afghanistan",
+        "region_name": "Asia",
+        "sub_region_name": "Southern Asia",
+        "ISO3166-1-Alpha-2": "AF",
+        "ISO3166-1-Alpha-3": "AFG",
+        "tld": ".af"
+    },
+    {
+        "char": "🇦🇬",
+        "name": "Antigua & Barbuda",
+        "region_name": "Americas",
+        "sub_region_name": "Latin America and the Caribbean",
+        "ISO3166-1-Alpha-2": "AG",
+        "ISO3166-1-Alpha-3": "ATG",
+        "tld": ".ag"
+    },
+    {
+        "char": "🇦🇮",
+        "name": "Anguilla",
+        "region_name": "Americas",
+        "sub_region_name": "Latin America and the Caribbean",
+        "ISO3166-1-Alpha-2": "AI",
+        "ISO3166-1-Alpha-3": "AIA",
+        "tld": ".ai"
+    },
+    {
+        "char": "🇦🇱",
+        "name": "Albania",
+        "region_name": "Europe",
+        "sub_region_name": "Southern Europe",
+        "ISO3166-1-Alpha-2": "AL",
+        "ISO3166-1-Alpha-3": "ALB",
+        "tld": ".al"
+    },
+    {
+        "char": "🇦🇲",
+        "name": "Armenia",
+        "region_name": "Asia",
+        "sub_region_name": "Western Asia",
+        "ISO3166-1-Alpha-2": "AM",
+        "ISO3166-1-Alpha-3": "ARM",
+        "tld": ".am"
+    },
+    {
+        "char": "🇦🇴",
+        "name": "Angola",
+        "region_name": "Africa",
+        "sub_region_name": "Sub-Saharan Africa",
+        "ISO3166-1-Alpha-2": "AO",
+        "ISO3166-1-Alpha-3": "AGO",
+        "tld": ".ao"
+    },
+    {
+        "char": "🇦🇶",
+        "name": "Antarctica",
+        "region_name": "Antarctica",
+        "sub_region_name": "Antarctica",
+        "ISO3166-1-Alpha-2": "AQ",
+        "ISO3166-1-Alpha-3": "ATA",
+        "tld": ".aq"
+    },
+    {
+        "char": "🇦🇷",
+        "name": "Argentina",
+        "region_name": "Americas",
+        "sub_region_name": "Latin America and the Caribbean",
+        "ISO3166-1-Alpha-2": "AR",
+        "ISO3166-1-Alpha-3": "ARG",
+        "tld": ".ar"
+    },
+    {
+        "char": "🇦🇸",
+        "name": "American Samoa",
+        "region_name": "Oceania",
+        "sub_region_name": "Polynesia",
+        "ISO3166-1-Alpha-2": "AS",
+        "ISO3166-1-Alpha-3": "ASM",
+        "tld": ".as"
+    },
+    {
+        "char": "🇦🇹",
+        "name": "Austria",
+        "region_name": "Europe",
+        "sub_region_name": "Western Europe",
+        "ISO3166-1-Alpha-2": "AT",
+        "ISO3166-1-Alpha-3": "AUT",
+        "tld": ".at"
+    },
+    {
+        "char": "🇦🇺",
+        "name": "Australia",
+        "region_name": "Oceania",
+        "sub_region_name": "Australia and New Zealand",
+        "ISO3166-1-Alpha-2": "AU",
+        "ISO3166-1-Alpha-3": "AUS",
+        "tld": ".au"
+    },
+    {
+        "char": "🇦🇼",
+        "name": "Aruba",
+        "region_name": "Americas",
+        "sub_region_name": "Latin America and the Caribbean",
+        "ISO3166-1-Alpha-2": "AW",
+        "ISO3166-1-Alpha-3": "ABW",
+        "tld": ".aw"
+    },
+    {
+        "char": "🇦🇽",
+        "name": "Åland Islands",
+        "region_name": "Europe",
+        "sub_region_name": "Northern Europe",
+        "ISO3166-1-Alpha-2": "AX",
+        "ISO3166-1-Alpha-3": "ALA",
+        "tld": ".ax"
+    },
+    {
+        "char": "🇦🇿",
+        "name": "Azerbaijan",
+        "region_name": "Asia",
+        "sub_region_name": "Western Asia",
+        "ISO3166-1-Alpha-2": "AZ",
+        "ISO3166-1-Alpha-3": "AZE",
+        "tld": ".az"
+    },
+    {
+        "char": "🇧🇦",
+        "name": "Bosnia & Herzegovina",
+        "region_name": "Europe",
+        "sub_region_name": "Southern Europe",
+        "ISO3166-1-Alpha-2": "BA",
+        "ISO3166-1-Alpha-3": "BIH",
+        "tld": ".ba"
+    },
+    {
+        "char": "🇧🇧",
+        "name": "Barbados",
+        "region_name": "Americas",
+        "sub_region_name": "Latin America and the Caribbean",
+        "ISO3166-1-Alpha-2": "BB",
+        "ISO3166-1-Alpha-3": "BRB",
+        "tld": ".bb"
+    },
+    {
+        "char": "🇧🇩",
+        "name": "Bangladesh",
+        "region_name": "Asia",
+        "sub_region_name": "Southern Asia",
+        "ISO3166-1-Alpha-2": "BD",
+        "ISO3166-1-Alpha-3": "BGD",
+        "tld": ".bd"
+    },
+    {
+        "char": "🇧🇪",
+        "name": "Belgium",
+        "region_name": "Europe",
+        "sub_region_name": "Western Europe",
+        "ISO3166-1-Alpha-2": "BE",
+        "ISO3166-1-Alpha-3": "BEL",
+        "tld": ".be"
+    },
+    {
+        "char": "🇧🇫",
+        "name": "Burkina Faso",
+        "region_name": "Africa",
+        "sub_region_name": "Sub-Saharan Africa",
+        "ISO3166-1-Alpha-2": "BF",
+        "ISO3166-1-Alpha-3": "BFA",
+        "tld": ".bf"
+    },
+    {
+        "char": "🇧🇬",
+        "name": "Bulgaria",
+        "region_name": "Europe",
+        "sub_region_name": "Eastern Europe",
+        "ISO3166-1-Alpha-2": "BG",
+        "ISO3166-1-Alpha-3": "BGR",
+        "tld": ".bg"
+    },
+    {
+        "char": "🇧🇭",
+        "name": "Bahrain",
+        "region_name": "Asia",
+        "sub_region_name": "Western Asia",
+        "ISO3166-1-Alpha-2": "BH",
+        "ISO3166-1-Alpha-3": "BHR",
+        "tld": ".bh"
+    },
+    {
+        "char": "🇧🇮",
+        "name": "Burundi",
+        "region_name": "Africa",
+        "sub_region_name": "Sub-Saharan Africa",
+        "ISO3166-1-Alpha-2": "BI",
+        "ISO3166-1-Alpha-3": "BDI",
+        "tld": ".bi"
+    },
+    {
+        "char": "🇧🇯",
+        "name": "Benin",
+        "region_name": "Africa",
+        "sub_region_name": "Sub-Saharan Africa",
+        "ISO3166-1-Alpha-2": "BJ",
+        "ISO3166-1-Alpha-3": "BEN",
+        "tld": ".bj"
+    },
+    {
+        "char": "🇧🇱",
+        "name": "St. Barthélemy",
+        "region_name": "Americas",
+        "sub_region_name": "Latin America and the Caribbean",
+        "ISO3166-1-Alpha-2": "BL",
+        "ISO3166-1-Alpha-3": "BLM",
+        "tld": ".gp"
+    },
+    {
+        "char": "🇧🇲",
+        "name": "Bermuda",
+        "region_name": "Americas",
+        "sub_region_name": "Northern America",
+        "ISO3166-1-Alpha-2": "BM",
+        "ISO3166-1-Alpha-3": "BMU",
+        "tld": ".bm"
+    },
+    {
+        "char": "🇧🇳",
+        "name": "Brunei",
+        "region_name": "Asia",
+        "sub_region_name": "South-eastern Asia",
+        "ISO3166-1-Alpha-2": "BN",
+        "ISO3166-1-Alpha-3": "BRN",
+        "tld": ".bn"
+    },
+    {
+        "char": "🇧🇴",
+        "name": "Bolivia",
+        "region_name": "Americas",
+        "sub_region_name": "Latin America and the Caribbean",
+        "ISO3166-1-Alpha-2": "BO",
+        "ISO3166-1-Alpha-3": "BOL",
+        "tld": ".bo"
+    },
+    {
+        "char": "🇧🇶",
+        "name": "Caribbean Netherlands",
+        "region_name": "Americas",
+        "sub_region_name": "Latin America and the Caribbean",
+        "ISO3166-1-Alpha-2": "BQ",
+        "ISO3166-1-Alpha-3": "BES",
+        "tld": ".bq"
+    },
+    {
+        "char": "🇧🇷",
+        "name": "Brazil",
+        "region_name": "Americas",
+        "sub_region_name": "Latin America and the Caribbean",
+        "ISO3166-1-Alpha-2": "BR",
+        "ISO3166-1-Alpha-3": "BRA",
+        "tld": ".br"
+    },
+    {
+        "char": "🇧🇸",
+        "name": "Bahamas",
+        "region_name": "Americas",
+        "sub_region_name": "Latin America and the Caribbean",
+        "ISO3166-1-Alpha-2": "BS",
+        "ISO3166-1-Alpha-3": "BHS",
+        "tld": ".bs"
+    },
+    {
+        "char": "🇧🇹",
+        "name": "Bhutan",
+        "region_name": "Asia",
+        "sub_region_name": "Southern Asia",
+        "ISO3166-1-Alpha-2": "BT",
+        "ISO3166-1-Alpha-3": "BTN",
+        "tld": ".bt"
+    },
+    {
+        "char": "🇧🇻",
+        "name": "Bouvet Island",
+        "region_name": "Americas",
+        "sub_region_name": "Latin America and the Caribbean",
+        "ISO3166-1-Alpha-2": "BV",
+        "ISO3166-1-Alpha-3": "BVT",
+        "tld": ".bv"
+    },
+    {
+        "char": "🇧🇼",
+        "name": "Botswana",
+        "region_name": "Africa",
+        "sub_region_name": "Sub-Saharan Africa",
+        "ISO3166-1-Alpha-2": "BW",
+        "ISO3166-1-Alpha-3": "BWA",
+        "tld": ".bw"
+    },
+    {
+        "char": "🇧🇾",
+        "name": "Belarus",
+        "region_name": "Europe",
+        "sub_region_name": "Eastern Europe",
+        "ISO3166-1-Alpha-2": "BY",
+        "ISO3166-1-Alpha-3": "BLR",
+        "tld": ".by"
+    },
+    {
+        "char": "🇧🇿",
+        "name": "Belize",
+        "region_name": "Americas",
+        "sub_region_name": "Latin America and the Caribbean",
+        "ISO3166-1-Alpha-2": "BZ",
+        "ISO3166-1-Alpha-3": "BLZ",
+        "tld": ".bz"
+    },
+    {
+        "char": "🇨🇦",
+        "name": "Canada",
+        "region_name": "Americas",
+        "sub_region_name": "Northern America",
+        "ISO3166-1-Alpha-2": "CA",
+        "ISO3166-1-Alpha-3": "CAN",
+        "tld": ".ca"
+    },
+    {
+        "char": "🇨🇨",
+        "name": "Cocos (Keeling) Islands",
+        "region_name": "Oceania",
+        "sub_region_name": "Australia and New Zealand",
+        "ISO3166-1-Alpha-2": "CC",
+        "ISO3166-1-Alpha-3": "CCK",
+        "tld": ".cc"
+    },
+    {
+        "char": "🇨🇩",
+        "name": "Congo - Kinshasa",
+        "region_name": "Africa",
+        "sub_region_name": "Sub-Saharan Africa",
+        "ISO3166-1-Alpha-2": "CD",
+        "ISO3166-1-Alpha-3": "COD",
+        "tld": ".cd"
+    },
+    {
+        "char": "🇨🇫",
+        "name": "Central African Republic",
+        "region_name": "Africa",
+        "sub_region_name": "Sub-Saharan Africa",
+        "ISO3166-1-Alpha-2": "CF",
+        "ISO3166-1-Alpha-3": "CAF",
+        "tld": ".cf"
+    },
+    {
+        "char": "🇨🇬",
+        "name": "Congo - Brazzaville",
+        "region_name": "Africa",
+        "sub_region_name": "Sub-Saharan Africa",
+        "ISO3166-1-Alpha-2": "CG",
+        "ISO3166-1-Alpha-3": "COG",
+        "tld": ".cg"
+    },
+    {
+        "char": "🇨🇭",
+        "name": "Switzerland",
+        "region_name": "Europe",
+        "sub_region_name": "Western Europe",
+        "ISO3166-1-Alpha-2": "CH",
+        "ISO3166-1-Alpha-3": "CHE",
+        "tld": ".ch"
+    },
+    {
+        "char": "🇨🇮",
+        "name": "Côte d’Ivoire",
+        "region_name": "Africa",
+        "sub_region_name": "Sub-Saharan Africa",
+        "ISO3166-1-Alpha-2": "CI",
+        "ISO3166-1-Alpha-3": "CIV",
+        "tld": ".ci"
+    },
+    {
+        "char": "🇨🇰",
+        "name": "Cook Islands",
+        "region_name": "Oceania",
+        "sub_region_name": "Polynesia",
+        "ISO3166-1-Alpha-2": "CK",
+        "ISO3166-1-Alpha-3": "COK",
+        "tld": ".ck"
+    },
+    {
+        "char": "🇨🇱",
+        "name": "Chile",
+        "region_name": "Americas",
+        "sub_region_name": "Latin America and the Caribbean",
+        "ISO3166-1-Alpha-2": "CL",
+        "ISO3166-1-Alpha-3": "CHL",
+        "tld": ".cl"
+    },
+    {
+        "char": "🇨🇲",
+        "name": "Cameroon",
+        "region_name": "Africa",
+        "sub_region_name": "Sub-Saharan Africa",
+        "ISO3166-1-Alpha-2": "CM",
+        "ISO3166-1-Alpha-3": "CMR",
+        "tld": ".cm"
+    },
+    {
+        "char": "🇨🇳",
+        "name": "China",
+        "region_name": "Asia",
+        "sub_region_name": "Eastern Asia",
+        "ISO3166-1-Alpha-2": "CN",
+        "ISO3166-1-Alpha-3": "CHN",
+        "tld": ".cn"
+    },
+    {
+        "char": "🇨🇴",
+        "name": "Colombia",
+        "region_name": "Americas",
+        "sub_region_name": "Latin America and the Caribbean",
+        "ISO3166-1-Alpha-2": "CO",
+        "ISO3166-1-Alpha-3": "COL",
+        "tld": ".co"
+    },
+    {
+        "char": "🇨🇵",
+        "name": "Clipperton Island",
+        "region_name": "North America",
+        "sub_region_name": "Caribbean",
+        "ISO3166-1-Alpha-2": "CP",
+        "ISO3166-1-Alpha-3": "CPT",
+        "tld": ".cp"
+    },
+    {
+        "char": "🇨🇷",
+        "name": "Costa Rica",
+        "region_name": "Americas",
+        "sub_region_name": "Latin America and the Caribbean",
+        "ISO3166-1-Alpha-2": "CR",
+        "ISO3166-1-Alpha-3": "CRI",
+        "tld": ".cr"
+    },
+    {
+        "char": "🇨🇺",
+        "name": "Cuba",
+        "region_name": "Americas",
+        "sub_region_name": "Latin America and the Caribbean",
+        "ISO3166-1-Alpha-2": "CU",
+        "ISO3166-1-Alpha-3": "CUB",
+        "tld": ".cu"
+    },
+    {
+        "char": "🇨🇻",
+        "name": "Cape Verde",
+        "region_name": "Africa",
+        "sub_region_name": "Sub-Saharan Africa",
+        "ISO3166-1-Alpha-2": "CV",
+        "ISO3166-1-Alpha-3": "CPV",
+        "tld": ".cv"
+    },
+    {
+        "char": "🇨🇼",
+        "name": "Curaçao",
+        "region_name": "Americas",
+        "sub_region_name": "Latin America and the Caribbean",
+        "ISO3166-1-Alpha-2": "CW",
+        "ISO3166-1-Alpha-3": "CUW",
+        "tld": ".cw"
+    },
+    {
+        "char": "🇨🇽",
+        "name": "Christmas Island",
+        "region_name": "Oceania",
+        "sub_region_name": "Australia and New Zealand",
+        "ISO3166-1-Alpha-2": "CX",
+        "ISO3166-1-Alpha-3": "CXR",
+        "tld": ".cx"
+    },
+    {
+        "char": "🇨🇾",
+        "name": "Cyprus",
+        "region_name": "Asia",
+        "sub_region_name": "Western Asia",
+        "ISO3166-1-Alpha-2": "CY",
+        "ISO3166-1-Alpha-3": "CYP",
+        "tld": ".cy"
+    },
+    {
+        "char": "🇨🇿",
+        "name": "Czechia",
+        "region_name": "Europe",
+        "sub_region_name": "Eastern Europe",
+        "ISO3166-1-Alpha-2": "CZ",
+        "ISO3166-1-Alpha-3": "CZE",
+        "tld": ".cz"
+    },
+    {
+        "char": "🇩🇪",
+        "name": "Germany",
+        "region_name": "Europe",
+        "sub_region_name": "Western Europe",
+        "ISO3166-1-Alpha-2": "DE",
+        "ISO3166-1-Alpha-3": "DEU",
+        "tld": ".de"
+    },
+    {
+        "char": "🇩🇬",
+        "name": "Diego Garcia",
+        "region_name": "Africa",
+        "sub_region_name": "Sub-Saharan Africa",
+        "ISO3166-1-Alpha-2": "DG",
+        "ISO3166-1-Alpha-3": "DGA",
+        "tld": ".dg"
+    },
+    {
+        "char": "🇩🇯",
+        "name": "Djibouti",
+        "region_name": "Africa",
+        "sub_region_name": "Sub-Saharan Africa",
+        "ISO3166-1-Alpha-2": "DJ",
+        "ISO3166-1-Alpha-3": "DJI",
+        "tld": ".dj"
+    },
+    {
+        "char": "🇩🇰",
+        "name": "Denmark",
+        "region_name": "Europe",
+        "sub_region_name": "Northern Europe",
+        "ISO3166-1-Alpha-2": "DK",
+        "ISO3166-1-Alpha-3": "DNK",
+        "tld": ".dk"
+    },
+    {
+        "char": "🇩🇲",
+        "name": "Dominica",
+        "region_name": "Americas",
+        "sub_region_name": "Latin America and the Caribbean",
+        "ISO3166-1-Alpha-2": "DM",
+        "ISO3166-1-Alpha-3": "DMA",
+        "tld": ".dm"
+    },
+    {
+        "char": "🇩🇴",
+        "name": "Dominican Republic",
+        "region_name": "Americas",
+        "sub_region_name": "Latin America and the Caribbean",
+        "ISO3166-1-Alpha-2": "DO",
+        "ISO3166-1-Alpha-3": "DOM",
+        "tld": ".do"
+    },
+    {
+        "char": "🇩🇿",
+        "name": "Algeria",
+        "region_name": "Africa",
+        "sub_region_name": "Northern Africa",
+        "ISO3166-1-Alpha-2": "DZ",
+        "ISO3166-1-Alpha-3": "DZA",
+        "tld": ".dz"
+    },
+    {
+        "char": "🇪🇦",
+        "name": "Ceuta & Melilla",
+        "region_name": "Europe",
+        "sub_region_name": "Southern Europe",
+        "ISO3166-1-Alpha-2": "ES-CE",
+        "ISO3166-1-Alpha-3": "ESM",
+        "tld": ".es"
+    },
+    {
+        "char": "🇪🇨",
+        "name": "Ecuador",
+        "region_name": "Americas",
+        "sub_region_name": "Latin America and the Caribbean",
+        "ISO3166-1-Alpha-2": "EC",
+        "ISO3166-1-Alpha-3": "ECU",
+        "tld": ".ec"
+    },
+    {
+        "char": "🇪🇪",
+        "name": "Estonia",
+        "region_name": "Europe",
+        "sub_region_name": "Northern Europe",
+        "ISO3166-1-Alpha-2": "EE",
+        "ISO3166-1-Alpha-3": "EST",
+        "tld": ".ee"
+    },
+    {
+        "char": "🇪🇬",
+        "name": "Egypt",
+        "region_name": "Africa",
+        "sub_region_name": "Northern Africa",
+        "ISO3166-1-Alpha-2": "EG",
+        "ISO3166-1-Alpha-3": "EGY",
+        "tld": ".eg"
+    },
+    {
+        "char": "🇪🇭",
+        "name": "Western Sahara",
+        "region_name": "Africa",
+        "sub_region_name": "Northern Africa",
+        "ISO3166-1-Alpha-2": "EH",
+        "ISO3166-1-Alpha-3": "ESH",
+        "tld": ".eh"
+    },
+    {
+        "char": "🇪🇷",
+        "name": "Eritrea",
+        "region_name": "Africa",
+        "sub_region_name": "Sub-Saharan Africa",
+        "ISO3166-1-Alpha-2": "ER",
+        "ISO3166-1-Alpha-3": "ERI",
+        "tld": ".er"
+    },
+    {
+        "char": "🇪🇸",
+        "name": "Spain",
+        "region_name": "Europe",
+        "sub_region_name": "Southern Europe",
+        "ISO3166-1-Alpha-2": "ES",
+        "ISO3166-1-Alpha-3": "ESP",
+        "tld": ".es"
+    },
+    {
+        "char": "🇪🇹",
+        "name": "Ethiopia",
+        "region_name": "Africa",
+        "sub_region_name": "Sub-Saharan Africa",
+        "ISO3166-1-Alpha-2": "ET",
+        "ISO3166-1-Alpha-3": "ETH",
+        "tld": ".et"
+    },
+    {
+        "char": "🇪🇺",
+        "name": "European Union",
+        "region_name": "Europe",
+        "sub_region_name": "Northern Europe",
+        "ISO3166-1-Alpha-2": "EU",
+        "ISO3166-1-Alpha-3": "EUN",
+        "tld": ".eu"
+    },
+    {
+        "char": "🇫🇮",
+        "name": "Finland",
+        "region_name": "Europe",
+        "sub_region_name": "Northern Europe",
+        "ISO3166-1-Alpha-2": "FI",
+        "ISO3166-1-Alpha-3": "FIN",
+        "tld": ".fi"
+    },
+    {
+        "char": "🇫🇯",
+        "name": "Fiji",
+        "region_name": "Oceania",
+        "sub_region_name": "Melanesia",
+        "ISO3166-1-Alpha-2": "FJ",
+        "ISO3166-1-Alpha-3": "FJI",
+        "tld": ".fj"
+    },
+    {
+        "char": "🇫🇰",
+        "name": "Falkland Islands",
+        "region_name": "Americas",
+        "sub_region_name": "Latin America and the Caribbean",
+        "ISO3166-1-Alpha-2": "FK",
+        "ISO3166-1-Alpha-3": "FLK",
+        "tld": ".fk"
+    },
+    {
+        "char": "🇫🇲",
+        "name": "Micronesia",
+        "region_name": "Oceania",
+        "sub_region_name": "Micronesia",
+        "ISO3166-1-Alpha-2": "FM",
+        "ISO3166-1-Alpha-3": "FSM",
+        "tld": ".fm"
+    },
+    {
+        "char": "🇫🇴",
+        "name": "Faroe Islands",
+        "region_name": "Europe",
+        "sub_region_name": "Northern Europe",
+        "ISO3166-1-Alpha-2": "FO",
+        "ISO3166-1-Alpha-3": "FRO",
+        "tld": ".fo"
+    },
+    {
+        "char": "🇫🇷",
+        "name": "France",
+        "region_name": "Europe",
+        "sub_region_name": "Western Europe",
+        "ISO3166-1-Alpha-2": "FR",
+        "ISO3166-1-Alpha-3": "FRA",
+        "tld": ".fr"
+    },
+    {
+        "char": "🇬🇦",
+        "name": "Gabon",
+        "region_name": "Africa",
+        "sub_region_name": "Sub-Saharan Africa",
+        "ISO3166-1-Alpha-2": "GA",
+        "ISO3166-1-Alpha-3": "GAB",
+        "tld": ".ga"
+    },
+    {
+        "char": "🇬🇧",
+        "name": "United Kingdom",
+        "region_name": "Europe",
+        "sub_region_name": "Northern Europe",
+        "ISO3166-1-Alpha-2": "GB",
+        "ISO3166-1-Alpha-3": "GBR",
+        "tld": ".uk"
+    },
+    {
+        "char": "🇬🇩",
+        "name": "Grenada",
+        "region_name": "Americas",
+        "sub_region_name": "Latin America and the Caribbean",
+        "ISO3166-1-Alpha-2": "GD",
+        "ISO3166-1-Alpha-3": "GRD",
+        "tld": ".gd"
+    },
+    {
+        "char": "🇬🇪",
+        "name": "Georgia",
+        "region_name": "Asia",
+        "sub_region_name": "Western Asia",
+        "ISO3166-1-Alpha-2": "GE",
+        "ISO3166-1-Alpha-3": "GEO",
+        "tld": ".ge"
+    },
+    {
+        "char": "🇬🇫",
+        "name": "French Guiana",
+        "region_name": "Americas",
+        "sub_region_name": "Latin America and the Caribbean",
+        "ISO3166-1-Alpha-2": "GF",
+        "ISO3166-1-Alpha-3": "GUF",
+        "tld": ".gf"
+    },
+    {
+        "char": "🇬🇬",
+        "name": "Guernsey",
+        "region_name": "Europe",
+        "sub_region_name": "Northern Europe",
+        "ISO3166-1-Alpha-2": "GG",
+        "ISO3166-1-Alpha-3": "GGY",
+        "tld": ".gg"
+    },
+    {
+        "char": "🇬🇭",
+        "name": "Ghana",
+        "region_name": "Africa",
+        "sub_region_name": "Sub-Saharan Africa",
+        "ISO3166-1-Alpha-2": "GH",
+        "ISO3166-1-Alpha-3": "GHA",
+        "tld": ".gh"
+    },
+    {
+        "char": "🇬🇮",
+        "name": "Gibraltar",
+        "region_name": "Europe",
+        "sub_region_name": "Southern Europe",
+        "ISO3166-1-Alpha-2": "GI",
+        "ISO3166-1-Alpha-3": "GIB",
+        "tld": ".gi"
+    },
+    {
+        "char": "🇬🇱",
+        "name": "Greenland",
+        "region_name": "Americas",
+        "sub_region_name": "Northern America",
+        "ISO3166-1-Alpha-2": "GL",
+        "ISO3166-1-Alpha-3": "GRL",
+        "tld": ".gl"
+    },
+    {
+        "char": "🇬🇲",
+        "name": "Gambia",
+        "region_name": "Africa",
+        "sub_region_name": "Sub-Saharan Africa",
+        "ISO3166-1-Alpha-2": "GM",
+        "ISO3166-1-Alpha-3": "GMB",
+        "tld": ".gm"
+    },
+    {
+        "char": "🇬🇳",
+        "name": "Guinea",
+        "region_name": "Africa",
+        "sub_region_name": "Sub-Saharan Africa",
+        "ISO3166-1-Alpha-2": "GN",
+        "ISO3166-1-Alpha-3": "GIN",
+        "tld": ".gn"
+    },
+    {
+        "char": "🇬🇵",
+        "name": "Guadeloupe",
+        "region_name": "Americas",
+        "sub_region_name": "Latin America and the Caribbean",
+        "ISO3166-1-Alpha-2": "GP",
+        "ISO3166-1-Alpha-3": "GLP",
+        "tld": ".gp"
+    },
+    {
+        "char": "🇬🇶",
+        "name": "Equatorial Guinea",
+        "region_name": "Africa",
+        "sub_region_name": "Sub-Saharan Africa",
+        "ISO3166-1-Alpha-2": "GQ",
+        "ISO3166-1-Alpha-3": "GNQ",
+        "tld": ".gq"
+    },
+    {
+        "char": "🇬🇷",
+        "name": "Greece",
+        "region_name": "Europe",
+        "sub_region_name": "Southern Europe",
+        "ISO3166-1-Alpha-2": "GR",
+        "ISO3166-1-Alpha-3": "GRC",
+        "tld": ".gr"
+    },
+    {
+        "char": "🇬🇸",
+        "name": "South Georgia & South Sandwich Islands",
+        "region_name": "Americas",
+        "sub_region_name": "Latin America and the Caribbean",
+        "ISO3166-1-Alpha-2": "GS",
+        "ISO3166-1-Alpha-3": "SGS",
+        "tld": ".gs"
+    },
+    {
+        "char": "🇬🇹",
+        "name": "Guatemala",
+        "region_name": "Americas",
+        "sub_region_name": "Latin America and the Caribbean",
+        "ISO3166-1-Alpha-2": "GT",
+        "ISO3166-1-Alpha-3": "GTM",
+        "tld": ".gt"
+    },
+    {
+        "char": "🇬🇺",
+        "name": "Guam",
+        "region_name": "Oceania",
+        "sub_region_name": "Micronesia",
+        "ISO3166-1-Alpha-2": "GU",
+        "ISO3166-1-Alpha-3": "GUM",
+        "tld": ".gu"
+    },
+    {
+        "char": "🇬🇼",
+        "name": "Guinea-Bissau",
+        "region_name": "Africa",
+        "sub_region_name": "Sub-Saharan Africa",
+        "ISO3166-1-Alpha-2": "GW",
+        "ISO3166-1-Alpha-3": "GNB",
+        "tld": ".gw"
+    },
+    {
+        "char": "🇬🇾",
+        "name": "Guyana",
+        "region_name": "Americas",
+        "sub_region_name": "Latin America and the Caribbean",
+        "ISO3166-1-Alpha-2": "GY",
+        "ISO3166-1-Alpha-3": "GUY",
+        "tld": ".gy"
+    },
+    {
+        "char": "🇭🇰",
+        "name": "Hong Kong SAR China",
+        "region_name": "Asia",
+        "sub_region_name": "Eastern Asia",
+        "ISO3166-1-Alpha-2": "HK",
+        "ISO3166-1-Alpha-3": "HKG",
+        "tld": ".hk"
+    },
+    {
+        "char": "🇭🇲",
+        "name": "Heard & McDonald Islands",
+        "region_name": "Oceania",
+        "sub_region_name": "Australia and New Zealand",
+        "ISO3166-1-Alpha-2": "HM",
+        "ISO3166-1-Alpha-3": "HMD",
+        "tld": ".hm"
+    },
+    {
+        "char": "🇭🇳",
+        "name": "Honduras",
+        "region_name": "Americas",
+        "sub_region_name": "Latin America and the Caribbean",
+        "ISO3166-1-Alpha-2": "HN",
+        "ISO3166-1-Alpha-3": "HND",
+        "tld": ".hn"
+    },
+    {
+        "char": "🇭🇷",
+        "name": "Croatia",
+        "region_name": "Europe",
+        "sub_region_name": "Southern Europe",
+        "ISO3166-1-Alpha-2": "HR",
+        "ISO3166-1-Alpha-3": "HRV",
+        "tld": ".hr"
+    },
+    {
+        "char": "🇭🇹",
+        "name": "Haiti",
+        "region_name": "Americas",
+        "sub_region_name": "Latin America and the Caribbean",
+        "ISO3166-1-Alpha-2": "HT",
+        "ISO3166-1-Alpha-3": "HTI",
+        "tld": ".ht"
+    },
+    {
+        "char": "🇭🇺",
+        "name": "Hungary",
+        "region_name": "Europe",
+        "sub_region_name": "Eastern Europe",
+        "ISO3166-1-Alpha-2": "HU",
+        "ISO3166-1-Alpha-3": "HUN",
+        "tld": ".hu"
+    },
+    {
+        "char": "🇮🇨",
+        "name": "Canary Islands",
+        "region_name": "Europe",
+        "sub_region_name": "Southern Europe",
+        "ISO3166-1-Alpha-2": "ES-CN",
+        "ISO3166-1-Alpha-3": "CNY",
+        "tld": null
+    },
+    {
+        "char": "🇮🇩",
+        "name": "Indonesia",
+        "region_name": "Asia",
+        "sub_region_name": "South-eastern Asia",
+        "ISO3166-1-Alpha-2": "ID",
+        "ISO3166-1-Alpha-3": "IDN",
+        "tld": ".id"
+    },
+    {
+        "char": "🇮🇪",
+        "name": "Ireland",
+        "region_name": "Europe",
+        "sub_region_name": "Northern Europe",
+        "ISO3166-1-Alpha-2": "IE",
+        "ISO3166-1-Alpha-3": "IRL",
+        "tld": ".ie"
+    },
+    {
+        "char": "🇮🇱",
+        "name": "Israel",
+        "region_name": "Asia",
+        "sub_region_name": "Western Asia",
+        "ISO3166-1-Alpha-2": "IL",
+        "ISO3166-1-Alpha-3": "ISR",
+        "tld": ".il"
+    },
+    {
+        "char": "🇮🇲",
+        "name": "Isle of Man",
+        "region_name": "Europe",
+        "sub_region_name": "Northern Europe",
+        "ISO3166-1-Alpha-2": "IM",
+        "ISO3166-1-Alpha-3": "IMN",
+        "tld": ".im"
+    },
+    {
+        "char": "🇮🇳",
+        "name": "India",
+        "region_name": "Asia",
+        "sub_region_name": "Southern Asia",
+        "ISO3166-1-Alpha-2": "IN",
+        "ISO3166-1-Alpha-3": "IND",
+        "tld": ".in"
+    },
+    {
+        "char": "🇮🇴",
+        "name": "British Indian Ocean Territory",
+        "region_name": "Africa",
+        "sub_region_name": "Sub-Saharan Africa",
+        "ISO3166-1-Alpha-2": "IO",
+        "ISO3166-1-Alpha-3": "IOT",
+        "tld": ".io"
+    },
+    {
+        "char": "🇮🇶",
+        "name": "Iraq",
+        "region_name": "Asia",
+        "sub_region_name": "Western Asia",
+        "ISO3166-1-Alpha-2": "IQ",
+        "ISO3166-1-Alpha-3": "IRQ",
+        "tld": ".iq"
+    },
+    {
+        "char": "🇮🇷",
+        "name": "Iran",
+        "region_name": "Asia",
+        "sub_region_name": "Southern Asia",
+        "ISO3166-1-Alpha-2": "IR",
+        "ISO3166-1-Alpha-3": "IRN",
+        "tld": ".ir"
+    },
+    {
+        "char": "🇮🇸",
+        "name": "Iceland",
+        "region_name": "Europe",
+        "sub_region_name": "Northern Europe",
+        "ISO3166-1-Alpha-2": "IS",
+        "ISO3166-1-Alpha-3": "ISL",
+        "tld": ".is"
+    },
+    {
+        "char": "🇮🇹",
+        "name": "Italy",
+        "region_name": "Europe",
+        "sub_region_name": "Southern Europe",
+        "ISO3166-1-Alpha-2": "IT",
+        "ISO3166-1-Alpha-3": "ITA",
+        "tld": ".it"
+    },
+    {
+        "char": "🇯🇪",
+        "name": "Jersey",
+        "region_name": "Europe",
+        "sub_region_name": "Northern Europe",
+        "ISO3166-1-Alpha-2": "JE",
+        "ISO3166-1-Alpha-3": "JEY",
+        "tld": ".je"
+    },
+    {
+        "char": "🇯🇲",
+        "name": "Jamaica",
+        "region_name": "Americas",
+        "sub_region_name": "Latin America and the Caribbean",
+        "ISO3166-1-Alpha-2": "JM",
+        "ISO3166-1-Alpha-3": "JAM",
+        "tld": ".jm"
+    },
+    {
+        "char": "🇯🇴",
+        "name": "Jordan",
+        "region_name": "Asia",
+        "sub_region_name": "Western Asia",
+        "ISO3166-1-Alpha-2": "JO",
+        "ISO3166-1-Alpha-3": "JOR",
+        "tld": ".jo"
+    },
+    {
+        "char": "🇯🇵",
+        "name": "Japan",
+        "region_name": "Asia",
+        "sub_region_name": "Eastern Asia",
+        "ISO3166-1-Alpha-2": "JP",
+        "ISO3166-1-Alpha-3": "JPN",
+        "tld": ".jp"
+    },
+    {
+        "char": "🇰🇪",
+        "name": "Kenya",
+        "region_name": "Africa",
+        "sub_region_name": "Sub-Saharan Africa",
+        "ISO3166-1-Alpha-2": "KE",
+        "ISO3166-1-Alpha-3": "KEN",
+        "tld": ".ke"
+    },
+    {
+        "char": "🇰🇬",
+        "name": "Kyrgyzstan",
+        "region_name": "Asia",
+        "sub_region_name": "Central Asia",
+        "ISO3166-1-Alpha-2": "KG",
+        "ISO3166-1-Alpha-3": "KGZ",
+        "tld": ".kg"
+    },
+    {
+        "char": "🇰🇭",
+        "name": "Cambodia",
+        "region_name": "Asia",
+        "sub_region_name": "South-eastern Asia",
+        "ISO3166-1-Alpha-2": "KH",
+        "ISO3166-1-Alpha-3": "KHM",
+        "tld": ".kh"
+    },
+    {
+        "char": "🇰🇮",
+        "name": "Kiribati",
+        "region_name": "Oceania",
+        "sub_region_name": "Micronesia",
+        "ISO3166-1-Alpha-2": "KI",
+        "ISO3166-1-Alpha-3": "KIR",
+        "tld": ".ki"
+    },
+    {
+        "char": "🇰🇲",
+        "name": "Comoros",
+        "region_name": "Africa",
+        "sub_region_name": "Sub-Saharan Africa",
+        "ISO3166-1-Alpha-2": "KM",
+        "ISO3166-1-Alpha-3": "COM",
+        "tld": ".km"
+    },
+    {
+        "char": "🇰🇳",
+        "name": "St. Kitts & Nevis",
+        "region_name": "Americas",
+        "sub_region_name": "Latin America and the Caribbean",
+        "ISO3166-1-Alpha-2": "KN",
+        "ISO3166-1-Alpha-3": "KNA",
+        "tld": ".kn"
+    },
+    {
+        "char": "🇰🇵",
+        "name": "North Korea",
+        "region_name": "Asia",
+        "sub_region_name": "Eastern Asia",
+        "ISO3166-1-Alpha-2": "KP",
+        "ISO3166-1-Alpha-3": "PRK",
+        "tld": ".kp"
+    },
+    {
+        "char": "🇰🇷",
+        "name": "South Korea",
+        "region_name": "Asia",
+        "sub_region_name": "Eastern Asia",
+        "ISO3166-1-Alpha-2": "KR",
+        "ISO3166-1-Alpha-3": "KOR",
+        "tld": ".kr"
+    },
+    {
+        "char": "🇰🇼",
+        "name": "Kuwait",
+        "region_name": "Asia",
+        "sub_region_name": "Western Asia",
+        "ISO3166-1-Alpha-2": "KW",
+        "ISO3166-1-Alpha-3": "KWT",
+        "tld": ".kw"
+    },
+    {
+        "char": "🇰🇾",
+        "name": "Cayman Islands",
+        "region_name": "Americas",
+        "sub_region_name": "Latin America and the Caribbean",
+        "ISO3166-1-Alpha-2": "KY",
+        "ISO3166-1-Alpha-3": "CYM",
+        "tld": ".ky"
+    },
+    {
+        "char": "🇰🇿",
+        "name": "Kazakhstan",
+        "region_name": "Asia",
+        "sub_region_name": "Central Asia",
+        "ISO3166-1-Alpha-2": "KZ",
+        "ISO3166-1-Alpha-3": "KAZ",
+        "tld": ".kz"
+    },
+    {
+        "char": "🇱🇦",
+        "name": "Laos",
+        "region_name": "Asia",
+        "sub_region_name": "South-eastern Asia",
+        "ISO3166-1-Alpha-2": "LA",
+        "ISO3166-1-Alpha-3": "LAO",
+        "tld": ".la"
+    },
+    {
+        "char": "🇱🇧",
+        "name": "Lebanon",
+        "region_name": "Asia",
+        "sub_region_name": "Western Asia",
+        "ISO3166-1-Alpha-2": "LB",
+        "ISO3166-1-Alpha-3": "LBN",
+        "tld": ".lb"
+    },
+    {
+        "char": "🇱🇨",
+        "name": "St. Lucia",
+        "region_name": "Americas",
+        "sub_region_name": "Latin America and the Caribbean",
+        "ISO3166-1-Alpha-2": "LC",
+        "ISO3166-1-Alpha-3": "LCA",
+        "tld": ".lc"
+    },
+    {
+        "char": "🇱🇮",
+        "name": "Liechtenstein",
+        "region_name": "Europe",
+        "sub_region_name": "Western Europe",
+        "ISO3166-1-Alpha-2": "LI",
+        "ISO3166-1-Alpha-3": "LIE",
+        "tld": ".li"
+    },
+    {
+        "char": "🇱🇰",
+        "name": "Sri Lanka",
+        "region_name": "Asia",
+        "sub_region_name": "Southern Asia",
+        "ISO3166-1-Alpha-2": "LK",
+        "ISO3166-1-Alpha-3": "LKA",
+        "tld": ".lk"
+    },
+    {
+        "char": "🇱🇷",
+        "name": "Liberia",
+        "region_name": "Africa",
+        "sub_region_name": "Sub-Saharan Africa",
+        "ISO3166-1-Alpha-2": "LR",
+        "ISO3166-1-Alpha-3": "LBR",
+        "tld": ".lr"
+    },
+    {
+        "char": "🇱🇸",
+        "name": "Lesotho",
+        "region_name": "Africa",
+        "sub_region_name": "Sub-Saharan Africa",
+        "ISO3166-1-Alpha-2": "LS",
+        "ISO3166-1-Alpha-3": "LSO",
+        "tld": ".ls"
+    },
+    {
+        "char": "🇱🇹",
+        "name": "Lithuania",
+        "region_name": "Europe",
+        "sub_region_name": "Northern Europe",
+        "ISO3166-1-Alpha-2": "LT",
+        "ISO3166-1-Alpha-3": "LTU",
+        "tld": ".lt"
+    },
+    {
+        "char": "🇱🇺",
+        "name": "Luxembourg",
+        "region_name": "Europe",
+        "sub_region_name": "Western Europe",
+        "ISO3166-1-Alpha-2": "LU",
+        "ISO3166-1-Alpha-3": "LUX",
+        "tld": ".lu"
+    },
+    {
+        "char": "🇱🇻",
+        "name": "Latvia",
+        "region_name": "Europe",
+        "sub_region_name": "Northern Europe",
+        "ISO3166-1-Alpha-2": "LV",
+        "ISO3166-1-Alpha-3": "LVA",
+        "tld": ".lv"
+    },
+    {
+        "char": "🇱🇾",
+        "name": "Libya",
+        "region_name": "Africa",
+        "sub_region_name": "Northern Africa",
+        "ISO3166-1-Alpha-2": "LY",
+        "ISO3166-1-Alpha-3": "LBY",
+        "tld": ".ly"
+    },
+    {
+        "char": "🇲🇦",
+        "name": "Morocco",
+        "region_name": "Africa",
+        "sub_region_name": "Northern Africa",
+        "ISO3166-1-Alpha-2": "MA",
+        "ISO3166-1-Alpha-3": "MAR",
+        "tld": ".ma"
+    },
+    {
+        "char": "🇲🇨",
+        "name": "Monaco",
+        "region_name": "Europe",
+        "sub_region_name": "Western Europe",
+        "ISO3166-1-Alpha-2": "MC",
+        "ISO3166-1-Alpha-3": "MCO",
+        "tld": ".mc"
+    },
+    {
+        "char": "🇲🇩",
+        "name": "Moldova",
+        "region_name": "Europe",
+        "sub_region_name": "Eastern Europe",
+        "ISO3166-1-Alpha-2": "MD",
+        "ISO3166-1-Alpha-3": "MDA",
+        "tld": ".md"
+    },
+    {
+        "char": "🇲🇪",
+        "name": "Montenegro",
+        "region_name": "Europe",
+        "sub_region_name": "Southern Europe",
+        "ISO3166-1-Alpha-2": "ME",
+        "ISO3166-1-Alpha-3": "MNE",
+        "tld": ".me"
+    },
+    {
+        "char": "🇲🇫",
+        "name": "St. Martin",
+        "region_name": "Americas",
+        "sub_region_name": "Latin America and the Caribbean",
+        "ISO3166-1-Alpha-2": "MF",
+        "ISO3166-1-Alpha-3": "MAF",
+        "tld": ".gp"
+    },
+    {
+        "char": "🇲🇬",
+        "name": "Madagascar",
+        "region_name": "Africa",
+        "sub_region_name": "Sub-Saharan Africa",
+        "ISO3166-1-Alpha-2": "MG",
+        "ISO3166-1-Alpha-3": "MDG",
+        "tld": ".mg"
+    },
+    {
+        "char": "🇲🇭",
+        "name": "Marshall Islands",
+        "region_name": "Oceania",
+        "sub_region_name": "Micronesia",
+        "ISO3166-1-Alpha-2": "MH",
+        "ISO3166-1-Alpha-3": "MHL",
+        "tld": ".mh"
+    },
+    {
+        "char": "🇲🇰",
+        "name": "North Macedonia",
+        "region_name": "Europe",
+        "sub_region_name": "Southern Europe",
+        "ISO3166-1-Alpha-2": "MK",
+        "ISO3166-1-Alpha-3": "MKD",
+        "tld": ".mk"
+    },
+    {
+        "char": "🇲🇱",
+        "name": "Mali",
+        "region_name": "Africa",
+        "sub_region_name": "Sub-Saharan Africa",
+        "ISO3166-1-Alpha-2": "ML",
+        "ISO3166-1-Alpha-3": "MLI",
+        "tld": ".ml"
+    },
+    {
+        "char": "🇲🇲",
+        "name": "Myanmar (Burma)",
+        "region_name": "Asia",
+        "sub_region_name": "South-eastern Asia",
+        "ISO3166-1-Alpha-2": "MM",
+        "ISO3166-1-Alpha-3": "MMR",
+        "tld": ".mm"
+    },
+    {
+        "char": "🇲🇳",
+        "name": "Mongolia",
+        "region_name": "Asia",
+        "sub_region_name": "Eastern Asia",
+        "ISO3166-1-Alpha-2": "MN",
+        "ISO3166-1-Alpha-3": "MNG",
+        "tld": ".mn"
+    },
+    {
+        "char": "🇲🇴",
+        "name": "Macao SAR China",
+        "region_name": "Asia",
+        "sub_region_name": "Eastern Asia",
+        "ISO3166-1-Alpha-2": "MO",
+        "ISO3166-1-Alpha-3": "MAC",
+        "tld": ".mo"
+    },
+    {
+        "char": "🇲🇵",
+        "name": "Northern Mariana Islands",
+        "region_name": "Oceania",
+        "sub_region_name": "Micronesia",
+        "ISO3166-1-Alpha-2": "MP",
+        "ISO3166-1-Alpha-3": "MNP",
+        "tld": ".mp"
+    },
+    {
+        "char": "🇲🇶",
+        "name": "Martinique",
+        "region_name": "Americas",
+        "sub_region_name": "Latin America and the Caribbean",
+        "ISO3166-1-Alpha-2": "MQ",
+        "ISO3166-1-Alpha-3": "MTQ",
+        "tld": ".mq"
+    },
+    {
+        "char": "🇲🇷",
+        "name": "Mauritania",
+        "region_name": "Africa",
+        "sub_region_name": "Sub-Saharan Africa",
+        "ISO3166-1-Alpha-2": "MR",
+        "ISO3166-1-Alpha-3": "MRT",
+        "tld": ".mr"
+    },
+    {
+        "char": "🇲🇸",
+        "name": "Montserrat",
+        "region_name": "Americas",
+        "sub_region_name": "Latin America and the Caribbean",
+        "ISO3166-1-Alpha-2": "MS",
+        "ISO3166-1-Alpha-3": "MSR",
+        "tld": ".ms"
+    },
+    {
+        "char": "🇲🇹",
+        "name": "Malta",
+        "region_name": "Europe",
+        "sub_region_name": "Southern Europe",
+        "ISO3166-1-Alpha-2": "MT",
+        "ISO3166-1-Alpha-3": "MLT",
+        "tld": ".mt"
+    },
+    {
+        "char": "🇲🇺",
+        "name": "Mauritius",
+        "region_name": "Africa",
+        "sub_region_name": "Sub-Saharan Africa",
+        "ISO3166-1-Alpha-2": "MU",
+        "ISO3166-1-Alpha-3": "MUS",
+        "tld": ".mu"
+    },
+    {
+        "char": "🇲🇻",
+        "name": "Maldives",
+        "region_name": "Asia",
+        "sub_region_name": "Southern Asia",
+        "ISO3166-1-Alpha-2": "MV",
+        "ISO3166-1-Alpha-3": "MDV",
+        "tld": ".mv"
+    },
+    {
+        "char": "🇲🇼",
+        "name": "Malawi",
+        "region_name": "Africa",
+        "sub_region_name": "Sub-Saharan Africa",
+        "ISO3166-1-Alpha-2": "MW",
+        "ISO3166-1-Alpha-3": "MWI",
+        "tld": ".mw"
+    },
+    {
+        "char": "🇲🇽",
+        "name": "Mexico",
+        "region_name": "Americas",
+        "sub_region_name": "Latin America and the Caribbean",
+        "ISO3166-1-Alpha-2": "MX",
+        "ISO3166-1-Alpha-3": "MEX",
+        "tld": ".mx"
+    },
+    {
+        "char": "🇲🇾",
+        "name": "Malaysia",
+        "region_name": "Asia",
+        "sub_region_name": "South-eastern Asia",
+        "ISO3166-1-Alpha-2": "MY",
+        "ISO3166-1-Alpha-3": "MYS",
+        "tld": ".my"
+    },
+    {
+        "char": "🇲🇿",
+        "name": "Mozambique",
+        "region_name": "Africa",
+        "sub_region_name": "Sub-Saharan Africa",
+        "ISO3166-1-Alpha-2": "MZ",
+        "ISO3166-1-Alpha-3": "MOZ",
+        "tld": ".mz"
+    },
+    {
+        "char": "🇳🇦",
+        "name": "Namibia",
+        "region_name": "Africa",
+        "sub_region_name": "Sub-Saharan Africa",
+        "ISO3166-1-Alpha-2": "NA",
+        "ISO3166-1-Alpha-3": "NAM",
+        "tld": ".na"
+    },
+    {
+        "char": "🇳🇨",
+        "name": "New Caledonia",
+        "region_name": "Oceania",
+        "sub_region_name": "Melanesia",
+        "ISO3166-1-Alpha-2": "NC",
+        "ISO3166-1-Alpha-3": "NCL",
+        "tld": ".nc"
+    },
+    {
+        "char": "🇳🇪",
+        "name": "Niger",
+        "region_name": "Africa",
+        "sub_region_name": "Sub-Saharan Africa",
+        "ISO3166-1-Alpha-2": "NE",
+        "ISO3166-1-Alpha-3": "NER",
+        "tld": ".ne"
+    },
+    {
+        "char": "🇳🇫",
+        "name": "Norfolk Island",
+        "region_name": "Oceania",
+        "sub_region_name": "Australia and New Zealand",
+        "ISO3166-1-Alpha-2": "NF",
+        "ISO3166-1-Alpha-3": "NFK",
+        "tld": ".nf"
+    },
+    {
+        "char": "🇳🇬",
+        "name": "Nigeria",
+        "region_name": "Africa",
+        "sub_region_name": "Sub-Saharan Africa",
+        "ISO3166-1-Alpha-2": "NG",
+        "ISO3166-1-Alpha-3": "NGA",
+        "tld": ".ng"
+    },
+    {
+        "char": "🇳🇮",
+        "name": "Nicaragua",
+        "region_name": "Americas",
+        "sub_region_name": "Latin America and the Caribbean",
+        "ISO3166-1-Alpha-2": "NI",
+        "ISO3166-1-Alpha-3": "NIC",
+        "tld": ".ni"
+    },
+    {
+        "char": "🇳🇱",
+        "name": "Netherlands",
+        "region_name": "Europe",
+        "sub_region_name": "Western Europe",
+        "ISO3166-1-Alpha-2": "NL",
+        "ISO3166-1-Alpha-3": "NLD",
+        "tld": ".nl"
+    },
+    {
+        "char": "🇳🇴",
+        "name": "Norway",
+        "region_name": "Europe",
+        "sub_region_name": "Northern Europe",
+        "ISO3166-1-Alpha-2": "NO",
+        "ISO3166-1-Alpha-3": "NOR",
+        "tld": ".no"
+    },
+    {
+        "char": "🇳🇵",
+        "name": "Nepal",
+        "region_name": "Asia",
+        "sub_region_name": "Southern Asia",
+        "ISO3166-1-Alpha-2": "NP",
+        "ISO3166-1-Alpha-3": "NPL",
+        "tld": ".np"
+    },
+    {
+        "char": "🇳🇷",
+        "name": "Nauru",
+        "region_name": "Oceania",
+        "sub_region_name": "Micronesia",
+        "ISO3166-1-Alpha-2": "NR",
+        "ISO3166-1-Alpha-3": "NRU",
+        "tld": ".nr"
+    },
+    {
+        "char": "🇳🇺",
+        "name": "Niue",
+        "region_name": "Oceania",
+        "sub_region_name": "Polynesia",
+        "ISO3166-1-Alpha-2": "NU",
+        "ISO3166-1-Alpha-3": "NIU",
+        "tld": ".nu"
+    },
+    {
+        "char": "🇳🇿",
+        "name": "New Zealand",
+        "region_name": "Oceania",
+        "sub_region_name": "Australia and New Zealand",
+        "ISO3166-1-Alpha-2": "NZ",
+        "ISO3166-1-Alpha-3": "NZL",
+        "tld": ".nz"
+    },
+    {
+        "char": "🇴🇲",
+        "name": "Oman",
+        "region_name": "Asia",
+        "sub_region_name": "Western Asia",
+        "ISO3166-1-Alpha-2": "OM",
+        "ISO3166-1-Alpha-3": "OMN",
+        "tld": ".om"
+    },
+    {
+        "char": "🇵🇦",
+        "name": "Panama",
+        "region_name": "Americas",
+        "sub_region_name": "Latin America and the Caribbean",
+        "ISO3166-1-Alpha-2": "PA",
+        "ISO3166-1-Alpha-3": "PAN",
+        "tld": ".pa"
+    },
+    {
+        "char": "🇵🇪",
+        "name": "Peru",
+        "region_name": "Americas",
+        "sub_region_name": "Latin America and the Caribbean",
+        "ISO3166-1-Alpha-2": "PE",
+        "ISO3166-1-Alpha-3": "PER",
+        "tld": ".pe"
+    },
+    {
+        "char": "🇵🇫",
+        "name": "French Polynesia",
+        "region_name": "Oceania",
+        "sub_region_name": "Polynesia",
+        "ISO3166-1-Alpha-2": "PF",
+        "ISO3166-1-Alpha-3": "PYF",
+        "tld": ".pf"
+    },
+    {
+        "char": "🇵🇬",
+        "name": "Papua New Guinea",
+        "region_name": "Oceania",
+        "sub_region_name": "Melanesia",
+        "ISO3166-1-Alpha-2": "PG",
+        "ISO3166-1-Alpha-3": "PNG",
+        "tld": ".pg"
+    },
+    {
+        "char": "🇵🇭",
+        "name": "Philippines",
+        "region_name": "Asia",
+        "sub_region_name": "South-eastern Asia",
+        "ISO3166-1-Alpha-2": "PH",
+        "ISO3166-1-Alpha-3": "PHL",
+        "tld": ".ph"
+    },
+    {
+        "char": "🇵🇰",
+        "name": "Pakistan",
+        "region_name": "Asia",
+        "sub_region_name": "Southern Asia",
+        "ISO3166-1-Alpha-2": "PK",
+        "ISO3166-1-Alpha-3": "PAK",
+        "tld": ".pk"
+    },
+    {
+        "char": "🇵🇱",
+        "name": "Poland",
+        "region_name": "Europe",
+        "sub_region_name": "Eastern Europe",
+        "ISO3166-1-Alpha-2": "PL",
+        "ISO3166-1-Alpha-3": "POL",
+        "tld": ".pl"
+    },
+    {
+        "char": "🇵🇲",
+        "name": "St. Pierre & Miquelon",
+        "region_name": "Americas",
+        "sub_region_name": "Northern America",
+        "ISO3166-1-Alpha-2": "PM",
+        "ISO3166-1-Alpha-3": "SPM",
+        "tld": ".pm"
+    },
+    {
+        "char": "🇵🇳",
+        "name": "Pitcairn Islands",
+        "region_name": "Oceania",
+        "sub_region_name": "Polynesia",
+        "ISO3166-1-Alpha-2": "PN",
+        "ISO3166-1-Alpha-3": "PCN",
+        "tld": ".pn"
+    },
+    {
+        "char": "🇵🇷",
+        "name": "Puerto Rico",
+        "region_name": "Americas",
+        "sub_region_name": "Latin America and the Caribbean",
+        "ISO3166-1-Alpha-2": "PR",
+        "ISO3166-1-Alpha-3": "PRI",
+        "tld": ".pr"
+    },
+    {
+        "char": "🇵🇸",
+        "name": "Palestinian Territories",
+        "region_name": "Asia",
+        "sub_region_name": "Western Asia",
+        "ISO3166-1-Alpha-2": "PS",
+        "ISO3166-1-Alpha-3": "PSE",
+        "tld": ".ps"
+    },
+    {
+        "char": "🇵🇹",
+        "name": "Portugal",
+        "region_name": "Europe",
+        "sub_region_name": "Southern Europe",
+        "ISO3166-1-Alpha-2": "PT",
+        "ISO3166-1-Alpha-3": "PRT",
+        "tld": ".pt"
+    },
+    {
+        "char": "🇵🇼",
+        "name": "Palau",
+        "region_name": "Oceania",
+        "sub_region_name": "Micronesia",
+        "ISO3166-1-Alpha-2": "PW",
+        "ISO3166-1-Alpha-3": "PLW",
+        "tld": ".pw"
+    },
+    {
+        "char": "🇵🇾",
+        "name": "Paraguay",
+        "region_name": "Americas",
+        "sub_region_name": "Latin America and the Caribbean",
+        "ISO3166-1-Alpha-2": "PY",
+        "ISO3166-1-Alpha-3": "PRY",
+        "tld": ".py"
+    },
+    {
+        "char": "🇶🇦",
+        "name": "Qatar",
+        "region_name": "Asia",
+        "sub_region_name": "Western Asia",
+        "ISO3166-1-Alpha-2": "QA",
+        "ISO3166-1-Alpha-3": "QAT",
+        "tld": ".qa"
+    },
+    {
+        "char": "🇷🇪",
+        "name": "Réunion",
+        "region_name": "Africa",
+        "sub_region_name": "Sub-Saharan Africa",
+        "ISO3166-1-Alpha-2": "RE",
+        "ISO3166-1-Alpha-3": "REU",
+        "tld": ".re"
+    },
+    {
+        "char": "🇷🇴",
+        "name": "Romania",
+        "region_name": "Europe",
+        "sub_region_name": "Eastern Europe",
+        "ISO3166-1-Alpha-2": "RO",
+        "ISO3166-1-Alpha-3": "ROU",
+        "tld": ".ro"
+    },
+    {
+        "char": "🇷🇸",
+        "name": "Serbia",
+        "region_name": "Europe",
+        "sub_region_name": "Southern Europe",
+        "ISO3166-1-Alpha-2": "RS",
+        "ISO3166-1-Alpha-3": "SRB",
+        "tld": ".rs"
+    },
+    {
+        "char": "🇷🇺",
+        "name": "Russia",
+        "region_name": "Europe",
+        "sub_region_name": "Eastern Europe",
+        "ISO3166-1-Alpha-2": "RU",
+        "ISO3166-1-Alpha-3": "RUS",
+        "tld": ".ru"
+    },
+    {
+        "char": "🇷🇼",
+        "name": "Rwanda",
+        "region_name": "Africa",
+        "sub_region_name": "Sub-Saharan Africa",
+        "ISO3166-1-Alpha-2": "RW",
+        "ISO3166-1-Alpha-3": "RWA",
+        "tld": ".rw"
+    },
+    {
+        "char": "🇸🇦",
+        "name": "Saudi Arabia",
+        "region_name": "Asia",
+        "sub_region_name": "Western Asia",
+        "ISO3166-1-Alpha-2": "SA",
+        "ISO3166-1-Alpha-3": "SAU",
+        "tld": ".sa"
+    },
+    {
+        "char": "🇸🇧",
+        "name": "Solomon Islands",
+        "region_name": "Oceania",
+        "sub_region_name": "Melanesia",
+        "ISO3166-1-Alpha-2": "SB",
+        "ISO3166-1-Alpha-3": "SLB",
+        "tld": ".sb"
+    },
+    {
+        "char": "🇸🇨",
+        "name": "Seychelles",
+        "region_name": "Africa",
+        "sub_region_name": "Sub-Saharan Africa",
+        "ISO3166-1-Alpha-2": "SC",
+        "ISO3166-1-Alpha-3": "SYC",
+        "tld": ".sc"
+    },
+    {
+        "char": "🇸🇩",
+        "name": "Sudan",
+        "region_name": "Africa",
+        "sub_region_name": "Northern Africa",
+        "ISO3166-1-Alpha-2": "SD",
+        "ISO3166-1-Alpha-3": "SDN",
+        "tld": ".sd"
+    },
+    {
+        "char": "🇸🇪",
+        "name": "Sweden",
+        "region_name": "Europe",
+        "sub_region_name": "Northern Europe",
+        "ISO3166-1-Alpha-2": "SE",
+        "ISO3166-1-Alpha-3": "SWE",
+        "tld": ".se"
+    },
+    {
+        "char": "🇸🇬",
+        "name": "Singapore",
+        "region_name": "Asia",
+        "sub_region_name": "South-eastern Asia",
+        "ISO3166-1-Alpha-2": "SG",
+        "ISO3166-1-Alpha-3": "SGP",
+        "tld": ".sg"
+    },
+    {
+        "char": "🇸🇭",
+        "name": "St. Helena",
+        "region_name": "Africa",
+        "sub_region_name": "Sub-Saharan Africa",
+        "ISO3166-1-Alpha-2": "SH",
+        "ISO3166-1-Alpha-3": "SHN",
+        "tld": ".sh"
+    },
+    {
+        "char": "🇸🇮",
+        "name": "Slovenia",
+        "region_name": "Europe",
+        "sub_region_name": "Southern Europe",
+        "ISO3166-1-Alpha-2": "SI",
+        "ISO3166-1-Alpha-3": "SVN",
+        "tld": ".si"
+    },
+    {
+        "char": "🇸🇯",
+        "name": "Svalbard & Jan Mayen",
+        "region_name": "Europe",
+        "sub_region_name": "Northern Europe",
+        "ISO3166-1-Alpha-2": "SJ",
+        "ISO3166-1-Alpha-3": "SJM",
+        "tld": ".sj"
+    },
+    {
+        "char": "🇸🇰",
+        "name": "Slovakia",
+        "region_name": "Europe",
+        "sub_region_name": "Eastern Europe",
+        "ISO3166-1-Alpha-2": "SK",
+        "ISO3166-1-Alpha-3": "SVK",
+        "tld": ".sk"
+    },
+    {
+        "char": "🇸🇱",
+        "name": "Sierra Leone",
+        "region_name": "Africa",
+        "sub_region_name": "Sub-Saharan Africa",
+        "ISO3166-1-Alpha-2": "SL",
+        "ISO3166-1-Alpha-3": "SLE",
+        "tld": ".sl"
+    },
+    {
+        "char": "🇸🇲",
+        "name": "San Marino",
+        "region_name": "Europe",
+        "sub_region_name": "Southern Europe",
+        "ISO3166-1-Alpha-2": "SM",
+        "ISO3166-1-Alpha-3": "SMR",
+        "tld": ".sm"
+    },
+    {
+        "char": "🇸🇳",
+        "name": "Senegal",
+        "region_name": "Africa",
+        "sub_region_name": "Sub-Saharan Africa",
+        "ISO3166-1-Alpha-2": "SN",
+        "ISO3166-1-Alpha-3": "SEN",
+        "tld": ".sn"
+    },
+    {
+        "char": "🇸🇴",
+        "name": "Somalia",
+        "region_name": "Africa",
+        "sub_region_name": "Sub-Saharan Africa",
+        "ISO3166-1-Alpha-2": "SO",
+        "ISO3166-1-Alpha-3": "SOM",
+        "tld": ".so"
+    },
+    {
+        "char": "🇸🇷",
+        "name": "Suriname",
+        "region_name": "Americas",
+        "sub_region_name": "Latin America and the Caribbean",
+        "ISO3166-1-Alpha-2": "SR",
+        "ISO3166-1-Alpha-3": "SUR",
+        "tld": ".sr"
+    },
+    {
+        "char": "🇸🇸",
+        "name": "South Sudan",
+        "region_name": "Africa",
+        "sub_region_name": "Sub-Saharan Africa",
+        "ISO3166-1-Alpha-2": "SS",
+        "ISO3166-1-Alpha-3": "SSD",
+        "tld": ".ss"
+    },
+    {
+        "char": "🇸🇹",
+        "name": "São Tomé & Príncipe",
+        "region_name": "Africa",
+        "sub_region_name": "Sub-Saharan Africa",
+        "ISO3166-1-Alpha-2": "ST",
+        "ISO3166-1-Alpha-3": "STP",
+        "tld": ".st"
+    },
+    {
+        "char": "🇸🇻",
+        "name": "El Salvador",
+        "region_name": "Americas",
+        "sub_region_name": "Latin America and the Caribbean",
+        "ISO3166-1-Alpha-2": "SV",
+        "ISO3166-1-Alpha-3": "SLV",
+        "tld": ".sv"
+    },
+    {
+        "char": "🇸🇽",
+        "name": "Sint Maarten",
+        "region_name": "Americas",
+        "sub_region_name": "Latin America and the Caribbean",
+        "ISO3166-1-Alpha-2": "SX",
+        "ISO3166-1-Alpha-3": "SXM",
+        "tld": ".sx"
+    },
+    {
+        "char": "🇸🇾",
+        "name": "Syria",
+        "region_name": "Asia",
+        "sub_region_name": "Western Asia",
+        "ISO3166-1-Alpha-2": "SY",
+        "ISO3166-1-Alpha-3": "SYR",
+        "tld": ".sy"
+    },
+    {
+        "char": "🇸🇿",
+        "name": "Eswatini",
+        "region_name": "Africa",
+        "sub_region_name": "Sub-Saharan Africa",
+        "ISO3166-1-Alpha-2": "SZ",
+        "ISO3166-1-Alpha-3": "SWZ",
+        "tld": ".sz"
+    },
+    {
+        "char": "🇹🇦",
+        "name": "Tristan da Cunha",
+        "region_name": "Africa",
+        "sub_region_name": "Sub-Saharan Africa",
+        "ISO3166-1-Alpha-2": "TA",
+        "ISO3166-1-Alpha-3": "TAC",
+        "tld": ".ta"
+    },
+    {
+        "char": "🇹🇨",
+        "name": "Turks & Caicos Islands",
+        "region_name": "Americas",
+        "sub_region_name": "Latin America and the Caribbean",
+        "ISO3166-1-Alpha-2": "TC",
+        "ISO3166-1-Alpha-3": "TCA",
+        "tld": ".tc"
+    },
+    {
+        "char": "🇹🇩",
+        "name": "Chad",
+        "region_name": "Africa",
+        "sub_region_name": "Sub-Saharan Africa",
+        "ISO3166-1-Alpha-2": "TD",
+        "ISO3166-1-Alpha-3": "TCD",
+        "tld": ".td"
+    },
+    {
+        "char": "🇹🇫",
+        "name": "French Southern Territories",
+        "region_name": "Africa",
+        "sub_region_name": "Sub-Saharan Africa",
+        "ISO3166-1-Alpha-2": "TF",
+        "ISO3166-1-Alpha-3": "ATF",
+        "tld": ".tf"
+    },
+    {
+        "char": "🇹🇬",
+        "name": "Togo",
+        "region_name": "Africa",
+        "sub_region_name": "Sub-Saharan Africa",
+        "ISO3166-1-Alpha-2": "TG",
+        "ISO3166-1-Alpha-3": "TGO",
+        "tld": ".tg"
+    },
+    {
+        "char": "🇹🇭",
+        "name": "Thailand",
+        "region_name": "Asia",
+        "sub_region_name": "South-eastern Asia",
+        "ISO3166-1-Alpha-2": "TH",
+        "ISO3166-1-Alpha-3": "THA",
+        "tld": ".th"
+    },
+    {
+        "char": "🇹🇯",
+        "name": "Tajikistan",
+        "region_name": "Asia",
+        "sub_region_name": "Central Asia",
+        "ISO3166-1-Alpha-2": "TJ",
+        "ISO3166-1-Alpha-3": "TJK",
+        "tld": ".tj"
+    },
+    {
+        "char": "🇹🇰",
+        "name": "Tokelau",
+        "region_name": "Oceania",
+        "sub_region_name": "Polynesia",
+        "ISO3166-1-Alpha-2": "TK",
+        "ISO3166-1-Alpha-3": "TKL",
+        "tld": ".tk"
+    },
+    {
+        "char": "🇹🇱",
+        "name": "Timor-Leste",
+        "region_name": "Asia",
+        "sub_region_name": "South-eastern Asia",
+        "ISO3166-1-Alpha-2": "TL",
+        "ISO3166-1-Alpha-3": "TLS",
+        "tld": ".tl"
+    },
+    {
+        "char": "🇹🇲",
+        "name": "Turkmenistan",
+        "region_name": "Asia",
+        "sub_region_name": "Central Asia",
+        "ISO3166-1-Alpha-2": "TM",
+        "ISO3166-1-Alpha-3": "TKM",
+        "tld": ".tm"
+    },
+    {
+        "char": "🇹🇳",
+        "name": "Tunisia",
+        "region_name": "Africa",
+        "sub_region_name": "Northern Africa",
+        "ISO3166-1-Alpha-2": "TN",
+        "ISO3166-1-Alpha-3": "TUN",
+        "tld": ".tn"
+    },
+    {
+        "char": "🇹🇴",
+        "name": "Tonga",
+        "region_name": "Oceania",
+        "sub_region_name": "Polynesia",
+        "ISO3166-1-Alpha-2": "TO",
+        "ISO3166-1-Alpha-3": "TON",
+        "tld": ".to"
+    },
+    {
+        "char": "🇹🇷",
+        "name": "Türkiye",
+        "region_name": "Asia",
+        "sub_region_name": "Western Asia",
+        "ISO3166-1-Alpha-2": "TR",
+        "ISO3166-1-Alpha-3": "TUR",
+        "tld": ".tr"
+    },
+    {
+        "char": "🇹🇹",
+        "name": "Trinidad & Tobago",
+        "region_name": "Americas",
+        "sub_region_name": "Latin America and the Caribbean",
+        "ISO3166-1-Alpha-2": "TT",
+        "ISO3166-1-Alpha-3": "TTO",
+        "tld": ".tt"
+    },
+    {
+        "char": "🇹🇻",
+        "name": "Tuvalu",
+        "region_name": "Oceania",
+        "sub_region_name": "Polynesia",
+        "ISO3166-1-Alpha-2": "TV",
+        "ISO3166-1-Alpha-3": "TUV",
+        "tld": ".tv"
+    },
+    {
+        "char": "🇹🇼",
+        "name": "Taiwan",
+        "region_name": "Asia",
+        "sub_region_name": "Eastern Asia",
+        "ISO3166-1-Alpha-2": "TW",
+        "ISO3166-1-Alpha-3": "TWN",
+        "tld": ".tw"
+    },
+    {
+        "char": "🇹🇿",
+        "name": "Tanzania",
+        "region_name": "Africa",
+        "sub_region_name": "Sub-Saharan Africa",
+        "ISO3166-1-Alpha-2": "TZ",
+        "ISO3166-1-Alpha-3": "TZA",
+        "tld": ".tz"
+    },
+    {
+        "char": "🇺🇦",
+        "name": "Ukraine",
+        "region_name": "Europe",
+        "sub_region_name": "Eastern Europe",
+        "ISO3166-1-Alpha-2": "UA",
+        "ISO3166-1-Alpha-3": "UKR",
+        "tld": ".ua"
+    },
+    {
+        "char": "🇺🇬",
+        "name": "Uganda",
+        "region_name": "Africa",
+        "sub_region_name": "Sub-Saharan Africa",
+        "ISO3166-1-Alpha-2": "UG",
+        "ISO3166-1-Alpha-3": "UGA",
+        "tld": ".ug"
+    },
+    {
+        "char": "🇺🇲",
+        "name": "U.S. Outlying Islands",
+        "region_name": "Oceania",
+        "sub_region_name": "Micronesia",
+        "ISO3166-1-Alpha-2": "UM",
+        "ISO3166-1-Alpha-3": "UMI",
+        "tld": ".um"
+    },
+    {
+        "char": "🇺🇳",
+        "name": "United Nations",
+        "region_name": "Global",
+        "sub_region_name": "Global",
+        "ISO3166-1-Alpha-2": "UN",
+        "ISO3166-1-Alpha-3": "UNK",
+        "tld": ".un"
+    },
+    {
+        "char": "🇺🇸",
+        "name": "United States",
+        "region_name": "Americas",
+        "sub_region_name": "Northern America",
+        "ISO3166-1-Alpha-2": "US",
+        "ISO3166-1-Alpha-3": "USA",
+        "tld": ".us"
+    },
+    {
+        "char": "🇺🇾",
+        "name": "Uruguay",
+        "region_name": "Americas",
+        "sub_region_name": "Latin America and the Caribbean",
+        "ISO3166-1-Alpha-2": "UY",
+        "ISO3166-1-Alpha-3": "URY",
+        "tld": ".uy"
+    },
+    {
+        "char": "🇺🇿",
+        "name": "Uzbekistan",
+        "region_name": "Asia",
+        "sub_region_name": "Central Asia",
+        "ISO3166-1-Alpha-2": "UZ",
+        "ISO3166-1-Alpha-3": "UZB",
+        "tld": ".uz"
+    },
+    {
+        "char": "🇻🇦",
+        "name": "Vatican City",
+        "region_name": "Europe",
+        "sub_region_name": "Southern Europe",
+        "ISO3166-1-Alpha-2": "VA",
+        "ISO3166-1-Alpha-3": "VAT",
+        "tld": ".va"
+    },
+    {
+        "char": "🇻🇨",
+        "name": "St. Vincent & Grenadines",
+        "region_name": "Americas",
+        "sub_region_name": "Latin America and the Caribbean",
+        "ISO3166-1-Alpha-2": "VC",
+        "ISO3166-1-Alpha-3": "VCT",
+        "tld": ".vc"
+    },
+    {
+        "char": "🇻🇪",
+        "name": "Venezuela",
+        "region_name": "Americas",
+        "sub_region_name": "Latin America and the Caribbean",
+        "ISO3166-1-Alpha-2": "VE",
+        "ISO3166-1-Alpha-3": "VEN",
+        "tld": ".ve"
+    },
+    {
+        "char": "🇻🇬",
+        "name": "British Virgin Islands",
+        "region_name": "Americas",
+        "sub_region_name": "Latin America and the Caribbean",
+        "ISO3166-1-Alpha-2": "VG",
+        "ISO3166-1-Alpha-3": "VGB",
+        "tld": ".vg"
+    },
+    {
+        "char": "🇻🇮",
+        "name": "U.S. Virgin Islands",
+        "region_name": "Americas",
+        "sub_region_name": "Latin America and the Caribbean",
+        "ISO3166-1-Alpha-2": "VI",
+        "ISO3166-1-Alpha-3": "VIR",
+        "tld": ".vi"
+    },
+    {
+        "char": "🇻🇳",
+        "name": "Vietnam",
+        "region_name": "Asia",
+        "sub_region_name": "South-eastern Asia",
+        "ISO3166-1-Alpha-2": "VN",
+        "ISO3166-1-Alpha-3": "VNM",
+        "tld": ".vn"
+    },
+    {
+        "char": "🇻🇺",
+        "name": "Vanuatu",
+        "region_name": "Oceania",
+        "sub_region_name": "Melanesia",
+        "ISO3166-1-Alpha-2": "VU",
+        "ISO3166-1-Alpha-3": "VUT",
+        "tld": ".vu"
+    },
+    {
+        "char": "🇼🇫",
+        "name": "Wallis & Futuna",
+        "region_name": "Oceania",
+        "sub_region_name": "Polynesia",
+        "ISO3166-1-Alpha-2": "WF",
+        "ISO3166-1-Alpha-3": "WLF",
+        "tld": ".wf"
+    },
+    {
+        "char": "🇼🇸",
+        "name": "Samoa",
+        "region_name": "Oceania",
+        "sub_region_name": "Polynesia",
+        "ISO3166-1-Alpha-2": "WS",
+        "ISO3166-1-Alpha-3": "WSM",
+        "tld": ".ws"
+    },
+    {
+        "char": "🇽🇰",
+        "name": "Kosovo",
+        "region_name": "Europe",
+        "sub_region_name": "Western Europe",
+        "ISO3166-1-Alpha-2": "XK",
+        "ISO3166-1-Alpha-3": "XKX",
+        "tld": ".xk"
+    },
+    {
+        "char": "🇾🇪",
+        "name": "Yemen",
+        "region_name": "Asia",
+        "sub_region_name": "Western Asia",
+        "ISO3166-1-Alpha-2": "YE",
+        "ISO3166-1-Alpha-3": "YEM",
+        "tld": ".ye"
+    },
+    {
+        "char": "🇾🇹",
+        "name": "Mayotte",
+        "region_name": "Africa",
+        "sub_region_name": "Sub-Saharan Africa",
+        "ISO3166-1-Alpha-2": "YT",
+        "ISO3166-1-Alpha-3": "MYT",
+        "tld": ".yt"
+    },
+    {
+        "char": "🇿🇦",
+        "name": "South Africa",
+        "region_name": "Africa",
+        "sub_region_name": "Sub-Saharan Africa",
+        "ISO3166-1-Alpha-2": "ZA",
+        "ISO3166-1-Alpha-3": "ZAF",
+        "tld": ".za"
+    },
+    {
+        "char": "🇿🇲",
+        "name": "Zambia",
+        "region_name": "Africa",
+        "sub_region_name": "Sub-Saharan Africa",
+        "ISO3166-1-Alpha-2": "ZM",
+        "ISO3166-1-Alpha-3": "ZMB",
+        "tld": ".zm"
+    },
+    {
+        "char": "🇿🇼",
+        "name": "Zimbabwe",
+        "region_name": "Africa",
+        "sub_region_name": "Sub-Saharan Africa",
+        "ISO3166-1-Alpha-2": "ZW",
+        "ISO3166-1-Alpha-3": "ZWE",
+        "tld": ".zw"
+    },
+    {
+        "char": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+        "name": "England",
+        "region_name": "Europe",
+        "sub_region_name": "Northern Europe",
+        "ISO3166-1-Alpha-2": "GB-ENG",
+        "ISO3166-1-Alpha-3": "GBE",
+        "tld": ".england"
+    },
+    {
+        "char": "🏴󠁧󠁢󠁳󠁣󠁴󠁿",
+        "name": "Scotland",
+        "region_name": "Europe",
+        "sub_region_name": "Northern Europe",
+        "ISO3166-1-Alpha-2": "GB-SCT",
+        "ISO3166-1-Alpha-3": "GBS",
+        "tld": ".scotland"
+    },
+    {
+        "char": "🏴󠁧󠁢󠁷󠁬󠁳󠁿",
+        "name": "Wales",
+        "region_name": "Europe",
+        "sub_region_name": "Northern Europe",
+        "ISO3166-1-Alpha-2": "GB-WLS",
+        "ISO3166-1-Alpha-3": "GBW",
+        "tld": ".wales"
+    }
+]
