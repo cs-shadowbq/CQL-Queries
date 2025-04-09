@@ -31,7 +31,7 @@ createEvents(["ipv4=17.32.15.5","ipv4=45.67.89.12","ipv4=23.45.67.89","ipv4=54.3
 
 ### Raw
 
-```
+```f#
 ipv4=17.32.15.5
 ipv4=45.67.89.12
 ipv4=23.45.67.89
@@ -62,4 +62,87 @@ ipv4=12.89.67.34
 ipv4=34.90.78.45
 ipv4=45.12.89.90
 ipv4=67.34.12.78
+```
+
+## Create Events
+
+```f#
+createEvents(["name=john,ph=555-1234", "name=joe,ph=555-9999", "name=sarah,ph=555-3366", "name=megan,ph=555-2244"])
+```
+
+```f#
+createEvents(["name=john,product=apples,cnt=12", "name=john,product=bananas,cnt=1", "name=joe,product=apples,cnt=1", "name=sarah,product=apples,cnt=1", "name=sarah,product=apples,cnt=1", "name=holly,product=apples,cnt=1"])
+```
+
+### Raw Events
+```f#
+name=john,product=apples,price=1.12,organic=false,harvest=1744201562,transactionId=000000012,cnt=12
+name=john,product=bananas,price=0.98,organic=false,harvest=1744203262,transactionId=000000013,cnt=1
+name=joe,product=apples,price=1.12,organic=false,harvest=1744205232,transactionId=000000014,cnt=1
+name=sarah,product=apples,price=1.25,organic=true,harvest=1744215262,transactionId=000000015,cnt=1
+name=sarah,product=apples,price=1.25,organic=true,harvest=1744215262,transactionId=000000016,cnt=1
+name=holly,product=apples,price=1.12,organic=false,harvest=1744225262,transactionId=000000017,cnt=1
+name=john,product=oranges,price=1.50,organic=true,harvest=1744235262,transactionId=000000018,cnt=5
+name=jane,product=bananas,price=0.98,organic=false,harvest=1744245262,transactionId=000000019,cnt=3
+name=joe,product=grapes,price=2.10,organic=true,harvest=1744255262,transactionId=000000020,cnt=2
+name=sarah,product=pears,price=1.75,organic=false,harvest=1744265262,transactionId=000000021,cnt=4
+name=holly,product=peaches,price=2.25,organic=true,harvest=1744275262,transactionId=000000022,cnt=6
+name=john,product=apples,price=1.12,organic=false,harvest=1744285262,transactionId=000000023,cnt=8
+name=john,product=apples,price=1.12,organic=false,harvest=1744201562,transactionId=000000012,cnt=12
+name=john,product=bananas,price=0.98,organic=false,harvest=1744203262,transactionId=000000013,cnt=1
+name=joe,product=apples,price=1.12,organic=false,harvest=1744205232,transactionId=000000014,cnt=1
+name=sarah,product=apples,price=1.25,organic=true,harvest=1744215262,transactionId=000000015,cnt=1
+name=sarah,product=apples,price=1.25,organic=true,harvest=1744215262,transactionId=000000016,cnt=1
+name=holly,product=apples,price=1.12,organic=false,harvest=1744225262,transactionId=000000017,cnt=1
+name=john,product=oranges,price=1.50,organic=true,harvest=1744235262,transactionId=000000018,cnt=5
+name=jane,product=bananas,price=0.98,organic=false,harvest=1744245262,transactionId=000000019,cnt=3
+name=joe,product=grapes,price=2.10,organic=true,natural=true,harvest=1744255262,transactionId=000000020,cnt=2
+name=sarah,product=pears,price=1.75,organic=false,harvest=1744265262,transactionId=000000021,cnt=4
+name=holly,product=peaches,price=2.25,organic=true,harvest=1744275262,transactionId=000000022,cnt=6
+name=john,product=apples,price=1.12,organic=false,harvest=1744285262,transactionId=000000023,cnt=8
+name=jane,product=bananas,price=0.98,organic=false,harvest=1744295262,transactionId=000000024,cnt=2
+name=joe,product=apples,price=1.12,organic=false,harvest=1744305262,transactionId=000000025,cnt=1
+name=sarah,product=apples,price=1.25,organic=true,natural=true,harvest=1744315262,transactionId=000000026,cnt=3
+name=holly,product=apples,price=1.12,organic=false,harvest=1744325262,transactionId=000000027,cnt=2
+name=john,product=pears,price=1.75,organic=false,harvest=1744335262,transactionId=000000028,cnt=7
+name=jane,product=grapes,price=2.10,organic=true,harvest=1744345262,transactionId=000000029,cnt=4
+name=joe,product=peaches,price=2.25,organic=true,harvest=1744355262,transactionId=000000030,cnt=5
+name=sarah,product=oranges,price=1.50,organic=true,harvest=1744365262,transactionId=000000031,cnt=6
+name=holly,product=bananas,price=0.98,organic=false,harvest=1744375262,transactionId=000000032,cnt=3
+name=john,product=apples,price=1.12,organic=false,harvest=1744385262,transactionId=000000033,cnt=9
+name=jane,product=pears,price=1.75,organic=false,harvest=1744395262,transactionId=000000034,cnt=2
+name=joe,product=oranges,price=1.50,organic=true,harvest=1744405262,transactionId=000000035,cnt=1
+name=sarah,product=grapes,price=2.10,organic=true,lowcarbon=true,harvest=1744415262,transactionId=000000036,cnt=4
+name=holly,product=peaches,price=2.25,organic=true,harvest=1744425262,transactionId=000000037,cnt=5
+```
+
+### Wrap Raw Events in createEvents()
+
+```f#
+createEvents(["name=john,product=apples,price=1.12,organic=false,harvest=1744201562,transactionId=000000012,cnt=12",
+"name=john,product=bananas,price=0.98,organic=false,harvest=1744203262,transactionId=000000013,cnt=1",
+"name=joe,product=apples,price=1.12,organic=false,harvest=1744205232,transactionId=000000014,cnt=1",
+"name=sarah,product=apples,price=1.25,organic=true,harvest=1744215262,transactionId=000000015,cnt=1",
+"name=sarah,product=apples,price=1.25,organic=true,harvest=1744215262,transactionId=000000016,cnt=1",
+"name=holly,product=apples,price=1.12,organic=false,harvest=1744225262,transactionId=000000017,cnt=1",
+"name=john,product=oranges,price=1.50,organic=true,harvest=1744235262,transactionId=000000018,cnt=5",
+"name=jane,product=bananas,price=0.98,organic=false,harvest=1744245262,transactionId=000000019,cnt=3",
+"name=joe,product=grapes,price=2.10,organic=true,natural=true,harvest=1744255262,transactionId=000000020,cnt=2",
+"name=sarah,product=pears,price=1.75,organic=false,harvest=1744265262,transactionId=000000021,cnt=4",
+"name=holly,product=peaches,price=2.25,organic=true,harvest=1744275262,transactionId=000000022,cnt=6",
+"name=john,product=apples,price=1.12,organic=false,harvest=1744285262,transactionId=000000023,cnt=8",
+"name=jane,product=bananas,price=0.98,organic=false,harvest=1744295262,transactionId=000000024,cnt=2",
+"name=joe,product=apples,price=1.12,organic=false,harvest=1744305262,transactionId=000000025,cnt=1",
+"name=sarah,product=apples,price=1.25,organic=true,natural=true,harvest=1744315262,transactionId=000000026,cnt=3",
+"name=holly,product=apples,price=1.12,organic=false,harvest=1744325262,transactionId=000000027,cnt=2",
+"name=john,product=pears,price=1.75,organic=false,harvest=1744335262,transactionId=000000028,cnt=7",
+"name=jane,product=grapes,price=2.10,organic=true,harvest=1744345262,transactionId=000000029,cnt=4",
+"name=joe,product=peaches,price=2.25,organic=true,harvest=1744355262,transactionId=000000030,cnt=5",
+"name=sarah,product=oranges,price=1.50,organic=true,harvest=1744365262,transactionId=000000031,cnt=6",
+"name=holly,product=bananas,price=0.98,organic=false,harvest=1744375262,transactionId=000000032,cnt=3",
+"name=john,product=apples,price=1.12,organic=false,harvest=1744385262,transactionId=000000033,cnt=9",
+"name=jane,product=pears,price=1.75,organic=false,harvest=1744395262,transactionId=000000034,cnt=2",
+"name=joe,product=oranges,price=1.50,organic=true,harvest=1744405262,transactionId=000000035,cnt=1",
+"name=sarah,product=grapes,price=2.10,organic=true,lowcarbon=true,harvest=1744415262,transactionId=000000036,cnt=4",
+"name=holly,product=peaches,price=2.25,organic=true,harvest=1744425262,transactionId=000000037,cnt=5"]) | kvParse() | findTimestamp(field=harvest)
 ```

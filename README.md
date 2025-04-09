@@ -519,6 +519,91 @@ https://library.humio.com/data-analysis/query-joins-methods-adhoc-tables.html#qu
 }, field=[tld], include=[*])
 ```
 
+## Subquery Comparison 
+
+```f#
+createEvents(["name=john,product=apples,price=1.12,organic=false,harvest=1744201562,transactionId=000000012,cnt=12",
+"name=john,product=bananas,price=0.98,organic=false,harvest=1744203262,transactionId=000000013,cnt=1",
+"name=joe,product=apples,price=1.12,organic=false,harvest=1744205232,transactionId=000000014,cnt=1",
+"name=sarah,product=apples,price=1.25,organic=true,harvest=1744215262,transactionId=000000015,cnt=1",
+"name=sarah,product=apples,price=1.25,organic=true,harvest=1744215262,transactionId=000000016,cnt=1",
+"name=holly,product=apples,price=1.12,organic=false,harvest=1744225262,transactionId=000000017,cnt=1",
+"name=john,product=oranges,price=1.50,organic=true,harvest=1744235262,transactionId=000000018,cnt=5",
+"name=jane,product=bananas,price=0.98,organic=false,harvest=1744245262,transactionId=000000019,cnt=3",
+"name=joe,product=grapes,price=2.10,organic=true,natural=true,harvest=1744255262,transactionId=000000020,cnt=2",
+"name=sarah,product=pears,price=1.75,organic=false,harvest=1744265262,transactionId=000000021,cnt=4",
+"name=holly,product=peaches,price=2.25,organic=true,harvest=1744275262,transactionId=000000022,cnt=6",
+"name=john,product=apples,price=1.12,organic=false,harvest=1744285262,transactionId=000000023,cnt=8",
+"name=jane,product=bananas,price=0.98,organic=false,harvest=1744295262,transactionId=000000024,cnt=2",
+"name=joe,product=apples,price=1.12,organic=false,harvest=1744305262,transactionId=000000025,cnt=1",
+"name=sarah,product=apples,price=1.25,organic=true,natural=true,harvest=1744315262,transactionId=000000026,cnt=3",
+"name=holly,product=apples,price=1.12,organic=false,harvest=1744325262,transactionId=000000027,cnt=2",
+"name=john,product=pears,price=1.75,organic=false,harvest=1744335262,transactionId=000000028,cnt=7",
+"name=jane,product=grapes,price=2.10,organic=true,harvest=1744345262,transactionId=000000029,cnt=4",
+"name=joe,product=peaches,price=2.25,organic=true,harvest=1744355262,transactionId=000000030,cnt=5",
+"name=sarah,product=oranges,price=1.50,organic=true,harvest=1744365262,transactionId=000000031,cnt=6",
+"name=holly,product=bananas,price=0.98,organic=false,harvest=1744375262,transactionId=000000032,cnt=3",
+"name=john,product=apples,price=1.12,organic=false,harvest=1744385262,transactionId=000000033,cnt=9",
+"name=jane,product=pears,price=1.75,organic=false,harvest=1744395262,transactionId=000000034,cnt=2",
+"name=joe,product=oranges,price=1.50,organic=true,harvest=1744405262,transactionId=000000035,cnt=1",
+"name=sarah,product=grapes,price=2.10,organic=true,lowcarbon=true,harvest=1744415262,transactionId=000000036,cnt=4",
+"name=holly,product=peaches,price=2.25,organic=true,harvest=1744425262,transactionId=000000037,cnt=5"]) | kvParse() | findTimestamp(field=harvest)
+| head()
+| name=*
+| groupBy(
+    name, 
+    function = slidingTimeWindow(
+            function=
+                {
+                    [
+                        {if(regex("true", field=organic), then="1",else="0", as=q[1])|r[1]:=max(q[1])},
+                        {if(regex("true", field=natural),then="1",else="0", as=q[2])|r[2]:=max(q[2])},
+                        {if(regex("true", field=lowcarbon),then="1",else="0", as=q[3])|r[3]:=max(q[3])},
+                        {if(regex(".*", field=FAKE),then="1",else="0", as=q[4])|r[4]:=max(q[4])},
+                        {if(regex(".*", field=EMPTY),then="1",else="0", as=q[5])|r[5]:=max(q[5])}
+                    ]
+                    | rulesHit:=r[1]+r[2]+r[3]+r[4]+r[5]
+                }, span=1h
+    )    
+)
+| rulesHit >= 2
+| table(fields=[@timestamp, rulesHit, name, cnt, organic, lowcarbon, natural, price])
+```
+
+### Explanation of the above query:
+
+Using `if()` to ensure the value of `q[x]` is set to 1 or 0.
+
+```f#
+|if(regex(".*", field=organic),then="1",else="0", as=q[1])
+```
+
+`stats()` over subqueries with setting `r[x]` via `max()` for the aggregate required.
+
+    * `r[x]` is stating that the value of query is true for the given field, roughly rule_1 rule_2 rule_3 etc
+    * `q[x]` is the value placeholder, roughly query_1 query_2 query_3 etc
+    * `rulesHit` is the sum of all the rules that were hit, so you can make a test against it. >,>=,<,<=,==,!= etc..
+
+```f#
+...|
+[
+    {if(regex("true", field=organic), then="1",else="0", as=q[1])|r[1]:=max(q[1])},
+    {if(regex("true", field=natural),then="1",else="0", as=q[2])|r[2]:=max(q[2])},
+    {if(regex("true", field=lowcarbon),then="1",else="0", as=q[3])|r[3]:=max(q[3])},
+    {if(regex(".*", field=FAKE),then="1",else="0", as=q[4])|r[4]:=max(q[4])},
+    {if(regex(".*", field=EMPTY),then="1",else="0", as=q[5])|r[5]:=max(q[5])}
+]
+| rulesHit:=r[1]+r[2]+r[3]+r[4]+r[5]
+```
+
+
+* `head()` is used to order and limit the results.
+* `name=*` is used to ensure all rows that have names are included.
+* `groupBy()` is using `field=name` and the `slidingTimeWindow()` function to aggregate the data over a `1h` hour window.
+* `rulesHit >= 2` is the final filter to only show the results that have hit 2 or more of the rules.
+
+* `table()` is used to show the results in a table format with the fields specified.
+
 ## metaprogramming
 
 use format(), setfield(), getfield(), and sometimes eval()
