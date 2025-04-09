@@ -570,6 +570,9 @@ createEvents(["name=john,product=apples,price=1.12,organic=false,harvest=1744201
 | table(fields=[@timestamp, rulesHit, name, cnt, organic, lowcarbon, natural, price])
 ```
 
+![Screenshot 2025-04-09 at 3 37 05 PM](https://github.com/user-attachments/assets/52698b5e-c4bc-4c13-97be-2a76d5985d24)
+
+
 ### Explanation of the above query:
 
 Using `if()` to ensure the value of `q[x]` is set to 1 or 0.
