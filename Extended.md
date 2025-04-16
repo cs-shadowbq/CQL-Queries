@@ -138,7 +138,9 @@ readFile(file="falcon/helper/mappings.csv")
 Simply understand the lookup. If you want to know what is supported for `TlsVersion`
 
 ```f#
+...
 | $falcon/helper:enrich(field=TlsVersion)
+...
 ```
 
 ```f#
