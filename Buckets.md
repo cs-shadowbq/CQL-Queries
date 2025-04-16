@@ -27,6 +27,9 @@ In an example below, you can create 24 buckets (+1) that each hold 3 response th
 |...|
 |...|
 
+![Screenshot 2025-04-16 at 2 24 39 PM](https://github.com/user-attachments/assets/ac388db4-3143-4d7c-92de-c7540668366b)
+
+![Screenshot 2025-04-16 at 2 25 31 PM](https://github.com/user-attachments/assets/57d078e4-71b8-4e35-9228-7f83352b7acb)
 
 ## TimeChart N over a day
 
@@ -39,6 +42,9 @@ In an example below, you can create 24 buckets (+1) that each hold 3 response th
 | parseTimestamp(field=_bucket,format=millis)
 | timeChart(series=#event_simpleName)
 ```
+
+![Screenshot 2025-04-16 at 2 42 58 PM](https://github.com/user-attachments/assets/f5634c03-616a-4c25-94a5-270f6aaa2108)
+
 
 On the backend, timeChart() creates buckets for you.. 
 
