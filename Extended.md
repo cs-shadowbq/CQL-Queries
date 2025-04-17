@@ -202,3 +202,16 @@ Using the `aid_master_main.csv` lookup, and using the helper to swap the decimal
 | First_Seen:=formatTime(format="%F %T", field="FirstSeen")
 | drop(fields=[cid, max, FirstSeen])
 ```
+
+### ioc:lookup()
+
+```f#
+...
+// Look for IOCs for someurl DNS. The strict option only returns matches.
+      | ioc:lookup(field=someurl, type=url, confidenceThreshold=unverified)
+      | default(value="No CrowdStrike intelligence available for this IOC.", field=[ioc[0].labels])
+      | groupBy([Vendor.timestamp,someurl], function=([collect([Vendor.timestamp,someurl, ioc[0].labels])]))
+​
+      | falconIntel:=replace(field="ioc[0].labels", regex="\,", with="\n")
+      | falconIntel:=replace(field="falconIntel", regex="\/", with=": ")
+```
