@@ -238,7 +238,10 @@ createEvents("Foo=A\nBar=Z\nBar=X\nBar=Y\nBaz=1\nBaz=2\nQux=JJ")
 
 ### Collecting the possible keys
 
+* NOT PARSE COMPLIANT (use of `groupby()`).. This is used to help investigate data
+
 ```f#
+// NOT FOR A PARSER
 createEvents("Foo=A\nBar=Z\nBar=X\nBar=Y\nBaz=1\nBaz=2\nQux=JJ")
 // Get the keys (repeated will be the lastseen by default)
 | kvParse()
