@@ -191,7 +191,7 @@ additional fields
         | lower(field="network.transport", as="network.transport");
     in(values=[002, 003, 004]) =>
           event.outcome := "success"
-          | array:append(array="event.category[]", values=["service","authentication"])
+          | array:append(array="event.category[]", values=["session","authentication"])
           | array:append(array="event.type[]", values=["connection","info"])
           | Vendor.message = /User=(?<user.name>\S+?),.*?IP=(?<client.ip>\S+?),\s(?<Vendor.sub_message>.*)/
           | case {
