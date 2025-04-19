@@ -436,12 +436,14 @@ With createEvent() data..
 // Users_Table
 createEvents(["name=john,ph=555-1234", "name=joe,ph=555-9999", "name=sarah,ph=555-3366", "name=megan,ph=555-2244"])| kvParse()
 ```
+
 ![Screenshot 2025-03-31 at 4 19 05 PM](https://github.com/user-attachments/assets/3263fbd1-98dc-4058-81e4-c9798353b956)
 
 ```f#
 // Logs or Product_Table
 createEvents(["name=john,product=apples,cnt=12", "name=john,product=bananas,cnt=1", "name=joe,product=apples,cnt=1", "name=sarah,product=apples,cnt=1", "name=sarah,product=apples,cnt=1", "name=holly,product=apples,cnt=1"])| kvParse()`
 ```
+
 ![Screenshot 2025-03-31 at 4 18 56 PM](https://github.com/user-attachments/assets/7aaeb311-7385-4200-abbf-7aa3210f371f)
 
 
@@ -521,6 +523,12 @@ https://library.humio.com/data-analysis/query-joins-methods-adhoc-tables.html#qu
 
 ## Subquery Comparison 
 
+I want to match N or more conditions if a series of subqueries.
+
+* Each subquery, in this instance all `regex()`, are checked. 
+* If the values are found set a 1 else set a 0.
+* Add up the 1s and see if the are GTE than my N value.
+
 ```f#
 createEvents(["name=john,product=apples,price=1.12,organic=false,harvest=1744201562,transactionId=000000012,cnt=12",
 "name=john,product=bananas,price=0.98,organic=false,harvest=1744203262,transactionId=000000013,cnt=1",
@@ -547,7 +555,8 @@ createEvents(["name=john,product=apples,price=1.12,organic=false,harvest=1744201
 "name=jane,product=pears,price=1.75,organic=false,harvest=1744395262,transactionId=000000034,cnt=2",
 "name=joe,product=oranges,price=1.50,organic=true,harvest=1744405262,transactionId=000000035,cnt=1",
 "name=sarah,product=grapes,price=2.10,organic=true,lowcarbon=true,harvest=1744415262,transactionId=000000036,cnt=4",
-"name=holly,product=peaches,price=2.25,organic=true,harvest=1744425262,transactionId=000000037,cnt=5"]) | kvParse() | findTimestamp(field=harvest)
+"name=holly,product=peaches,price=2.25,organic=true,harvest=1744425262,transactionId=000000037,cnt=5"]) 
+| kvParse() | findTimestamp(field=harvest)
 | head()
 | name=*
 | groupBy(
@@ -573,7 +582,7 @@ createEvents(["name=john,product=apples,price=1.12,organic=false,harvest=1744201
 ![Screenshot 2025-04-09 at 3 37 05 PM](https://github.com/user-attachments/assets/52698b5e-c4bc-4c13-97be-2a76d5985d24)
 
 
-### Explanation of the above query:
+### Further Explanation of the above query:
 
 Using `if()` to ensure the value of `q[x]` is set to 1 or 0.
 
@@ -607,21 +616,29 @@ Using `if()` to ensure the value of `q[x]` is set to 1 or 0.
 
 * `table()` is used to show the results in a table format with the fields specified.
 
-## metaprogramming
+## Meta-programming - Dynamic variables
 
-use format(), setfield(), getfield(), and sometimes eval()
+use `format()`, `setfield()`, `getfield()`, and sometimes `eval()` to programmatically read or write from a variable.
+
+### Set variables
 
 ```f#
 | tld := format("%s.%s", field=[lastButOneValue, lastValue])
 | item := 4
 | setField(target="foo", value=item + 10)
 | setField(target="baaz", value=if(item == 4, then="OK", else="not OK"))
+```
 
-// on the fly function
+### on the fly function
+
+```f#
 | eval(itembytes = item * 1024)
+```
 
-// last index of array
+### last index of array
+
+```f#
 | index := array:length("foo[]")-1
 | fieldName := format("foo[%s]", field=[index])
-| result := getField(fieldName)
+| getField(fieldName, as=result)
 ```

@@ -1,0 +1,6 @@
+name: xxxx-json
+fieldsToBeRemovedBeforeParsing: []
+$schema: https://schemas.humio.com/parser/v0.3.0
+script: parseJson() | parseTimestamp("yyyy-MM-dd'T'HH:mm:ss[.SSSSSS]XXX", field=_other_timestamp)
+tagFields:
+- xxxx

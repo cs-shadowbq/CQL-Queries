@@ -208,10 +208,23 @@ Using the `aid_master_main.csv` lookup, and using the helper to swap the decimal
 ```f#
 ...
 // Look for IOCs for someurl DNS. The strict option only returns matches.
-      | ioc:lookup(field=someurl, type=url, confidenceThreshold=unverified)
-      | default(value="No CrowdStrike intelligence available for this IOC.", field=[ioc[0].labels])
-      | groupBy([Vendor.timestamp,someurl], function=([collect([Vendor.timestamp,someurl, ioc[0].labels])]))
-​
-      | falconIntel:=replace(field="ioc[0].labels", regex="\,", with="\n")
-      | falconIntel:=replace(field="falconIntel", regex="\/", with=": ")
+createEvents(["somedomain='falcon.crowdstrike.com'","somedomain='adobeincorp.com'"])
+| kvParse()
+| ioc:lookup(field=somedomain, type=domain, confidenceThreshold=unverified)
+| default(value="No CrowdStrike intelligence available for this IOC.", field=[ioc[0].labels])
+| groupBy([somedomain], function=([collect([somedomain, ioc[0].labels])]))
+```​
+
+```f#
+...
+| falconIntel:=replace(field="ioc[0].labels", regex="\,", with="\n")
+| falconIntel:=replace(field="falconIntel", regex="\/", with="=")
+| drop(["ioc[0].labels"])
 ```
+
+
+createEvents("Foo=Bar\nThreatType=CredentialHarvesting\nThreatType=RAT\nThreatType=Targeted\nMalware=BeaverTail\nMalware=InvisibleFerret")
+| kvParse()
+//| drop([ThreatType])
+| @rawstring=/(?<ThreatType>ThreatType=[^\n]+(?:\nThreatType=[^\n]+))/
+| @rawstring=/(?<Malware>Malware=[^\n]+(?:\nMalware=[^\n]+))/
