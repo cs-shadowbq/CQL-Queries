@@ -207,7 +207,7 @@ Using the `aid_master_main.csv` lookup, and using the helper to swap the decimal
 
 ```f#
 ...
-// Look for IOCs for someurl DNS. The strict option only returns matches.
+// Look for IOCs for somedomain DNS. The strict option only returns matches.
 createEvents(["somedomain='falcon.crowdstrike.com'","somedomain='adobeincorp.com'"])
 | kvParse()
 | ioc:lookup(field=somedomain, type=domain, confidenceThreshold=unverified)
@@ -221,10 +221,3 @@ createEvents(["somedomain='falcon.crowdstrike.com'","somedomain='adobeincorp.com
 | falconIntel:=replace(field="falconIntel", regex="\/", with="=")
 | drop(["ioc[0].labels"])
 ```
-
-
-createEvents("Foo=Bar\nThreatType=CredentialHarvesting\nThreatType=RAT\nThreatType=Targeted\nMalware=BeaverTail\nMalware=InvisibleFerret")
-| kvParse()
-//| drop([ThreatType])
-| @rawstring=/(?<ThreatType>ThreatType=[^\n]+(?:\nThreatType=[^\n]+))/
-| @rawstring=/(?<Malware>Malware=[^\n]+(?:\nMalware=[^\n]+))/
