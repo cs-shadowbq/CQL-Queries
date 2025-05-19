@@ -263,6 +263,14 @@ if(regex("^5", field=statuscode), then="server error", else=
 | critical_status := if((in(status, values=["500", "404"])), then="Critical", else="Non-Critical")
 ```
 
+## simple emoji
+
+simple emoji enrichment could be balls, colors, etc..
+
+```f#
+status := if(errors==0, then="👍", else="👎")
+```
+
 ## Formatting
 
 ### Human Readable numbers (kb,mb,gb,tb)
