@@ -196,6 +196,23 @@ createEvents(["ipv4=17.32.15.5","ipv4=45.67.89.12","ipv4=23.45.67.89","ipv4=54.3
 ```
 ![Basic IPV4 ipsLocation Results](https://github.com/user-attachments/assets/c53b16c7-82de-4729-a019-287db3e1bba1)
 
+`cc_lookup.csv` Data Example
+
+```f#
+readFile("cc_lookup.csv")
+```
+
+![CC Lookup Data](https://github.com/user-attachments/assets/f2c57e7b-7a51-4272-8f5e-dc991339896b)
+
+
+`cc_lookup.csv` Data Schema of Lookup file ( dataset())
+
+```f#
+readFile("cc_lookup.csv")
+| head(1)
+| fieldset()
+```
+![CC Lookup Data FieldSet](https://github.com/user-attachments/assets/87550031-6b2c-456d-8165-b0925a98eb68)
 
 Use [cc_lookup.csv](./data-lookupfiles/cc_lookup.csv) to enrich with Emoji Flags
 
