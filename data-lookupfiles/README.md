@@ -2,6 +2,16 @@
 
 This directory contains lookup files for various data types. The files are used to create events in the system.
 
+## CSV Requirements
+
+* The first row must contain column names.
+* Max file size: 200MB
+* Double quote whitespace
+* Min 2 columns
+* Every row must contain matching column counts
+* CSV uses commas to seperate columns
+
+
 ## Emoji Flag Lookup
 
 Creates a country code lookup files for ISO3166 - 1 Alpha2 and Alpha3 to Emoji(15.1.0) Country Flags and TLD.
