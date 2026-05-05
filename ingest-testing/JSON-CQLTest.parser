@@ -1,0 +1,71 @@
+// =====================================================================
+// STATIC METADATA
+// =====================================================================
+| Vendor          := "TestLab"
+| Parser.version  := "1.0.0"
+| ecs.version     := "8.17.0"
+| Cps.version     := "2.0.0"
+| event.module    := "test_events"
+| observer.type   := "host"
+
+// =====================================================================
+// PREPARSE — JSON
+// =====================================================================
+| parseJson(prefix="Vendor.", excludeEmpty="true", handleNull="discard")
+
+// =====================================================================
+// TIMESTAMP
+// ⚠️  Use findTimestamp — scans @rawstring directly
+//     This avoids the @timestamp reserved field conflict entirely
+// =====================================================================
+| findTimestamp(field="@rawstring", timezone="UTC")
+
+// =====================================================================
+// NORMALIZATION — Dynamic based on event_type / phase
+// =====================================================================
+| event.kind := "event"
+
+// Auth events
+| case {
+    Vendor.event_type = "auth" 
+      | array:append(array="event.category[]", values=["authentication"])
+      | array:append(array="event.type[]", values=["start"]) ;
+
+    Vendor.event_type = "network" 
+      | array:append(array="event.category[]", values=["network"])
+      | array:append(array="event.type[]", values=["connection"]) ;
+
+    Vendor.event_type = "process" 
+      | array:append(array="event.category[]", values=["process"])
+      | array:append(array="event.type[]", values=["start"]) ;
+
+    Vendor.phase = "recon" 
+      | array:append(array="event.category[]", values=["network"])
+      | array:append(array="event.type[]", values=["info"]) ;
+
+    Vendor.phase = "exploit" 
+      | array:append(array="event.category[]", values=["intrusion_detection"])
+      | array:append(array="event.type[]", values=["info"]) ;
+
+    Vendor.phase = "exfil" 
+      | array:append(array="event.category[]", values=["network"])
+      | array:append(array="event.type[]", values=["info"]) ;
+
+    *
+      | array:append(array="event.category[]", values=["host"])
+      | array:append(array="event.type[]", values=["info"]) ;
+}
+
+// =====================================================================
+// FIELD MAPPING
+// =====================================================================
+| user.name             := Vendor.user
+| source.ip             := Vendor.src_ip
+| destination.ip        := Vendor.dst_ip
+| destination.port      := Vendor.dst_port
+| host.name             := Vendor.host
+| process.pid           := Vendor.pid
+| process.executable    := Vendor.image
+| process.command_line  := Vendor.cmdline
+| vulnerability.id      := Vendor.cve
+| network.bytes         := Vendor.bytes_sent
