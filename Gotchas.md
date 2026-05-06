@@ -7,6 +7,36 @@ Organized by the markdown file where each topic best belongs.
 
 ## General / Pipeline (`README.md`)
 
+### `head()` vs `limit()` — No Standalone `limit()` Function, and `sort() | head()` Does Not Preserve Order
+
+`limit()` does not exist as a standalone pipeline function. Use `head(n)` to return the first `n` rows, or use `limit=` as a *parameter* on `groupBy()`, `sort()`, and `table()`.
+
+Additionally, chaining `sort()` then `head()` does **not** guarantee the sorted order is preserved — `head()` may return rows in arbitrary order. Always use `limit=` directly on `sort()` to atomically sort and cap in one step. Also note `head()` takes a positional integer, not `limit=` as a named parameter.
+
+```f#
+// WRONG — limit() is not a function
+| sort(field, order=desc)
+| limit(10)
+
+// WRONG — head(limit=10) is not valid syntax; head() takes a positional arg
+| sort(field, order=desc)
+| head(limit=10)
+
+// WRONG — sort order is not guaranteed to be preserved by downstream head()
+| sort(field, order=desc)
+| head(10)
+
+// CORRECT — sort and cap atomically; order is guaranteed
+| sort(field, order=desc, limit=10)
+
+// CORRECT — limit= as a parameter on groupBy/sort/table
+| groupBy([host], function=count(as=n), limit=max)
+| sort(n, order=desc, limit=10)
+| table([host, n], limit=max)
+```
+
+---
+
 ### `table()` and `select()` — Row Cap
 
 `table()` caps at 200 rows by default. Always add `limit=max` to remove the cap. `select()` is the canonical cap-free alternative — it does not aggregate and has no row limit.
@@ -90,6 +120,31 @@ SQL-style `in()` is not supported. Use the explicit function form.
 | eval(pct = (a / b) * 100)
 | round(pct)
 ```
+
+### `join()` — 200k Row Cap and No Multi-Cluster Support
+
+`join()` subqueries are hard-capped at **200,000 rows**. Subqueries that exceed this silently truncate, producing incomplete results with no error. `join()` also does not work in multi-cluster views.
+
+Prefer `defineTable()` + `match()` for any join that may return large result sets or runs across clusters:
+
+```f#
+// AVOID for large datasets or multi-cluster views
+| join(query={...}, field=aid, include=[hostname])
+
+// PREFER — no row cap, multi-cluster compatible
+defineTable(name="hosts", query={...}, include=[aid, hostname])
+| #repo="base_sensor" ...
+| match(table="hosts", field=aid, column=aid, include=[hostname], strict=false)
+```
+
+**Why defineTable + match is faster:**
+
+- Subquery and primary query execute separately and in parallel; `join()` is sequential
+- Ad-hoc tables are compressed in memory for live queries
+- `strict=false` gives left-join semantics (keep unmatched rows); `strict=true` (default) gives inner join
+- Mid-query table contents are visible in the UI for validation before the final match runs
+
+Use `join()` only when you need a right join or when the subquery is guaranteed small (well under 200k rows).
 
 ### `readFile()` Cannot Be OR'd With Event Stream Queries
 
@@ -320,9 +375,9 @@ When an enriched or joined field is needed as a `groupBy` key or filter, enrichm
 
 ### Additional References
 
-- Parser schema: https://schemas.humio.com/parser/v0.3.0
-- Parsing standard (PASTA): https://library.humio.com/logscale-parsing-standard/pasta.html
-- ECS field reference: https://www.elastic.co/docs/reference/ecs/ecs-category-field-values-reference
+- Parser schema: [https://schemas.humio.com/parser/v0.3.0](https://schemas.humio.com/parser/v0.3.0)
+- Parsing standard (PASTA): [https://library.humio.com/logscale-parsing-standard/pasta.html](https://library.humio.com/logscale-parsing-standard/pasta.html)
+- ECS field reference: [https://www.elastic.co/docs/reference/ecs/ecs-category-field-values-reference](https://www.elastic.co/docs/reference/ecs/ecs-category-field-values-reference)
 
 ---
 
@@ -353,7 +408,7 @@ Insert `fieldset()` at any point in the pipeline to see what fields are availabl
 | fieldset()
 ```
 
-### `case{}` Supports Regex — `if()` Does Not
+### `case{}` Regex Support in Parsers — `if()` Does Not
 
 Parsers make heavy use of both conditional forms. `if()` does not support regex conditions — use `case{}` for any regex-based conditional assignment.
 

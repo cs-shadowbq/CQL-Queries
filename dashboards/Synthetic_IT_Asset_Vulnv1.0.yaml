@@ -1,0 +1,1524 @@
+$schema: https://schemas.humio.com/dashboard/v0.23.0
+name: "CQL Demo — Synthetic IT Asset & Vulnerability Dashboard - Alt- v1.0.0"
+timeSelector:
+  defaultTimeJumpInMs: 30000
+sharedTimeInterval:
+  enabled: true
+  isLive: false
+  start: 60d
+labels:
+  - IT Asset Management
+  - Vulnerability Management
+  - Security & Compliance
+
+parameters:
+  plat_filter:
+    label: Platform
+    order: 1
+    type: list
+    defaultValue: '*'
+    width: 1
+    values:
+      '*': 'All'
+      Win: Windows
+      Mac: macOS
+      Lin: Linux
+
+  dept_filter:
+    label: Department
+    order: 2
+    type: text
+    defaultValue: '*'
+    width: 2
+
+  asset_type_filter:
+    label: Asset Type
+    order: 3
+    type: list
+    defaultValue: '*'
+    width: 1
+    values:
+      '*': 'All'
+      Server: Server
+      Workstation: Workstation
+      Laptop: Laptop
+
+  sev_filter:
+    label: Severity
+    order: 4
+    type: list
+    defaultValue: '*'
+    width: 1
+    values:
+      '*': 'All'
+      Critical: Critical
+      High: High
+      Medium: Medium
+      Low: Low
+
+  status_filter:
+    label: Vuln Status
+    order: 5
+    type: list
+    defaultValue: '*'
+    width: 1
+    values:
+      '*': 'All'
+      Open: Open
+      Patched: Patched
+      Accepted: Accepted
+
+  category_filter:
+    label: Category
+    order: 6
+    type: list
+    defaultValue: '*'
+    width: 1
+    values:
+      '*': 'All'
+      OS: OS
+      App: Application
+      Config: Configuration
+
+sections:
+  section-assets:
+    title: "Asset Inventory"
+    order: 0
+    collapsed: false
+    widgetIds:
+      - widget-params-assets
+      - widget-note-assets
+      - kpi-total-assets
+      - kpi-managed
+      - kpi-servers
+      - kpi-unmanaged
+      - chart-platform-assets
+      - chart-dept-assets
+      - chart-asset-type
+      - gauge-managed
+      - map-assets
+      - table-assets
+
+  section-vulns:
+    title: "Vulnerability Management"
+    order: 1
+    collapsed: false
+    widgetIds:
+      - widget-params-vulns
+      - widget-note-vulns
+      - kpi-vuln-total
+      - kpi-vuln-critical
+      - kpi-vuln-open
+      - kpi-vuln-hosts
+      - sankey-vuln-flow
+      - chart-vuln-by-sev
+      - gauge-patch-rate
+      - table-top-vuln-hosts
+      - chart-vuln-timeline
+      - table-vuln-detail
+
+widgets:
+
+  # ─── SECTION 1: ASSET INVENTORY ──────────────────────────────────────────────
+
+  # ─── Parameter Panel ─────────────────────────────────────────────────────────
+  widget-params-assets:
+    type: parameterPanel
+    title: ''
+    x: 0
+    y: 0
+    width: 7
+    height: 2
+    parameterIds:
+      - plat_filter
+      - dept_filter
+      - asset_type_filter
+
+  # ─── Documentation Note (sidebar) ────────────────────────────────────────────
+  widget-note-assets:
+    type: note
+    title: ''
+    x: 7
+    y: 0
+    width: 5
+    height: 16
+    text: |
+      ```
+      CQL Demo — Synthetic IT Asset & Vulnerability Dashboard
+      Version: 1.0.0  |  Data: createEvents() synthetic
+      ```
+
+      ## Section 1 — Asset Inventory
+
+      **Zero dependencies** — all 25 asset records generated
+      inline via `createEvents()`. No repository needed.
+
+      ## CQL Patterns Demonstrated
+
+      | Widget | Key Pattern |
+      |--------|------------|
+      | Total Assets KPI | `count()` |
+      | Managed / Servers KPIs | equality filter + `count()` |
+      | Unmanaged KPI | `managed = "false"` + red background |
+      | Platform Pie | `groupBy()` + named `series:` colors |
+      | Department Bar | `groupBy()` + `sort(_count, desc)` |
+      | Asset Type Donut | `groupBy()` + `innerRadius: 0.4` |
+      | Managed % Gauge | `stats()` + percentage formula |
+      | World Map | `lat * 1` coercion → `worldMap()` |
+      | Asset Table | `select()` + emoji via `case{}` |
+
+      ## Filters
+      - **Platform / Asset Type** — `list` param →
+        `wildcard(includeEverythingOnAsterisk=true)`
+      - **Department** — `text` param →
+        `wildcard(ignoreCase=true)`
+
+      ## Time Range Note
+      Set to **Last 60 days** — synthetic asset timestamps are
+      fixed in May 2025. `createEvents()` ignores repo time
+      range so all 25 assets always appear.
+
+      ## Promoting to Production
+      Replace `createEvents([...]) | kvParse()`
+      with your real `#repo` and tag filters.
+
+  # ─── KPI: Total Assets ───────────────────────────────────────────────────────
+  kpi-total-assets:
+    type: query
+    title: "Total Assets"
+    description: "All assets matching active filters"
+    x: 0
+    y: 2
+    width: 2
+    height: 3
+    visualization: single-value
+    isLive: false
+    start: 60d
+    queryString: |
+      createEvents([
+        "aid=A001,host=ws-london-01,os=Windows_11,plat=Win,dept=Finance,owner=alice,ip=192.168.1.10,lat=51.5074,lon=-0.1278,country=UK,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A002,host=ws-nyc-02,os=Windows_11,plat=Win,dept=Engineering,owner=bob,ip=10.1.2.20,lat=40.7128,lon=-74.006,country=US,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A003,host=mac-berlin-03,os=macOS_14,plat=Mac,dept=Marketing,owner=carol,ip=172.16.3.30,lat=52.52,lon=13.405,country=DE,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A004,host=lnx-srv-04,os=RHEL_9,plat=Lin,dept=IT,owner=dave,ip=10.0.0.4,lat=37.7749,lon=-122.4194,country=US,asset_type=Server,managed=true,ts=1747036800",
+        "aid=A005,host=ws-sydney-05,os=Windows_10,plat=Win,dept=HR,owner=eve,ip=192.168.5.50,lat=-33.8688,lon=151.2093,country=AU,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A006,host=lnx-srv-06,os=Ubuntu_22,plat=Lin,dept=IT,owner=frank,ip=10.0.0.6,lat=43.6532,lon=-79.3832,country=CA,asset_type=Server,managed=true,ts=1747036800",
+        "aid=A007,host=ws-paris-07,os=Windows_11,plat=Win,dept=Finance,owner=grace,ip=192.168.7.70,lat=48.8566,lon=2.3522,country=FR,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A008,host=mac-tokyo-08,os=macOS_13,plat=Mac,dept=Engineering,owner=heidi,ip=172.16.8.80,lat=35.6762,lon=139.6503,country=JP,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A009,host=lnx-srv-09,os=CentOS_8,plat=Lin,dept=IT,owner=ivan,ip=10.0.0.9,lat=51.5074,lon=-0.1278,country=UK,asset_type=Server,managed=false,ts=1747036800",
+        "aid=A010,host=ws-chicago-10,os=Windows_10,plat=Win,dept=Marketing,owner=judy,ip=192.168.10.100,lat=41.8781,lon=-87.6298,country=US,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A011,host=ws-boston-11,os=Windows_11,plat=Win,dept=HR,owner=karl,ip=10.1.11.110,lat=42.3601,lon=-71.0589,country=US,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A012,host=mac-sf-12,os=macOS_14,plat=Mac,dept=Engineering,owner=lara,ip=172.16.12.120,lat=37.7749,lon=-122.4194,country=US,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A013,host=lnx-srv-13,os=Ubuntu_22,plat=Lin,dept=IT,owner=mike,ip=10.0.0.13,lat=52.52,lon=13.405,country=DE,asset_type=Server,managed=true,ts=1747036800",
+        "aid=A014,host=ws-toronto-14,os=Windows_10,plat=Win,dept=Finance,owner=nancy,ip=192.168.14.140,lat=43.6532,lon=-79.3832,country=CA,asset_type=Workstation,managed=false,ts=1747036800",
+        "aid=A015,host=ws-milan-15,os=Windows_11,plat=Win,dept=Marketing,owner=oscar,ip=10.1.15.150,lat=45.4654,lon=9.1859,country=IT,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A016,host=mac-london-16,os=macOS_13,plat=Mac,dept=HR,owner=paula,ip=172.16.16.160,lat=51.5074,lon=-0.1278,country=UK,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A017,host=lnx-srv-17,os=RHEL_8,plat=Lin,dept=IT,owner=quinn,ip=10.0.0.17,lat=40.7128,lon=-74.006,country=US,asset_type=Server,managed=true,ts=1747036800",
+        "aid=A018,host=ws-seattle-18,os=Windows_11,plat=Win,dept=Engineering,owner=rachel,ip=192.168.18.180,lat=47.6062,lon=-122.3321,country=US,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A019,host=ws-amsterdam-19,os=Windows_10,plat=Win,dept=Finance,owner=steve,ip=10.1.19.190,lat=52.3676,lon=4.9041,country=NL,asset_type=Workstation,managed=false,ts=1747036800",
+        "aid=A020,host=mac-sydney-20,os=macOS_14,plat=Mac,dept=Marketing,owner=tara,ip=172.16.20.200,lat=-33.8688,lon=151.2093,country=AU,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A021,host=lnx-srv-21,os=Ubuntu_20,plat=Lin,dept=IT,owner=uma,ip=10.0.0.21,lat=48.8566,lon=2.3522,country=FR,asset_type=Server,managed=true,ts=1747036800",
+        "aid=A022,host=ws-dallas-22,os=Windows_10,plat=Win,dept=HR,owner=victor,ip=192.168.22.220,lat=32.7767,lon=-96.797,country=US,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A023,host=mac-paris-23,os=macOS_13,plat=Mac,dept=Engineering,owner=wendy,ip=172.16.23.230,lat=48.8566,lon=2.3522,country=FR,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A024,host=lnx-srv-24,os=Debian_12,plat=Lin,dept=IT,owner=xander,ip=10.0.0.24,lat=35.6762,lon=139.6503,country=JP,asset_type=Server,managed=false,ts=1747036800",
+        "aid=A025,host=ws-denver-25,os=Windows_11,plat=Win,dept=Engineering,owner=yara,ip=192.168.25.250,lat=39.7392,lon=-104.9903,country=US,asset_type=Workstation,managed=true,ts=1747036800"
+      ])
+      | kvParse()
+      // Dashboard filters
+      | wildcard(field=plat, pattern=?plat_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=dept, pattern=?dept_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=asset_type, pattern=?asset_type_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | count(as=Total)
+      | Total := format("%,.0f", field=Total)
+    options:
+      default: {}
+
+  # ─── KPI: Managed Assets ─────────────────────────────────────────────────────
+  kpi-managed:
+    type: query
+    title: "Managed Assets"
+    description: "Assets with managed endpoint agent enrolled"
+    x: 2
+    y: 2
+    width: 2
+    height: 3
+    visualization: single-value
+    isLive: false
+    start: 60d
+    queryString: |
+      createEvents([
+        "aid=A001,host=ws-london-01,os=Windows_11,plat=Win,dept=Finance,owner=alice,ip=192.168.1.10,lat=51.5074,lon=-0.1278,country=UK,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A002,host=ws-nyc-02,os=Windows_11,plat=Win,dept=Engineering,owner=bob,ip=10.1.2.20,lat=40.7128,lon=-74.006,country=US,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A003,host=mac-berlin-03,os=macOS_14,plat=Mac,dept=Marketing,owner=carol,ip=172.16.3.30,lat=52.52,lon=13.405,country=DE,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A004,host=lnx-srv-04,os=RHEL_9,plat=Lin,dept=IT,owner=dave,ip=10.0.0.4,lat=37.7749,lon=-122.4194,country=US,asset_type=Server,managed=true,ts=1747036800",
+        "aid=A005,host=ws-sydney-05,os=Windows_10,plat=Win,dept=HR,owner=eve,ip=192.168.5.50,lat=-33.8688,lon=151.2093,country=AU,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A006,host=lnx-srv-06,os=Ubuntu_22,plat=Lin,dept=IT,owner=frank,ip=10.0.0.6,lat=43.6532,lon=-79.3832,country=CA,asset_type=Server,managed=true,ts=1747036800",
+        "aid=A007,host=ws-paris-07,os=Windows_11,plat=Win,dept=Finance,owner=grace,ip=192.168.7.70,lat=48.8566,lon=2.3522,country=FR,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A008,host=mac-tokyo-08,os=macOS_13,plat=Mac,dept=Engineering,owner=heidi,ip=172.16.8.80,lat=35.6762,lon=139.6503,country=JP,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A009,host=lnx-srv-09,os=CentOS_8,plat=Lin,dept=IT,owner=ivan,ip=10.0.0.9,lat=51.5074,lon=-0.1278,country=UK,asset_type=Server,managed=false,ts=1747036800",
+        "aid=A010,host=ws-chicago-10,os=Windows_10,plat=Win,dept=Marketing,owner=judy,ip=192.168.10.100,lat=41.8781,lon=-87.6298,country=US,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A011,host=ws-boston-11,os=Windows_11,plat=Win,dept=HR,owner=karl,ip=10.1.11.110,lat=42.3601,lon=-71.0589,country=US,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A012,host=mac-sf-12,os=macOS_14,plat=Mac,dept=Engineering,owner=lara,ip=172.16.12.120,lat=37.7749,lon=-122.4194,country=US,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A013,host=lnx-srv-13,os=Ubuntu_22,plat=Lin,dept=IT,owner=mike,ip=10.0.0.13,lat=52.52,lon=13.405,country=DE,asset_type=Server,managed=true,ts=1747036800",
+        "aid=A014,host=ws-toronto-14,os=Windows_10,plat=Win,dept=Finance,owner=nancy,ip=192.168.14.140,lat=43.6532,lon=-79.3832,country=CA,asset_type=Workstation,managed=false,ts=1747036800",
+        "aid=A015,host=ws-milan-15,os=Windows_11,plat=Win,dept=Marketing,owner=oscar,ip=10.1.15.150,lat=45.4654,lon=9.1859,country=IT,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A016,host=mac-london-16,os=macOS_13,plat=Mac,dept=HR,owner=paula,ip=172.16.16.160,lat=51.5074,lon=-0.1278,country=UK,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A017,host=lnx-srv-17,os=RHEL_8,plat=Lin,dept=IT,owner=quinn,ip=10.0.0.17,lat=40.7128,lon=-74.006,country=US,asset_type=Server,managed=true,ts=1747036800",
+        "aid=A018,host=ws-seattle-18,os=Windows_11,plat=Win,dept=Engineering,owner=rachel,ip=192.168.18.180,lat=47.6062,lon=-122.3321,country=US,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A019,host=ws-amsterdam-19,os=Windows_10,plat=Win,dept=Finance,owner=steve,ip=10.1.19.190,lat=52.3676,lon=4.9041,country=NL,asset_type=Workstation,managed=false,ts=1747036800",
+        "aid=A020,host=mac-sydney-20,os=macOS_14,plat=Mac,dept=Marketing,owner=tara,ip=172.16.20.200,lat=-33.8688,lon=151.2093,country=AU,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A021,host=lnx-srv-21,os=Ubuntu_20,plat=Lin,dept=IT,owner=uma,ip=10.0.0.21,lat=48.8566,lon=2.3522,country=FR,asset_type=Server,managed=true,ts=1747036800",
+        "aid=A022,host=ws-dallas-22,os=Windows_10,plat=Win,dept=HR,owner=victor,ip=192.168.22.220,lat=32.7767,lon=-96.797,country=US,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A023,host=mac-paris-23,os=macOS_13,plat=Mac,dept=Engineering,owner=wendy,ip=172.16.23.230,lat=48.8566,lon=2.3522,country=FR,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A024,host=lnx-srv-24,os=Debian_12,plat=Lin,dept=IT,owner=xander,ip=10.0.0.24,lat=35.6762,lon=139.6503,country=JP,asset_type=Server,managed=false,ts=1747036800",
+        "aid=A025,host=ws-denver-25,os=Windows_11,plat=Win,dept=Engineering,owner=yara,ip=192.168.25.250,lat=39.7392,lon=-104.9903,country=US,asset_type=Workstation,managed=true,ts=1747036800"
+      ])
+      | kvParse()
+      | wildcard(field=plat, pattern=?plat_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=dept, pattern=?dept_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=asset_type, pattern=?asset_type_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | managed = "true"
+      | count(as=Managed)
+      | Managed := format("%,.0f", field=Managed)
+    options:
+      background-color: '#34B248'
+      default: {}
+
+  # ─── KPI: Server Count ───────────────────────────────────────────────────────
+  kpi-servers:
+    type: query
+    title: "Servers"
+    description: "Assets classified as Server (platform and dept filters apply)"
+    x: 4
+    y: 2
+    width: 2
+    height: 3
+    visualization: single-value
+    isLive: false
+    start: 60d
+    queryString: |
+      createEvents([
+        "aid=A001,host=ws-london-01,os=Windows_11,plat=Win,dept=Finance,owner=alice,ip=192.168.1.10,lat=51.5074,lon=-0.1278,country=UK,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A002,host=ws-nyc-02,os=Windows_11,plat=Win,dept=Engineering,owner=bob,ip=10.1.2.20,lat=40.7128,lon=-74.006,country=US,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A003,host=mac-berlin-03,os=macOS_14,plat=Mac,dept=Marketing,owner=carol,ip=172.16.3.30,lat=52.52,lon=13.405,country=DE,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A004,host=lnx-srv-04,os=RHEL_9,plat=Lin,dept=IT,owner=dave,ip=10.0.0.4,lat=37.7749,lon=-122.4194,country=US,asset_type=Server,managed=true,ts=1747036800",
+        "aid=A005,host=ws-sydney-05,os=Windows_10,plat=Win,dept=HR,owner=eve,ip=192.168.5.50,lat=-33.8688,lon=151.2093,country=AU,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A006,host=lnx-srv-06,os=Ubuntu_22,plat=Lin,dept=IT,owner=frank,ip=10.0.0.6,lat=43.6532,lon=-79.3832,country=CA,asset_type=Server,managed=true,ts=1747036800",
+        "aid=A007,host=ws-paris-07,os=Windows_11,plat=Win,dept=Finance,owner=grace,ip=192.168.7.70,lat=48.8566,lon=2.3522,country=FR,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A008,host=mac-tokyo-08,os=macOS_13,plat=Mac,dept=Engineering,owner=heidi,ip=172.16.8.80,lat=35.6762,lon=139.6503,country=JP,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A009,host=lnx-srv-09,os=CentOS_8,plat=Lin,dept=IT,owner=ivan,ip=10.0.0.9,lat=51.5074,lon=-0.1278,country=UK,asset_type=Server,managed=false,ts=1747036800",
+        "aid=A010,host=ws-chicago-10,os=Windows_10,plat=Win,dept=Marketing,owner=judy,ip=192.168.10.100,lat=41.8781,lon=-87.6298,country=US,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A011,host=ws-boston-11,os=Windows_11,plat=Win,dept=HR,owner=karl,ip=10.1.11.110,lat=42.3601,lon=-71.0589,country=US,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A012,host=mac-sf-12,os=macOS_14,plat=Mac,dept=Engineering,owner=lara,ip=172.16.12.120,lat=37.7749,lon=-122.4194,country=US,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A013,host=lnx-srv-13,os=Ubuntu_22,plat=Lin,dept=IT,owner=mike,ip=10.0.0.13,lat=52.52,lon=13.405,country=DE,asset_type=Server,managed=true,ts=1747036800",
+        "aid=A014,host=ws-toronto-14,os=Windows_10,plat=Win,dept=Finance,owner=nancy,ip=192.168.14.140,lat=43.6532,lon=-79.3832,country=CA,asset_type=Workstation,managed=false,ts=1747036800",
+        "aid=A015,host=ws-milan-15,os=Windows_11,plat=Win,dept=Marketing,owner=oscar,ip=10.1.15.150,lat=45.4654,lon=9.1859,country=IT,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A016,host=mac-london-16,os=macOS_13,plat=Mac,dept=HR,owner=paula,ip=172.16.16.160,lat=51.5074,lon=-0.1278,country=UK,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A017,host=lnx-srv-17,os=RHEL_8,plat=Lin,dept=IT,owner=quinn,ip=10.0.0.17,lat=40.7128,lon=-74.006,country=US,asset_type=Server,managed=true,ts=1747036800",
+        "aid=A018,host=ws-seattle-18,os=Windows_11,plat=Win,dept=Engineering,owner=rachel,ip=192.168.18.180,lat=47.6062,lon=-122.3321,country=US,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A019,host=ws-amsterdam-19,os=Windows_10,plat=Win,dept=Finance,owner=steve,ip=10.1.19.190,lat=52.3676,lon=4.9041,country=NL,asset_type=Workstation,managed=false,ts=1747036800",
+        "aid=A020,host=mac-sydney-20,os=macOS_14,plat=Mac,dept=Marketing,owner=tara,ip=172.16.20.200,lat=-33.8688,lon=151.2093,country=AU,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A021,host=lnx-srv-21,os=Ubuntu_20,plat=Lin,dept=IT,owner=uma,ip=10.0.0.21,lat=48.8566,lon=2.3522,country=FR,asset_type=Server,managed=true,ts=1747036800",
+        "aid=A022,host=ws-dallas-22,os=Windows_10,plat=Win,dept=HR,owner=victor,ip=192.168.22.220,lat=32.7767,lon=-96.797,country=US,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A023,host=mac-paris-23,os=macOS_13,plat=Mac,dept=Engineering,owner=wendy,ip=172.16.23.230,lat=48.8566,lon=2.3522,country=FR,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A024,host=lnx-srv-24,os=Debian_12,plat=Lin,dept=IT,owner=xander,ip=10.0.0.24,lat=35.6762,lon=139.6503,country=JP,asset_type=Server,managed=false,ts=1747036800",
+        "aid=A025,host=ws-denver-25,os=Windows_11,plat=Win,dept=Engineering,owner=yara,ip=192.168.25.250,lat=39.7392,lon=-104.9903,country=US,asset_type=Workstation,managed=true,ts=1747036800"
+      ])
+      | kvParse()
+      | wildcard(field=plat, pattern=?plat_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=dept, pattern=?dept_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | asset_type = "Server"
+      | count(as=Servers)
+      | Servers := format("%,.0f", field=Servers)
+    options:
+      background-color: '#0b6c84'
+      default: {}
+
+  # ─── KPI: Unmanaged Assets ───────────────────────────────────────────────────
+  kpi-unmanaged:
+    type: query
+    title: "Unmanaged"
+    description: "Assets with no managed endpoint agent — highest risk"
+    x: 6
+    y: 2
+    width: 1
+    height: 3
+    visualization: single-value
+    isLive: false
+    start: 60d
+    queryString: |
+      createEvents([
+        "aid=A001,host=ws-london-01,os=Windows_11,plat=Win,dept=Finance,owner=alice,ip=192.168.1.10,lat=51.5074,lon=-0.1278,country=UK,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A002,host=ws-nyc-02,os=Windows_11,plat=Win,dept=Engineering,owner=bob,ip=10.1.2.20,lat=40.7128,lon=-74.006,country=US,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A003,host=mac-berlin-03,os=macOS_14,plat=Mac,dept=Marketing,owner=carol,ip=172.16.3.30,lat=52.52,lon=13.405,country=DE,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A004,host=lnx-srv-04,os=RHEL_9,plat=Lin,dept=IT,owner=dave,ip=10.0.0.4,lat=37.7749,lon=-122.4194,country=US,asset_type=Server,managed=true,ts=1747036800",
+        "aid=A005,host=ws-sydney-05,os=Windows_10,plat=Win,dept=HR,owner=eve,ip=192.168.5.50,lat=-33.8688,lon=151.2093,country=AU,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A006,host=lnx-srv-06,os=Ubuntu_22,plat=Lin,dept=IT,owner=frank,ip=10.0.0.6,lat=43.6532,lon=-79.3832,country=CA,asset_type=Server,managed=true,ts=1747036800",
+        "aid=A007,host=ws-paris-07,os=Windows_11,plat=Win,dept=Finance,owner=grace,ip=192.168.7.70,lat=48.8566,lon=2.3522,country=FR,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A008,host=mac-tokyo-08,os=macOS_13,plat=Mac,dept=Engineering,owner=heidi,ip=172.16.8.80,lat=35.6762,lon=139.6503,country=JP,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A009,host=lnx-srv-09,os=CentOS_8,plat=Lin,dept=IT,owner=ivan,ip=10.0.0.9,lat=51.5074,lon=-0.1278,country=UK,asset_type=Server,managed=false,ts=1747036800",
+        "aid=A010,host=ws-chicago-10,os=Windows_10,plat=Win,dept=Marketing,owner=judy,ip=192.168.10.100,lat=41.8781,lon=-87.6298,country=US,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A011,host=ws-boston-11,os=Windows_11,plat=Win,dept=HR,owner=karl,ip=10.1.11.110,lat=42.3601,lon=-71.0589,country=US,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A012,host=mac-sf-12,os=macOS_14,plat=Mac,dept=Engineering,owner=lara,ip=172.16.12.120,lat=37.7749,lon=-122.4194,country=US,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A013,host=lnx-srv-13,os=Ubuntu_22,plat=Lin,dept=IT,owner=mike,ip=10.0.0.13,lat=52.52,lon=13.405,country=DE,asset_type=Server,managed=true,ts=1747036800",
+        "aid=A014,host=ws-toronto-14,os=Windows_10,plat=Win,dept=Finance,owner=nancy,ip=192.168.14.140,lat=43.6532,lon=-79.3832,country=CA,asset_type=Workstation,managed=false,ts=1747036800",
+        "aid=A015,host=ws-milan-15,os=Windows_11,plat=Win,dept=Marketing,owner=oscar,ip=10.1.15.150,lat=45.4654,lon=9.1859,country=IT,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A016,host=mac-london-16,os=macOS_13,plat=Mac,dept=HR,owner=paula,ip=172.16.16.160,lat=51.5074,lon=-0.1278,country=UK,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A017,host=lnx-srv-17,os=RHEL_8,plat=Lin,dept=IT,owner=quinn,ip=10.0.0.17,lat=40.7128,lon=-74.006,country=US,asset_type=Server,managed=true,ts=1747036800",
+        "aid=A018,host=ws-seattle-18,os=Windows_11,plat=Win,dept=Engineering,owner=rachel,ip=192.168.18.180,lat=47.6062,lon=-122.3321,country=US,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A019,host=ws-amsterdam-19,os=Windows_10,plat=Win,dept=Finance,owner=steve,ip=10.1.19.190,lat=52.3676,lon=4.9041,country=NL,asset_type=Workstation,managed=false,ts=1747036800",
+        "aid=A020,host=mac-sydney-20,os=macOS_14,plat=Mac,dept=Marketing,owner=tara,ip=172.16.20.200,lat=-33.8688,lon=151.2093,country=AU,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A021,host=lnx-srv-21,os=Ubuntu_20,plat=Lin,dept=IT,owner=uma,ip=10.0.0.21,lat=48.8566,lon=2.3522,country=FR,asset_type=Server,managed=true,ts=1747036800",
+        "aid=A022,host=ws-dallas-22,os=Windows_10,plat=Win,dept=HR,owner=victor,ip=192.168.22.220,lat=32.7767,lon=-96.797,country=US,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A023,host=mac-paris-23,os=macOS_13,plat=Mac,dept=Engineering,owner=wendy,ip=172.16.23.230,lat=48.8566,lon=2.3522,country=FR,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A024,host=lnx-srv-24,os=Debian_12,plat=Lin,dept=IT,owner=xander,ip=10.0.0.24,lat=35.6762,lon=139.6503,country=JP,asset_type=Server,managed=false,ts=1747036800",
+        "aid=A025,host=ws-denver-25,os=Windows_11,plat=Win,dept=Engineering,owner=yara,ip=192.168.25.250,lat=39.7392,lon=-104.9903,country=US,asset_type=Workstation,managed=true,ts=1747036800"
+      ])
+      | kvParse()
+      | wildcard(field=plat, pattern=?plat_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=dept, pattern=?dept_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=asset_type, pattern=?asset_type_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | managed = "false"
+      | count(as=Unmanaged)
+      | Unmanaged := format("%,.0f", field=Unmanaged)
+    options:
+      background-color: '#DB2D24'
+      default: {}
+
+  # ─── Pie Chart: Platform Distribution ────────────────────────────────────────
+  chart-platform-assets:
+    type: query
+    title: "Assets by Platform"
+    description: "Distribution of assets by OS platform"
+    x: 0
+    y: 5
+    width: 3
+    height: 5
+    visualization: pie-chart
+    isLive: false
+    start: 60d
+    queryString: |
+      createEvents([
+        "aid=A001,host=ws-london-01,os=Windows_11,plat=Win,dept=Finance,owner=alice,ip=192.168.1.10,lat=51.5074,lon=-0.1278,country=UK,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A002,host=ws-nyc-02,os=Windows_11,plat=Win,dept=Engineering,owner=bob,ip=10.1.2.20,lat=40.7128,lon=-74.006,country=US,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A003,host=mac-berlin-03,os=macOS_14,plat=Mac,dept=Marketing,owner=carol,ip=172.16.3.30,lat=52.52,lon=13.405,country=DE,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A004,host=lnx-srv-04,os=RHEL_9,plat=Lin,dept=IT,owner=dave,ip=10.0.0.4,lat=37.7749,lon=-122.4194,country=US,asset_type=Server,managed=true,ts=1747036800",
+        "aid=A005,host=ws-sydney-05,os=Windows_10,plat=Win,dept=HR,owner=eve,ip=192.168.5.50,lat=-33.8688,lon=151.2093,country=AU,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A006,host=lnx-srv-06,os=Ubuntu_22,plat=Lin,dept=IT,owner=frank,ip=10.0.0.6,lat=43.6532,lon=-79.3832,country=CA,asset_type=Server,managed=true,ts=1747036800",
+        "aid=A007,host=ws-paris-07,os=Windows_11,plat=Win,dept=Finance,owner=grace,ip=192.168.7.70,lat=48.8566,lon=2.3522,country=FR,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A008,host=mac-tokyo-08,os=macOS_13,plat=Mac,dept=Engineering,owner=heidi,ip=172.16.8.80,lat=35.6762,lon=139.6503,country=JP,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A009,host=lnx-srv-09,os=CentOS_8,plat=Lin,dept=IT,owner=ivan,ip=10.0.0.9,lat=51.5074,lon=-0.1278,country=UK,asset_type=Server,managed=false,ts=1747036800",
+        "aid=A010,host=ws-chicago-10,os=Windows_10,plat=Win,dept=Marketing,owner=judy,ip=192.168.10.100,lat=41.8781,lon=-87.6298,country=US,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A011,host=ws-boston-11,os=Windows_11,plat=Win,dept=HR,owner=karl,ip=10.1.11.110,lat=42.3601,lon=-71.0589,country=US,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A012,host=mac-sf-12,os=macOS_14,plat=Mac,dept=Engineering,owner=lara,ip=172.16.12.120,lat=37.7749,lon=-122.4194,country=US,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A013,host=lnx-srv-13,os=Ubuntu_22,plat=Lin,dept=IT,owner=mike,ip=10.0.0.13,lat=52.52,lon=13.405,country=DE,asset_type=Server,managed=true,ts=1747036800",
+        "aid=A014,host=ws-toronto-14,os=Windows_10,plat=Win,dept=Finance,owner=nancy,ip=192.168.14.140,lat=43.6532,lon=-79.3832,country=CA,asset_type=Workstation,managed=false,ts=1747036800",
+        "aid=A015,host=ws-milan-15,os=Windows_11,plat=Win,dept=Marketing,owner=oscar,ip=10.1.15.150,lat=45.4654,lon=9.1859,country=IT,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A016,host=mac-london-16,os=macOS_13,plat=Mac,dept=HR,owner=paula,ip=172.16.16.160,lat=51.5074,lon=-0.1278,country=UK,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A017,host=lnx-srv-17,os=RHEL_8,plat=Lin,dept=IT,owner=quinn,ip=10.0.0.17,lat=40.7128,lon=-74.006,country=US,asset_type=Server,managed=true,ts=1747036800",
+        "aid=A018,host=ws-seattle-18,os=Windows_11,plat=Win,dept=Engineering,owner=rachel,ip=192.168.18.180,lat=47.6062,lon=-122.3321,country=US,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A019,host=ws-amsterdam-19,os=Windows_10,plat=Win,dept=Finance,owner=steve,ip=10.1.19.190,lat=52.3676,lon=4.9041,country=NL,asset_type=Workstation,managed=false,ts=1747036800",
+        "aid=A020,host=mac-sydney-20,os=macOS_14,plat=Mac,dept=Marketing,owner=tara,ip=172.16.20.200,lat=-33.8688,lon=151.2093,country=AU,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A021,host=lnx-srv-21,os=Ubuntu_20,plat=Lin,dept=IT,owner=uma,ip=10.0.0.21,lat=48.8566,lon=2.3522,country=FR,asset_type=Server,managed=true,ts=1747036800",
+        "aid=A022,host=ws-dallas-22,os=Windows_10,plat=Win,dept=HR,owner=victor,ip=192.168.22.220,lat=32.7767,lon=-96.797,country=US,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A023,host=mac-paris-23,os=macOS_13,plat=Mac,dept=Engineering,owner=wendy,ip=172.16.23.230,lat=48.8566,lon=2.3522,country=FR,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A024,host=lnx-srv-24,os=Debian_12,plat=Lin,dept=IT,owner=xander,ip=10.0.0.24,lat=35.6762,lon=139.6503,country=JP,asset_type=Server,managed=false,ts=1747036800",
+        "aid=A025,host=ws-denver-25,os=Windows_11,plat=Win,dept=Engineering,owner=yara,ip=192.168.25.250,lat=39.7392,lon=-104.9903,country=US,asset_type=Workstation,managed=true,ts=1747036800"
+      ])
+      | kvParse()
+      | wildcard(field=dept, pattern=?dept_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=asset_type, pattern=?asset_type_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | groupBy([plat], function=count(as=Count), limit=max)
+    options:
+      innerRadius: 0
+      legendTitle: Platform
+      series:
+        Win:
+          color: '#0073E6'
+        Mac:
+          color: '#9B59B6'
+        Lin:
+          color: '#F49125'
+        _count:
+          title: Assets
+
+  # ─── Bar Chart: Assets by Department ─────────────────────────────────────────
+  chart-dept-assets:
+    type: query
+    title: "Assets by Department"
+    description: "Asset count per department — sorted by size"
+    x: 3
+    y: 5
+    width: 4
+    height: 5
+    visualization: bar-chart
+    isLive: false
+    start: 60d
+    queryString: |
+      createEvents([
+        "aid=A001,host=ws-london-01,os=Windows_11,plat=Win,dept=Finance,owner=alice,ip=192.168.1.10,lat=51.5074,lon=-0.1278,country=UK,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A002,host=ws-nyc-02,os=Windows_11,plat=Win,dept=Engineering,owner=bob,ip=10.1.2.20,lat=40.7128,lon=-74.006,country=US,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A003,host=mac-berlin-03,os=macOS_14,plat=Mac,dept=Marketing,owner=carol,ip=172.16.3.30,lat=52.52,lon=13.405,country=DE,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A004,host=lnx-srv-04,os=RHEL_9,plat=Lin,dept=IT,owner=dave,ip=10.0.0.4,lat=37.7749,lon=-122.4194,country=US,asset_type=Server,managed=true,ts=1747036800",
+        "aid=A005,host=ws-sydney-05,os=Windows_10,plat=Win,dept=HR,owner=eve,ip=192.168.5.50,lat=-33.8688,lon=151.2093,country=AU,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A006,host=lnx-srv-06,os=Ubuntu_22,plat=Lin,dept=IT,owner=frank,ip=10.0.0.6,lat=43.6532,lon=-79.3832,country=CA,asset_type=Server,managed=true,ts=1747036800",
+        "aid=A007,host=ws-paris-07,os=Windows_11,plat=Win,dept=Finance,owner=grace,ip=192.168.7.70,lat=48.8566,lon=2.3522,country=FR,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A008,host=mac-tokyo-08,os=macOS_13,plat=Mac,dept=Engineering,owner=heidi,ip=172.16.8.80,lat=35.6762,lon=139.6503,country=JP,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A009,host=lnx-srv-09,os=CentOS_8,plat=Lin,dept=IT,owner=ivan,ip=10.0.0.9,lat=51.5074,lon=-0.1278,country=UK,asset_type=Server,managed=false,ts=1747036800",
+        "aid=A010,host=ws-chicago-10,os=Windows_10,plat=Win,dept=Marketing,owner=judy,ip=192.168.10.100,lat=41.8781,lon=-87.6298,country=US,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A011,host=ws-boston-11,os=Windows_11,plat=Win,dept=HR,owner=karl,ip=10.1.11.110,lat=42.3601,lon=-71.0589,country=US,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A012,host=mac-sf-12,os=macOS_14,plat=Mac,dept=Engineering,owner=lara,ip=172.16.12.120,lat=37.7749,lon=-122.4194,country=US,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A013,host=lnx-srv-13,os=Ubuntu_22,plat=Lin,dept=IT,owner=mike,ip=10.0.0.13,lat=52.52,lon=13.405,country=DE,asset_type=Server,managed=true,ts=1747036800",
+        "aid=A014,host=ws-toronto-14,os=Windows_10,plat=Win,dept=Finance,owner=nancy,ip=192.168.14.140,lat=43.6532,lon=-79.3832,country=CA,asset_type=Workstation,managed=false,ts=1747036800",
+        "aid=A015,host=ws-milan-15,os=Windows_11,plat=Win,dept=Marketing,owner=oscar,ip=10.1.15.150,lat=45.4654,lon=9.1859,country=IT,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A016,host=mac-london-16,os=macOS_13,plat=Mac,dept=HR,owner=paula,ip=172.16.16.160,lat=51.5074,lon=-0.1278,country=UK,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A017,host=lnx-srv-17,os=RHEL_8,plat=Lin,dept=IT,owner=quinn,ip=10.0.0.17,lat=40.7128,lon=-74.006,country=US,asset_type=Server,managed=true,ts=1747036800",
+        "aid=A018,host=ws-seattle-18,os=Windows_11,plat=Win,dept=Engineering,owner=rachel,ip=192.168.18.180,lat=47.6062,lon=-122.3321,country=US,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A019,host=ws-amsterdam-19,os=Windows_10,plat=Win,dept=Finance,owner=steve,ip=10.1.19.190,lat=52.3676,lon=4.9041,country=NL,asset_type=Workstation,managed=false,ts=1747036800",
+        "aid=A020,host=mac-sydney-20,os=macOS_14,plat=Mac,dept=Marketing,owner=tara,ip=172.16.20.200,lat=-33.8688,lon=151.2093,country=AU,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A021,host=lnx-srv-21,os=Ubuntu_20,plat=Lin,dept=IT,owner=uma,ip=10.0.0.21,lat=48.8566,lon=2.3522,country=FR,asset_type=Server,managed=true,ts=1747036800",
+        "aid=A022,host=ws-dallas-22,os=Windows_10,plat=Win,dept=HR,owner=victor,ip=192.168.22.220,lat=32.7767,lon=-96.797,country=US,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A023,host=mac-paris-23,os=macOS_13,plat=Mac,dept=Engineering,owner=wendy,ip=172.16.23.230,lat=48.8566,lon=2.3522,country=FR,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A024,host=lnx-srv-24,os=Debian_12,plat=Lin,dept=IT,owner=xander,ip=10.0.0.24,lat=35.6762,lon=139.6503,country=JP,asset_type=Server,managed=false,ts=1747036800",
+        "aid=A025,host=ws-denver-25,os=Windows_11,plat=Win,dept=Engineering,owner=yara,ip=192.168.25.250,lat=39.7392,lon=-104.9903,country=US,asset_type=Workstation,managed=true,ts=1747036800"
+      ])
+      | kvParse()
+      | wildcard(field=plat, pattern=?plat_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=asset_type, pattern=?asset_type_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | groupBy([dept], function=count(as=Count), limit=max)
+      | sort(Count, order=desc)
+    options:
+      barChartOrientation: horizontal
+      valuesOnBars: true
+      labelLimit: 150
+    interactions:
+      - name: Filter by Department
+        titleTemplate: '▽ Filter to "{{ fields["dept"] }}" department'
+        type: updateparameters
+        useWidgetTimeWindow: false
+        arguments:
+          dept_filter: '["{{ fields["dept"] }}"]'
+      - name: Reset Department filter
+        titleTemplate: '↻ Reset Department filter'
+        type: updateparameters
+        useWidgetTimeWindow: false
+        arguments:
+          dept_filter: '["*"]'
+
+  # ─── Donut Chart: Asset Type ──────────────────────────────────────────────────
+  chart-asset-type:
+    type: query
+    title: "Asset Types"
+    description: "Distribution by Server / Workstation / Laptop"
+    x: 0
+    y: 10
+    width: 3
+    height: 5
+    visualization: pie-chart
+    isLive: false
+    start: 60d
+    queryString: |
+      createEvents([
+        "aid=A001,host=ws-london-01,os=Windows_11,plat=Win,dept=Finance,owner=alice,ip=192.168.1.10,lat=51.5074,lon=-0.1278,country=UK,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A002,host=ws-nyc-02,os=Windows_11,plat=Win,dept=Engineering,owner=bob,ip=10.1.2.20,lat=40.7128,lon=-74.006,country=US,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A003,host=mac-berlin-03,os=macOS_14,plat=Mac,dept=Marketing,owner=carol,ip=172.16.3.30,lat=52.52,lon=13.405,country=DE,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A004,host=lnx-srv-04,os=RHEL_9,plat=Lin,dept=IT,owner=dave,ip=10.0.0.4,lat=37.7749,lon=-122.4194,country=US,asset_type=Server,managed=true,ts=1747036800",
+        "aid=A005,host=ws-sydney-05,os=Windows_10,plat=Win,dept=HR,owner=eve,ip=192.168.5.50,lat=-33.8688,lon=151.2093,country=AU,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A006,host=lnx-srv-06,os=Ubuntu_22,plat=Lin,dept=IT,owner=frank,ip=10.0.0.6,lat=43.6532,lon=-79.3832,country=CA,asset_type=Server,managed=true,ts=1747036800",
+        "aid=A007,host=ws-paris-07,os=Windows_11,plat=Win,dept=Finance,owner=grace,ip=192.168.7.70,lat=48.8566,lon=2.3522,country=FR,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A008,host=mac-tokyo-08,os=macOS_13,plat=Mac,dept=Engineering,owner=heidi,ip=172.16.8.80,lat=35.6762,lon=139.6503,country=JP,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A009,host=lnx-srv-09,os=CentOS_8,plat=Lin,dept=IT,owner=ivan,ip=10.0.0.9,lat=51.5074,lon=-0.1278,country=UK,asset_type=Server,managed=false,ts=1747036800",
+        "aid=A010,host=ws-chicago-10,os=Windows_10,plat=Win,dept=Marketing,owner=judy,ip=192.168.10.100,lat=41.8781,lon=-87.6298,country=US,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A011,host=ws-boston-11,os=Windows_11,plat=Win,dept=HR,owner=karl,ip=10.1.11.110,lat=42.3601,lon=-71.0589,country=US,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A012,host=mac-sf-12,os=macOS_14,plat=Mac,dept=Engineering,owner=lara,ip=172.16.12.120,lat=37.7749,lon=-122.4194,country=US,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A013,host=lnx-srv-13,os=Ubuntu_22,plat=Lin,dept=IT,owner=mike,ip=10.0.0.13,lat=52.52,lon=13.405,country=DE,asset_type=Server,managed=true,ts=1747036800",
+        "aid=A014,host=ws-toronto-14,os=Windows_10,plat=Win,dept=Finance,owner=nancy,ip=192.168.14.140,lat=43.6532,lon=-79.3832,country=CA,asset_type=Workstation,managed=false,ts=1747036800",
+        "aid=A015,host=ws-milan-15,os=Windows_11,plat=Win,dept=Marketing,owner=oscar,ip=10.1.15.150,lat=45.4654,lon=9.1859,country=IT,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A016,host=mac-london-16,os=macOS_13,plat=Mac,dept=HR,owner=paula,ip=172.16.16.160,lat=51.5074,lon=-0.1278,country=UK,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A017,host=lnx-srv-17,os=RHEL_8,plat=Lin,dept=IT,owner=quinn,ip=10.0.0.17,lat=40.7128,lon=-74.006,country=US,asset_type=Server,managed=true,ts=1747036800",
+        "aid=A018,host=ws-seattle-18,os=Windows_11,plat=Win,dept=Engineering,owner=rachel,ip=192.168.18.180,lat=47.6062,lon=-122.3321,country=US,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A019,host=ws-amsterdam-19,os=Windows_10,plat=Win,dept=Finance,owner=steve,ip=10.1.19.190,lat=52.3676,lon=4.9041,country=NL,asset_type=Workstation,managed=false,ts=1747036800",
+        "aid=A020,host=mac-sydney-20,os=macOS_14,plat=Mac,dept=Marketing,owner=tara,ip=172.16.20.200,lat=-33.8688,lon=151.2093,country=AU,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A021,host=lnx-srv-21,os=Ubuntu_20,plat=Lin,dept=IT,owner=uma,ip=10.0.0.21,lat=48.8566,lon=2.3522,country=FR,asset_type=Server,managed=true,ts=1747036800",
+        "aid=A022,host=ws-dallas-22,os=Windows_10,plat=Win,dept=HR,owner=victor,ip=192.168.22.220,lat=32.7767,lon=-96.797,country=US,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A023,host=mac-paris-23,os=macOS_13,plat=Mac,dept=Engineering,owner=wendy,ip=172.16.23.230,lat=48.8566,lon=2.3522,country=FR,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A024,host=lnx-srv-24,os=Debian_12,plat=Lin,dept=IT,owner=xander,ip=10.0.0.24,lat=35.6762,lon=139.6503,country=JP,asset_type=Server,managed=false,ts=1747036800",
+        "aid=A025,host=ws-denver-25,os=Windows_11,plat=Win,dept=Engineering,owner=yara,ip=192.168.25.250,lat=39.7392,lon=-104.9903,country=US,asset_type=Workstation,managed=true,ts=1747036800"
+      ])
+      | kvParse()
+      | wildcard(field=plat, pattern=?plat_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=dept, pattern=?dept_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | groupBy([asset_type], function=count(as=Count), limit=max)
+    options:
+      innerRadius: 0.4
+      legendTitle: Type
+      series:
+        Server:
+          color: '#DB2D24'
+        Workstation:
+          color: '#0073E6'
+        Laptop:
+          color: '#34B248'
+        _count:
+          title: Assets
+
+  # ─── Gauge: Managed Asset Ratio ──────────────────────────────────────────────
+  gauge-managed:
+    type: query
+    title: "Managed Coverage"
+    description: "Percentage of assets with an enrolled managed endpoint agent"
+    x: 3
+    y: 10
+    width: 4
+    height: 5
+    visualization: gauge
+    isLive: false
+    start: 60d
+    queryString: |
+      createEvents([
+        "aid=A001,host=ws-london-01,os=Windows_11,plat=Win,dept=Finance,owner=alice,ip=192.168.1.10,lat=51.5074,lon=-0.1278,country=UK,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A002,host=ws-nyc-02,os=Windows_11,plat=Win,dept=Engineering,owner=bob,ip=10.1.2.20,lat=40.7128,lon=-74.006,country=US,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A003,host=mac-berlin-03,os=macOS_14,plat=Mac,dept=Marketing,owner=carol,ip=172.16.3.30,lat=52.52,lon=13.405,country=DE,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A004,host=lnx-srv-04,os=RHEL_9,plat=Lin,dept=IT,owner=dave,ip=10.0.0.4,lat=37.7749,lon=-122.4194,country=US,asset_type=Server,managed=true,ts=1747036800",
+        "aid=A005,host=ws-sydney-05,os=Windows_10,plat=Win,dept=HR,owner=eve,ip=192.168.5.50,lat=-33.8688,lon=151.2093,country=AU,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A006,host=lnx-srv-06,os=Ubuntu_22,plat=Lin,dept=IT,owner=frank,ip=10.0.0.6,lat=43.6532,lon=-79.3832,country=CA,asset_type=Server,managed=true,ts=1747036800",
+        "aid=A007,host=ws-paris-07,os=Windows_11,plat=Win,dept=Finance,owner=grace,ip=192.168.7.70,lat=48.8566,lon=2.3522,country=FR,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A008,host=mac-tokyo-08,os=macOS_13,plat=Mac,dept=Engineering,owner=heidi,ip=172.16.8.80,lat=35.6762,lon=139.6503,country=JP,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A009,host=lnx-srv-09,os=CentOS_8,plat=Lin,dept=IT,owner=ivan,ip=10.0.0.9,lat=51.5074,lon=-0.1278,country=UK,asset_type=Server,managed=false,ts=1747036800",
+        "aid=A010,host=ws-chicago-10,os=Windows_10,plat=Win,dept=Marketing,owner=judy,ip=192.168.10.100,lat=41.8781,lon=-87.6298,country=US,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A011,host=ws-boston-11,os=Windows_11,plat=Win,dept=HR,owner=karl,ip=10.1.11.110,lat=42.3601,lon=-71.0589,country=US,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A012,host=mac-sf-12,os=macOS_14,plat=Mac,dept=Engineering,owner=lara,ip=172.16.12.120,lat=37.7749,lon=-122.4194,country=US,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A013,host=lnx-srv-13,os=Ubuntu_22,plat=Lin,dept=IT,owner=mike,ip=10.0.0.13,lat=52.52,lon=13.405,country=DE,asset_type=Server,managed=true,ts=1747036800",
+        "aid=A014,host=ws-toronto-14,os=Windows_10,plat=Win,dept=Finance,owner=nancy,ip=192.168.14.140,lat=43.6532,lon=-79.3832,country=CA,asset_type=Workstation,managed=false,ts=1747036800",
+        "aid=A015,host=ws-milan-15,os=Windows_11,plat=Win,dept=Marketing,owner=oscar,ip=10.1.15.150,lat=45.4654,lon=9.1859,country=IT,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A016,host=mac-london-16,os=macOS_13,plat=Mac,dept=HR,owner=paula,ip=172.16.16.160,lat=51.5074,lon=-0.1278,country=UK,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A017,host=lnx-srv-17,os=RHEL_8,plat=Lin,dept=IT,owner=quinn,ip=10.0.0.17,lat=40.7128,lon=-74.006,country=US,asset_type=Server,managed=true,ts=1747036800",
+        "aid=A018,host=ws-seattle-18,os=Windows_11,plat=Win,dept=Engineering,owner=rachel,ip=192.168.18.180,lat=47.6062,lon=-122.3321,country=US,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A019,host=ws-amsterdam-19,os=Windows_10,plat=Win,dept=Finance,owner=steve,ip=10.1.19.190,lat=52.3676,lon=4.9041,country=NL,asset_type=Workstation,managed=false,ts=1747036800",
+        "aid=A020,host=mac-sydney-20,os=macOS_14,plat=Mac,dept=Marketing,owner=tara,ip=172.16.20.200,lat=-33.8688,lon=151.2093,country=AU,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A021,host=lnx-srv-21,os=Ubuntu_20,plat=Lin,dept=IT,owner=uma,ip=10.0.0.21,lat=48.8566,lon=2.3522,country=FR,asset_type=Server,managed=true,ts=1747036800",
+        "aid=A022,host=ws-dallas-22,os=Windows_10,plat=Win,dept=HR,owner=victor,ip=192.168.22.220,lat=32.7767,lon=-96.797,country=US,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A023,host=mac-paris-23,os=macOS_13,plat=Mac,dept=Engineering,owner=wendy,ip=172.16.23.230,lat=48.8566,lon=2.3522,country=FR,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A024,host=lnx-srv-24,os=Debian_12,plat=Lin,dept=IT,owner=xander,ip=10.0.0.24,lat=35.6762,lon=139.6503,country=JP,asset_type=Server,managed=false,ts=1747036800",
+        "aid=A025,host=ws-denver-25,os=Windows_11,plat=Win,dept=Engineering,owner=yara,ip=192.168.25.250,lat=39.7392,lon=-104.9903,country=US,asset_type=Workstation,managed=true,ts=1747036800"
+      ])
+      | kvParse()
+      | wildcard(field=plat, pattern=?plat_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=dept, pattern=?dept_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=asset_type, pattern=?asset_type_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | stats([
+          count(as=total),
+          { managed = "true" | count(as=managed_n) }
+        ])
+      | default(value=0, field=[managed_n])
+      | "Managed %" := (managed_n / total) * 100
+      | drop([total, managed_n])
+    options:
+      gaugeType: radialNeedle
+      minVal: 0
+      maxVal: 100
+      thresholdConfig:
+        thresholds:
+          - { value: 0,  color: '#DB2D24' }
+          - { value: 50, color: '#F49125' }
+          - { value: 75, color: '#FFC107' }
+          - { value: 90, color: '#34B248' }
+
+  # ─── World Map: Asset Geolocation ────────────────────────────────────────────
+  map-assets:
+    type: query
+    title: "Asset Geolocation"
+    description: "Global distribution of assets. Dot size = asset count at that location."
+    x: 0
+    y: 16
+    width: 12
+    height: 6
+    visualization: world-map
+    isLive: false
+    start: 60d
+    queryString: |
+      createEvents([
+        "aid=A001,host=ws-london-01,os=Windows_11,plat=Win,dept=Finance,owner=alice,ip=192.168.1.10,lat=51.5074,lon=-0.1278,country=UK,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A002,host=ws-nyc-02,os=Windows_11,plat=Win,dept=Engineering,owner=bob,ip=10.1.2.20,lat=40.7128,lon=-74.006,country=US,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A003,host=mac-berlin-03,os=macOS_14,plat=Mac,dept=Marketing,owner=carol,ip=172.16.3.30,lat=52.52,lon=13.405,country=DE,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A004,host=lnx-srv-04,os=RHEL_9,plat=Lin,dept=IT,owner=dave,ip=10.0.0.4,lat=37.7749,lon=-122.4194,country=US,asset_type=Server,managed=true,ts=1747036800",
+        "aid=A005,host=ws-sydney-05,os=Windows_10,plat=Win,dept=HR,owner=eve,ip=192.168.5.50,lat=-33.8688,lon=151.2093,country=AU,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A006,host=lnx-srv-06,os=Ubuntu_22,plat=Lin,dept=IT,owner=frank,ip=10.0.0.6,lat=43.6532,lon=-79.3832,country=CA,asset_type=Server,managed=true,ts=1747036800",
+        "aid=A007,host=ws-paris-07,os=Windows_11,plat=Win,dept=Finance,owner=grace,ip=192.168.7.70,lat=48.8566,lon=2.3522,country=FR,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A008,host=mac-tokyo-08,os=macOS_13,plat=Mac,dept=Engineering,owner=heidi,ip=172.16.8.80,lat=35.6762,lon=139.6503,country=JP,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A009,host=lnx-srv-09,os=CentOS_8,plat=Lin,dept=IT,owner=ivan,ip=10.0.0.9,lat=51.5074,lon=-0.1278,country=UK,asset_type=Server,managed=false,ts=1747036800",
+        "aid=A010,host=ws-chicago-10,os=Windows_10,plat=Win,dept=Marketing,owner=judy,ip=192.168.10.100,lat=41.8781,lon=-87.6298,country=US,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A011,host=ws-boston-11,os=Windows_11,plat=Win,dept=HR,owner=karl,ip=10.1.11.110,lat=42.3601,lon=-71.0589,country=US,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A012,host=mac-sf-12,os=macOS_14,plat=Mac,dept=Engineering,owner=lara,ip=172.16.12.120,lat=37.7749,lon=-122.4194,country=US,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A013,host=lnx-srv-13,os=Ubuntu_22,plat=Lin,dept=IT,owner=mike,ip=10.0.0.13,lat=52.52,lon=13.405,country=DE,asset_type=Server,managed=true,ts=1747036800",
+        "aid=A014,host=ws-toronto-14,os=Windows_10,plat=Win,dept=Finance,owner=nancy,ip=192.168.14.140,lat=43.6532,lon=-79.3832,country=CA,asset_type=Workstation,managed=false,ts=1747036800",
+        "aid=A015,host=ws-milan-15,os=Windows_11,plat=Win,dept=Marketing,owner=oscar,ip=10.1.15.150,lat=45.4654,lon=9.1859,country=IT,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A016,host=mac-london-16,os=macOS_13,plat=Mac,dept=HR,owner=paula,ip=172.16.16.160,lat=51.5074,lon=-0.1278,country=UK,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A017,host=lnx-srv-17,os=RHEL_8,plat=Lin,dept=IT,owner=quinn,ip=10.0.0.17,lat=40.7128,lon=-74.006,country=US,asset_type=Server,managed=true,ts=1747036800",
+        "aid=A018,host=ws-seattle-18,os=Windows_11,plat=Win,dept=Engineering,owner=rachel,ip=192.168.18.180,lat=47.6062,lon=-122.3321,country=US,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A019,host=ws-amsterdam-19,os=Windows_10,plat=Win,dept=Finance,owner=steve,ip=10.1.19.190,lat=52.3676,lon=4.9041,country=NL,asset_type=Workstation,managed=false,ts=1747036800",
+        "aid=A020,host=mac-sydney-20,os=macOS_14,plat=Mac,dept=Marketing,owner=tara,ip=172.16.20.200,lat=-33.8688,lon=151.2093,country=AU,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A021,host=lnx-srv-21,os=Ubuntu_20,plat=Lin,dept=IT,owner=uma,ip=10.0.0.21,lat=48.8566,lon=2.3522,country=FR,asset_type=Server,managed=true,ts=1747036800",
+        "aid=A022,host=ws-dallas-22,os=Windows_10,plat=Win,dept=HR,owner=victor,ip=192.168.22.220,lat=32.7767,lon=-96.797,country=US,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A023,host=mac-paris-23,os=macOS_13,plat=Mac,dept=Engineering,owner=wendy,ip=172.16.23.230,lat=48.8566,lon=2.3522,country=FR,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A024,host=lnx-srv-24,os=Debian_12,plat=Lin,dept=IT,owner=xander,ip=10.0.0.24,lat=35.6762,lon=139.6503,country=JP,asset_type=Server,managed=false,ts=1747036800",
+        "aid=A025,host=ws-denver-25,os=Windows_11,plat=Win,dept=Engineering,owner=yara,ip=192.168.25.250,lat=39.7392,lon=-104.9903,country=US,asset_type=Workstation,managed=true,ts=1747036800"
+      ])
+      | kvParse()
+      | wildcard(field=plat, pattern=?plat_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=dept, pattern=?dept_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=asset_type, pattern=?asset_type_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | lat := lat * 1
+      | lon := lon * 1
+      | worldMap(lat=lat, lon=lon)
+    options: {}
+
+  # ─── Detail Table: Asset Inventory ───────────────────────────────────────────
+  table-assets:
+    type: query
+    title: "Asset Detail"
+    description: "Full asset inventory. Click rows to filter by platform, department, or asset type."
+    x: 0
+    y: 22
+    width: 12
+    height: 7
+    visualization: table-view
+    isLive: false
+    start: 60d
+    queryString: |
+      createEvents([
+        "aid=A001,host=ws-london-01,os=Windows_11,plat=Win,dept=Finance,owner=alice,ip=192.168.1.10,lat=51.5074,lon=-0.1278,country=UK,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A002,host=ws-nyc-02,os=Windows_11,plat=Win,dept=Engineering,owner=bob,ip=10.1.2.20,lat=40.7128,lon=-74.006,country=US,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A003,host=mac-berlin-03,os=macOS_14,plat=Mac,dept=Marketing,owner=carol,ip=172.16.3.30,lat=52.52,lon=13.405,country=DE,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A004,host=lnx-srv-04,os=RHEL_9,plat=Lin,dept=IT,owner=dave,ip=10.0.0.4,lat=37.7749,lon=-122.4194,country=US,asset_type=Server,managed=true,ts=1747036800",
+        "aid=A005,host=ws-sydney-05,os=Windows_10,plat=Win,dept=HR,owner=eve,ip=192.168.5.50,lat=-33.8688,lon=151.2093,country=AU,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A006,host=lnx-srv-06,os=Ubuntu_22,plat=Lin,dept=IT,owner=frank,ip=10.0.0.6,lat=43.6532,lon=-79.3832,country=CA,asset_type=Server,managed=true,ts=1747036800",
+        "aid=A007,host=ws-paris-07,os=Windows_11,plat=Win,dept=Finance,owner=grace,ip=192.168.7.70,lat=48.8566,lon=2.3522,country=FR,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A008,host=mac-tokyo-08,os=macOS_13,plat=Mac,dept=Engineering,owner=heidi,ip=172.16.8.80,lat=35.6762,lon=139.6503,country=JP,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A009,host=lnx-srv-09,os=CentOS_8,plat=Lin,dept=IT,owner=ivan,ip=10.0.0.9,lat=51.5074,lon=-0.1278,country=UK,asset_type=Server,managed=false,ts=1747036800",
+        "aid=A010,host=ws-chicago-10,os=Windows_10,plat=Win,dept=Marketing,owner=judy,ip=192.168.10.100,lat=41.8781,lon=-87.6298,country=US,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A011,host=ws-boston-11,os=Windows_11,plat=Win,dept=HR,owner=karl,ip=10.1.11.110,lat=42.3601,lon=-71.0589,country=US,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A012,host=mac-sf-12,os=macOS_14,plat=Mac,dept=Engineering,owner=lara,ip=172.16.12.120,lat=37.7749,lon=-122.4194,country=US,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A013,host=lnx-srv-13,os=Ubuntu_22,plat=Lin,dept=IT,owner=mike,ip=10.0.0.13,lat=52.52,lon=13.405,country=DE,asset_type=Server,managed=true,ts=1747036800",
+        "aid=A014,host=ws-toronto-14,os=Windows_10,plat=Win,dept=Finance,owner=nancy,ip=192.168.14.140,lat=43.6532,lon=-79.3832,country=CA,asset_type=Workstation,managed=false,ts=1747036800",
+        "aid=A015,host=ws-milan-15,os=Windows_11,plat=Win,dept=Marketing,owner=oscar,ip=10.1.15.150,lat=45.4654,lon=9.1859,country=IT,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A016,host=mac-london-16,os=macOS_13,plat=Mac,dept=HR,owner=paula,ip=172.16.16.160,lat=51.5074,lon=-0.1278,country=UK,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A017,host=lnx-srv-17,os=RHEL_8,plat=Lin,dept=IT,owner=quinn,ip=10.0.0.17,lat=40.7128,lon=-74.006,country=US,asset_type=Server,managed=true,ts=1747036800",
+        "aid=A018,host=ws-seattle-18,os=Windows_11,plat=Win,dept=Engineering,owner=rachel,ip=192.168.18.180,lat=47.6062,lon=-122.3321,country=US,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A019,host=ws-amsterdam-19,os=Windows_10,plat=Win,dept=Finance,owner=steve,ip=10.1.19.190,lat=52.3676,lon=4.9041,country=NL,asset_type=Workstation,managed=false,ts=1747036800",
+        "aid=A020,host=mac-sydney-20,os=macOS_14,plat=Mac,dept=Marketing,owner=tara,ip=172.16.20.200,lat=-33.8688,lon=151.2093,country=AU,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A021,host=lnx-srv-21,os=Ubuntu_20,plat=Lin,dept=IT,owner=uma,ip=10.0.0.21,lat=48.8566,lon=2.3522,country=FR,asset_type=Server,managed=true,ts=1747036800",
+        "aid=A022,host=ws-dallas-22,os=Windows_10,plat=Win,dept=HR,owner=victor,ip=192.168.22.220,lat=32.7767,lon=-96.797,country=US,asset_type=Workstation,managed=true,ts=1747036800",
+        "aid=A023,host=mac-paris-23,os=macOS_13,plat=Mac,dept=Engineering,owner=wendy,ip=172.16.23.230,lat=48.8566,lon=2.3522,country=FR,asset_type=Laptop,managed=true,ts=1747036800",
+        "aid=A024,host=lnx-srv-24,os=Debian_12,plat=Lin,dept=IT,owner=xander,ip=10.0.0.24,lat=35.6762,lon=139.6503,country=JP,asset_type=Server,managed=false,ts=1747036800",
+        "aid=A025,host=ws-denver-25,os=Windows_11,plat=Win,dept=Engineering,owner=yara,ip=192.168.25.250,lat=39.7392,lon=-104.9903,country=US,asset_type=Workstation,managed=true,ts=1747036800"
+      ])
+      | kvParse()
+      | findTimestamp(field=ts)
+      | wildcard(field=plat, pattern=?plat_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=dept, pattern=?dept_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=asset_type, pattern=?asset_type_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | case {
+          managed = "true"  | _mgd := "✅";
+          managed = "false" | _mgd := "❌";
+          *                 | _mgd := "❓";
+        }
+      | case {
+          plat = "Win" | _pos := 1;
+          plat = "Mac" | _pos := 2;
+          plat = "Lin" | _pos := 3;
+          *            | _pos := 4;
+        }
+      | sort(_pos, order=asc, limit=max)
+      | drop(_pos)
+      | select([_mgd, aid, host, owner, dept, os, asset_type, ip, country])
+      | rename([[_mgd, "Mgd"], [aid, "AID"], [host, "Host"], [owner, "Owner"],
+                [dept, "Dept"], [os, "OS"], [asset_type, "Type"],
+                [ip, "IP"], [country, "Country"]])
+    options:
+      row-numbers-enabled: true
+      cell-overflow: wrap-text
+      column-overflow: truncate
+      configured-columns:
+        Mgd:
+          width: 50
+        AID:
+          width: 80
+        Type:
+          color:
+            conditions:
+              - color: '#DB2D2444'
+                condition:
+                  type: Equal
+                  arg: Server
+              - color: '#0073E644'
+                condition:
+                  type: Equal
+                  arg: Workstation
+              - color: '#34B24844'
+                condition:
+                  type: Equal
+                  arg: Laptop
+    interactions:
+      - name: Filter by Platform
+        titleTemplate: '▽ Filter to "{{ fields["plat"] }}" platform'
+        type: updateparameters
+        useWidgetTimeWindow: false
+        arguments:
+          plat_filter: '["{{ fields["plat"] }}"]'
+      - name: Filter by Department
+        titleTemplate: '▽ Filter to "{{ fields["Dept"] }}" department'
+        type: updateparameters
+        useWidgetTimeWindow: false
+        arguments:
+          dept_filter: '["{{ fields["Dept"] }}"]'
+      - name: Filter by Asset Type
+        titleTemplate: '▽ Filter to "{{ fields["Type"] }}" assets'
+        type: updateparameters
+        useWidgetTimeWindow: false
+        arguments:
+          asset_type_filter: '["{{ fields["Type"] }}"]'
+      - name: Reset all filters
+        titleTemplate: '↻ Reset all filters'
+        type: updateparameters
+        useWidgetTimeWindow: false
+        arguments:
+          plat_filter:       '["*"]'
+          dept_filter:       '["*"]'
+          asset_type_filter: '["*"]'
+
+  # ─── SECTION 2: VULNERABILITY MANAGEMENT ─────────────────────────────────────
+
+  # ─── Parameter Panel ─────────────────────────────────────────────────────────
+  widget-params-vulns:
+    type: parameterPanel
+    title: ''
+    x: 0
+    y: 0
+    width: 12
+    height: 2
+    parameterIds:
+      - sev_filter
+      - status_filter
+      - category_filter
+
+  # ─── Documentation Note (sidebar) ────────────────────────────────────────────
+  widget-note-vulns:
+    type: note
+    title: ''
+    x: 7
+    y: 2
+    width: 5
+    height: 13
+    text: |
+      ## Section 2 — Vulnerability Management
+
+      **30 synthetic CVEs** across the asset fleet above,
+      generated inline via `createEvents()`.
+
+      ## CQL Patterns Demonstrated
+
+      | Widget | Key Pattern |
+      |--------|------------|
+      | Vuln KPIs | `count()`, `count(distinct=true)` |
+      | Critical KPI | equality filter + red background |
+      | Open KPI | equality filter + orange background |
+      | Sankey | `sankey(source=, target=, weight=)` |
+      | Severity Bar | `groupBy()` + `case{}` sort key |
+      | Patch Rate Gauge | `stats()` + percentage formula |
+      | Top Hosts Table | `groupBy([host])` + `sort()` |
+      | Timeline | `doff` trick → `timeChart(series=)` |
+      | Detail Table | `select()` + severity emoji |
+
+      ## Filters
+      - **Severity / Status / Category** — `list` params
+        → `wildcard(includeEverythingOnAsterisk=true)`
+
+      ## Interactions
+      `▽ Filter by` — section-scoped filter
+      `↻ Reset` — clear filter(s)
+
+  # ─── KPI: Total Vulnerabilities ──────────────────────────────────────────────
+  kpi-vuln-total:
+    type: query
+    title: "Total Vulns"
+    description: "All vulnerabilities matching active filters"
+    x: 0
+    y: 2
+    width: 2
+    height: 3
+    visualization: single-value
+    isLive: false
+    start: 60d
+    queryString: |
+      createEvents([
+        "vuln_id=V001,host=ws-london-01,cve=CVE-2024-21413,severity=Critical,cvss=9.8,package=MS_Office,category=App,status=Open,ts=1746950400",
+        "vuln_id=V002,host=ws-nyc-02,cve=CVE-2024-3400,severity=Critical,cvss=10.0,package=PAN-OS,category=OS,status=Open,ts=1746864000",
+        "vuln_id=V003,host=lnx-srv-04,cve=CVE-2023-44487,severity=Critical,cvss=9.3,package=nginx,category=App,status=Open,ts=1746777600",
+        "vuln_id=V004,host=ws-paris-07,cve=CVE-2024-21338,severity=Critical,cvss=9.8,package=Win_Kernel,category=OS,status=Patched,ts=1746691200",
+        "vuln_id=V005,host=ws-chicago-10,cve=CVE-2024-47575,severity=Critical,cvss=9.8,package=FortiOS,category=Config,status=Accepted,ts=1746604800",
+        "vuln_id=V006,host=ws-london-01,cve=CVE-2024-20767,severity=High,cvss=8.2,package=ColdFusion,category=App,status=Open,ts=1746518400",
+        "vuln_id=V007,host=ws-nyc-02,cve=CVE-2024-1709,severity=High,cvss=8.6,package=ConnectWise,category=App,status=Open,ts=1746432000",
+        "vuln_id=V008,host=mac-berlin-03,cve=CVE-2024-23225,severity=High,cvss=7.8,package=iOS_Kernel,category=OS,status=Patched,ts=1746345600",
+        "vuln_id=V009,host=lnx-srv-06,cve=CVE-2024-27198,severity=High,cvss=8.5,package=TeamCity,category=App,status=Open,ts=1746259200",
+        "vuln_id=V010,host=ws-sydney-05,cve=CVE-2024-30080,severity=High,cvss=7.5,package=MSMQ,category=OS,status=Accepted,ts=1746172800",
+        "vuln_id=V011,host=ws-boston-11,cve=CVE-2024-38112,severity=High,cvss=7.9,package=MSHTML,category=App,status=Open,ts=1746086400",
+        "vuln_id=V012,host=lnx-srv-09,cve=CVE-2023-4911,severity=High,cvss=8.4,package=glibc,category=OS,status=Patched,ts=1746000000",
+        "vuln_id=V013,host=ws-toronto-14,cve=CVE-2024-32896,severity=High,cvss=7.8,package=Android,category=OS,status=Open,ts=1745913600",
+        "vuln_id=V014,host=ws-seattle-18,cve=CVE-2024-49039,severity=High,cvss=8.8,package=WinTaskSched,category=OS,status=Accepted,ts=1745827200",
+        "vuln_id=V015,host=mac-sf-12,cve=CVE-2024-44308,severity=High,cvss=8.8,package=Safari,category=App,status=Patched,ts=1745740800",
+        "vuln_id=V016,host=ws-london-01,cve=CVE-2024-38021,severity=Medium,cvss=6.5,package=Outlook,category=App,status=Open,ts=1745654400",
+        "vuln_id=V017,host=ws-nyc-02,cve=CVE-2023-42793,severity=Medium,cvss=6.3,package=TeamCity,category=App,status=Patched,ts=1745568000",
+        "vuln_id=V018,host=lnx-srv-13,cve=CVE-2024-21626,severity=Medium,cvss=6.4,package=runc,category=Config,status=Patched,ts=1745481600",
+        "vuln_id=V019,host=ws-milan-15,cve=CVE-2024-27956,severity=Medium,cvss=5.5,package=WordPress,category=App,status=Open,ts=1745395200",
+        "vuln_id=V020,host=mac-tokyo-08,cve=CVE-2024-30090,severity=Medium,cvss=6.1,package=GStreamer,category=App,status=Patched,ts=1745308800",
+        "vuln_id=V021,host=ws-amsterdam-19,cve=CVE-2024-38213,severity=Medium,cvss=6.5,package=Win_SmartScreen,category=OS,status=Open,ts=1745222400",
+        "vuln_id=V022,host=lnx-srv-17,cve=CVE-2023-36664,severity=Medium,cvss=5.9,package=Ghostscript,category=App,status=Accepted,ts=1745136000",
+        "vuln_id=V023,host=ws-dallas-22,cve=CVE-2024-43461,severity=Medium,cvss=6.7,package=MSHTML,category=App,status=Patched,ts=1745049600",
+        "vuln_id=V024,host=mac-london-16,cve=CVE-2024-44309,severity=Medium,cvss=6.1,package=WebKit,category=App,status=Open,ts=1744963200",
+        "vuln_id=V025,host=ws-denver-25,cve=CVE-2024-38193,severity=Medium,cvss=6.8,package=WinSock,category=OS,status=Patched,ts=1744876800",
+        "vuln_id=V026,host=ws-boston-11,cve=CVE-2024-6387,severity=Low,cvss=3.5,package=OpenSSH,category=Config,status=Patched,ts=1744790400",
+        "vuln_id=V027,host=lnx-srv-24,cve=CVE-2023-29552,severity=Low,cvss=2.8,package=SLP,category=Config,status=Patched,ts=1744704000",
+        "vuln_id=V028,host=mac-paris-23,cve=CVE-2024-30052,severity=Low,cvss=3.8,package=VS_Debugger,category=App,status=Patched,ts=1744617600",
+        "vuln_id=V029,host=ws-chicago-10,cve=CVE-2024-26185,severity=Low,cvss=2.5,package=WinZip,category=App,status=Open,ts=1744531200",
+        "vuln_id=V030,host=lnx-srv-21,cve=CVE-2024-21378,severity=Low,cvss=3.2,package=Outlook,category=App,status=Accepted,ts=1744444800"
+      ])
+      | kvParse()
+      // Section filters
+      | wildcard(field=severity, pattern=?sev_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=status, pattern=?status_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=category, pattern=?category_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | count(as=Total)
+      | Total := format("%,.0f", field=Total)
+    options:
+      default: {}
+
+  # ─── KPI: Critical Vulnerabilities ───────────────────────────────────────────
+  kpi-vuln-critical:
+    type: query
+    title: "Critical Vulns"
+    description: "Vulnerabilities at Critical severity only"
+    x: 2
+    y: 2
+    width: 2
+    height: 3
+    visualization: single-value
+    isLive: false
+    start: 60d
+    queryString: |
+      createEvents([
+        "vuln_id=V001,host=ws-london-01,cve=CVE-2024-21413,severity=Critical,cvss=9.8,package=MS_Office,category=App,status=Open,ts=1746950400",
+        "vuln_id=V002,host=ws-nyc-02,cve=CVE-2024-3400,severity=Critical,cvss=10.0,package=PAN-OS,category=OS,status=Open,ts=1746864000",
+        "vuln_id=V003,host=lnx-srv-04,cve=CVE-2023-44487,severity=Critical,cvss=9.3,package=nginx,category=App,status=Open,ts=1746777600",
+        "vuln_id=V004,host=ws-paris-07,cve=CVE-2024-21338,severity=Critical,cvss=9.8,package=Win_Kernel,category=OS,status=Patched,ts=1746691200",
+        "vuln_id=V005,host=ws-chicago-10,cve=CVE-2024-47575,severity=Critical,cvss=9.8,package=FortiOS,category=Config,status=Accepted,ts=1746604800",
+        "vuln_id=V006,host=ws-london-01,cve=CVE-2024-20767,severity=High,cvss=8.2,package=ColdFusion,category=App,status=Open,ts=1746518400",
+        "vuln_id=V007,host=ws-nyc-02,cve=CVE-2024-1709,severity=High,cvss=8.6,package=ConnectWise,category=App,status=Open,ts=1746432000",
+        "vuln_id=V008,host=mac-berlin-03,cve=CVE-2024-23225,severity=High,cvss=7.8,package=iOS_Kernel,category=OS,status=Patched,ts=1746345600",
+        "vuln_id=V009,host=lnx-srv-06,cve=CVE-2024-27198,severity=High,cvss=8.5,package=TeamCity,category=App,status=Open,ts=1746259200",
+        "vuln_id=V010,host=ws-sydney-05,cve=CVE-2024-30080,severity=High,cvss=7.5,package=MSMQ,category=OS,status=Accepted,ts=1746172800",
+        "vuln_id=V011,host=ws-boston-11,cve=CVE-2024-38112,severity=High,cvss=7.9,package=MSHTML,category=App,status=Open,ts=1746086400",
+        "vuln_id=V012,host=lnx-srv-09,cve=CVE-2023-4911,severity=High,cvss=8.4,package=glibc,category=OS,status=Patched,ts=1746000000",
+        "vuln_id=V013,host=ws-toronto-14,cve=CVE-2024-32896,severity=High,cvss=7.8,package=Android,category=OS,status=Open,ts=1745913600",
+        "vuln_id=V014,host=ws-seattle-18,cve=CVE-2024-49039,severity=High,cvss=8.8,package=WinTaskSched,category=OS,status=Accepted,ts=1745827200",
+        "vuln_id=V015,host=mac-sf-12,cve=CVE-2024-44308,severity=High,cvss=8.8,package=Safari,category=App,status=Patched,ts=1745740800",
+        "vuln_id=V016,host=ws-london-01,cve=CVE-2024-38021,severity=Medium,cvss=6.5,package=Outlook,category=App,status=Open,ts=1745654400",
+        "vuln_id=V017,host=ws-nyc-02,cve=CVE-2023-42793,severity=Medium,cvss=6.3,package=TeamCity,category=App,status=Patched,ts=1745568000",
+        "vuln_id=V018,host=lnx-srv-13,cve=CVE-2024-21626,severity=Medium,cvss=6.4,package=runc,category=Config,status=Patched,ts=1745481600",
+        "vuln_id=V019,host=ws-milan-15,cve=CVE-2024-27956,severity=Medium,cvss=5.5,package=WordPress,category=App,status=Open,ts=1745395200",
+        "vuln_id=V020,host=mac-tokyo-08,cve=CVE-2024-30090,severity=Medium,cvss=6.1,package=GStreamer,category=App,status=Patched,ts=1745308800",
+        "vuln_id=V021,host=ws-amsterdam-19,cve=CVE-2024-38213,severity=Medium,cvss=6.5,package=Win_SmartScreen,category=OS,status=Open,ts=1745222400",
+        "vuln_id=V022,host=lnx-srv-17,cve=CVE-2023-36664,severity=Medium,cvss=5.9,package=Ghostscript,category=App,status=Accepted,ts=1745136000",
+        "vuln_id=V023,host=ws-dallas-22,cve=CVE-2024-43461,severity=Medium,cvss=6.7,package=MSHTML,category=App,status=Patched,ts=1745049600",
+        "vuln_id=V024,host=mac-london-16,cve=CVE-2024-44309,severity=Medium,cvss=6.1,package=WebKit,category=App,status=Open,ts=1744963200",
+        "vuln_id=V025,host=ws-denver-25,cve=CVE-2024-38193,severity=Medium,cvss=6.8,package=WinSock,category=OS,status=Patched,ts=1744876800",
+        "vuln_id=V026,host=ws-boston-11,cve=CVE-2024-6387,severity=Low,cvss=3.5,package=OpenSSH,category=Config,status=Patched,ts=1744790400",
+        "vuln_id=V027,host=lnx-srv-24,cve=CVE-2023-29552,severity=Low,cvss=2.8,package=SLP,category=Config,status=Patched,ts=1744704000",
+        "vuln_id=V028,host=mac-paris-23,cve=CVE-2024-30052,severity=Low,cvss=3.8,package=VS_Debugger,category=App,status=Patched,ts=1744617600",
+        "vuln_id=V029,host=ws-chicago-10,cve=CVE-2024-26185,severity=Low,cvss=2.5,package=WinZip,category=App,status=Open,ts=1744531200",
+        "vuln_id=V030,host=lnx-srv-21,cve=CVE-2024-21378,severity=Low,cvss=3.2,package=Outlook,category=App,status=Accepted,ts=1744444800"
+      ])
+      | kvParse()
+      | wildcard(field=status, pattern=?status_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=category, pattern=?category_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | severity = "Critical"
+      | count(as=Critical)
+      | Critical := format("%,.0f", field=Critical)
+    options:
+      background-color: '#DB2D24'
+      default: {}
+
+  # ─── KPI: Open Vulnerabilities ───────────────────────────────────────────────
+  kpi-vuln-open:
+    type: query
+    title: "Open Vulns"
+    description: "Vulnerabilities with status Open — require remediation"
+    x: 4
+    y: 2
+    width: 2
+    height: 3
+    visualization: single-value
+    isLive: false
+    start: 60d
+    queryString: |
+      createEvents([
+        "vuln_id=V001,host=ws-london-01,cve=CVE-2024-21413,severity=Critical,cvss=9.8,package=MS_Office,category=App,status=Open,ts=1746950400",
+        "vuln_id=V002,host=ws-nyc-02,cve=CVE-2024-3400,severity=Critical,cvss=10.0,package=PAN-OS,category=OS,status=Open,ts=1746864000",
+        "vuln_id=V003,host=lnx-srv-04,cve=CVE-2023-44487,severity=Critical,cvss=9.3,package=nginx,category=App,status=Open,ts=1746777600",
+        "vuln_id=V004,host=ws-paris-07,cve=CVE-2024-21338,severity=Critical,cvss=9.8,package=Win_Kernel,category=OS,status=Patched,ts=1746691200",
+        "vuln_id=V005,host=ws-chicago-10,cve=CVE-2024-47575,severity=Critical,cvss=9.8,package=FortiOS,category=Config,status=Accepted,ts=1746604800",
+        "vuln_id=V006,host=ws-london-01,cve=CVE-2024-20767,severity=High,cvss=8.2,package=ColdFusion,category=App,status=Open,ts=1746518400",
+        "vuln_id=V007,host=ws-nyc-02,cve=CVE-2024-1709,severity=High,cvss=8.6,package=ConnectWise,category=App,status=Open,ts=1746432000",
+        "vuln_id=V008,host=mac-berlin-03,cve=CVE-2024-23225,severity=High,cvss=7.8,package=iOS_Kernel,category=OS,status=Patched,ts=1746345600",
+        "vuln_id=V009,host=lnx-srv-06,cve=CVE-2024-27198,severity=High,cvss=8.5,package=TeamCity,category=App,status=Open,ts=1746259200",
+        "vuln_id=V010,host=ws-sydney-05,cve=CVE-2024-30080,severity=High,cvss=7.5,package=MSMQ,category=OS,status=Accepted,ts=1746172800",
+        "vuln_id=V011,host=ws-boston-11,cve=CVE-2024-38112,severity=High,cvss=7.9,package=MSHTML,category=App,status=Open,ts=1746086400",
+        "vuln_id=V012,host=lnx-srv-09,cve=CVE-2023-4911,severity=High,cvss=8.4,package=glibc,category=OS,status=Patched,ts=1746000000",
+        "vuln_id=V013,host=ws-toronto-14,cve=CVE-2024-32896,severity=High,cvss=7.8,package=Android,category=OS,status=Open,ts=1745913600",
+        "vuln_id=V014,host=ws-seattle-18,cve=CVE-2024-49039,severity=High,cvss=8.8,package=WinTaskSched,category=OS,status=Accepted,ts=1745827200",
+        "vuln_id=V015,host=mac-sf-12,cve=CVE-2024-44308,severity=High,cvss=8.8,package=Safari,category=App,status=Patched,ts=1745740800",
+        "vuln_id=V016,host=ws-london-01,cve=CVE-2024-38021,severity=Medium,cvss=6.5,package=Outlook,category=App,status=Open,ts=1745654400",
+        "vuln_id=V017,host=ws-nyc-02,cve=CVE-2023-42793,severity=Medium,cvss=6.3,package=TeamCity,category=App,status=Patched,ts=1745568000",
+        "vuln_id=V018,host=lnx-srv-13,cve=CVE-2024-21626,severity=Medium,cvss=6.4,package=runc,category=Config,status=Patched,ts=1745481600",
+        "vuln_id=V019,host=ws-milan-15,cve=CVE-2024-27956,severity=Medium,cvss=5.5,package=WordPress,category=App,status=Open,ts=1745395200",
+        "vuln_id=V020,host=mac-tokyo-08,cve=CVE-2024-30090,severity=Medium,cvss=6.1,package=GStreamer,category=App,status=Patched,ts=1745308800",
+        "vuln_id=V021,host=ws-amsterdam-19,cve=CVE-2024-38213,severity=Medium,cvss=6.5,package=Win_SmartScreen,category=OS,status=Open,ts=1745222400",
+        "vuln_id=V022,host=lnx-srv-17,cve=CVE-2023-36664,severity=Medium,cvss=5.9,package=Ghostscript,category=App,status=Accepted,ts=1745136000",
+        "vuln_id=V023,host=ws-dallas-22,cve=CVE-2024-43461,severity=Medium,cvss=6.7,package=MSHTML,category=App,status=Patched,ts=1745049600",
+        "vuln_id=V024,host=mac-london-16,cve=CVE-2024-44309,severity=Medium,cvss=6.1,package=WebKit,category=App,status=Open,ts=1744963200",
+        "vuln_id=V025,host=ws-denver-25,cve=CVE-2024-38193,severity=Medium,cvss=6.8,package=WinSock,category=OS,status=Patched,ts=1744876800",
+        "vuln_id=V026,host=ws-boston-11,cve=CVE-2024-6387,severity=Low,cvss=3.5,package=OpenSSH,category=Config,status=Patched,ts=1744790400",
+        "vuln_id=V027,host=lnx-srv-24,cve=CVE-2023-29552,severity=Low,cvss=2.8,package=SLP,category=Config,status=Patched,ts=1744704000",
+        "vuln_id=V028,host=mac-paris-23,cve=CVE-2024-30052,severity=Low,cvss=3.8,package=VS_Debugger,category=App,status=Patched,ts=1744617600",
+        "vuln_id=V029,host=ws-chicago-10,cve=CVE-2024-26185,severity=Low,cvss=2.5,package=WinZip,category=App,status=Open,ts=1744531200",
+        "vuln_id=V030,host=lnx-srv-21,cve=CVE-2024-21378,severity=Low,cvss=3.2,package=Outlook,category=App,status=Accepted,ts=1744444800"
+      ])
+      | kvParse()
+      | wildcard(field=severity, pattern=?sev_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=category, pattern=?category_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | status = "Open"
+      | count(as=Open)
+      | Open := format("%,.0f", field=Open)
+    options:
+      background-color: '#F49125'
+      default: {}
+
+  # ─── KPI: Hosts with Vulnerabilities ─────────────────────────────────────────
+  kpi-vuln-hosts:
+    type: query
+    title: "Hosts Affected"
+    description: "Distinct hosts with at least one vulnerability"
+    x: 6
+    y: 2
+    width: 1
+    height: 3
+    visualization: single-value
+    isLive: false
+    start: 60d
+    queryString: |
+      createEvents([
+        "vuln_id=V001,host=ws-london-01,cve=CVE-2024-21413,severity=Critical,cvss=9.8,package=MS_Office,category=App,status=Open,ts=1746950400",
+        "vuln_id=V002,host=ws-nyc-02,cve=CVE-2024-3400,severity=Critical,cvss=10.0,package=PAN-OS,category=OS,status=Open,ts=1746864000",
+        "vuln_id=V003,host=lnx-srv-04,cve=CVE-2023-44487,severity=Critical,cvss=9.3,package=nginx,category=App,status=Open,ts=1746777600",
+        "vuln_id=V004,host=ws-paris-07,cve=CVE-2024-21338,severity=Critical,cvss=9.8,package=Win_Kernel,category=OS,status=Patched,ts=1746691200",
+        "vuln_id=V005,host=ws-chicago-10,cve=CVE-2024-47575,severity=Critical,cvss=9.8,package=FortiOS,category=Config,status=Accepted,ts=1746604800",
+        "vuln_id=V006,host=ws-london-01,cve=CVE-2024-20767,severity=High,cvss=8.2,package=ColdFusion,category=App,status=Open,ts=1746518400",
+        "vuln_id=V007,host=ws-nyc-02,cve=CVE-2024-1709,severity=High,cvss=8.6,package=ConnectWise,category=App,status=Open,ts=1746432000",
+        "vuln_id=V008,host=mac-berlin-03,cve=CVE-2024-23225,severity=High,cvss=7.8,package=iOS_Kernel,category=OS,status=Patched,ts=1746345600",
+        "vuln_id=V009,host=lnx-srv-06,cve=CVE-2024-27198,severity=High,cvss=8.5,package=TeamCity,category=App,status=Open,ts=1746259200",
+        "vuln_id=V010,host=ws-sydney-05,cve=CVE-2024-30080,severity=High,cvss=7.5,package=MSMQ,category=OS,status=Accepted,ts=1746172800",
+        "vuln_id=V011,host=ws-boston-11,cve=CVE-2024-38112,severity=High,cvss=7.9,package=MSHTML,category=App,status=Open,ts=1746086400",
+        "vuln_id=V012,host=lnx-srv-09,cve=CVE-2023-4911,severity=High,cvss=8.4,package=glibc,category=OS,status=Patched,ts=1746000000",
+        "vuln_id=V013,host=ws-toronto-14,cve=CVE-2024-32896,severity=High,cvss=7.8,package=Android,category=OS,status=Open,ts=1745913600",
+        "vuln_id=V014,host=ws-seattle-18,cve=CVE-2024-49039,severity=High,cvss=8.8,package=WinTaskSched,category=OS,status=Accepted,ts=1745827200",
+        "vuln_id=V015,host=mac-sf-12,cve=CVE-2024-44308,severity=High,cvss=8.8,package=Safari,category=App,status=Patched,ts=1745740800",
+        "vuln_id=V016,host=ws-london-01,cve=CVE-2024-38021,severity=Medium,cvss=6.5,package=Outlook,category=App,status=Open,ts=1745654400",
+        "vuln_id=V017,host=ws-nyc-02,cve=CVE-2023-42793,severity=Medium,cvss=6.3,package=TeamCity,category=App,status=Patched,ts=1745568000",
+        "vuln_id=V018,host=lnx-srv-13,cve=CVE-2024-21626,severity=Medium,cvss=6.4,package=runc,category=Config,status=Patched,ts=1745481600",
+        "vuln_id=V019,host=ws-milan-15,cve=CVE-2024-27956,severity=Medium,cvss=5.5,package=WordPress,category=App,status=Open,ts=1745395200",
+        "vuln_id=V020,host=mac-tokyo-08,cve=CVE-2024-30090,severity=Medium,cvss=6.1,package=GStreamer,category=App,status=Patched,ts=1745308800",
+        "vuln_id=V021,host=ws-amsterdam-19,cve=CVE-2024-38213,severity=Medium,cvss=6.5,package=Win_SmartScreen,category=OS,status=Open,ts=1745222400",
+        "vuln_id=V022,host=lnx-srv-17,cve=CVE-2023-36664,severity=Medium,cvss=5.9,package=Ghostscript,category=App,status=Accepted,ts=1745136000",
+        "vuln_id=V023,host=ws-dallas-22,cve=CVE-2024-43461,severity=Medium,cvss=6.7,package=MSHTML,category=App,status=Patched,ts=1745049600",
+        "vuln_id=V024,host=mac-london-16,cve=CVE-2024-44309,severity=Medium,cvss=6.1,package=WebKit,category=App,status=Open,ts=1744963200",
+        "vuln_id=V025,host=ws-denver-25,cve=CVE-2024-38193,severity=Medium,cvss=6.8,package=WinSock,category=OS,status=Patched,ts=1744876800",
+        "vuln_id=V026,host=ws-boston-11,cve=CVE-2024-6387,severity=Low,cvss=3.5,package=OpenSSH,category=Config,status=Patched,ts=1744790400",
+        "vuln_id=V027,host=lnx-srv-24,cve=CVE-2023-29552,severity=Low,cvss=2.8,package=SLP,category=Config,status=Patched,ts=1744704000",
+        "vuln_id=V028,host=mac-paris-23,cve=CVE-2024-30052,severity=Low,cvss=3.8,package=VS_Debugger,category=App,status=Patched,ts=1744617600",
+        "vuln_id=V029,host=ws-chicago-10,cve=CVE-2024-26185,severity=Low,cvss=2.5,package=WinZip,category=App,status=Open,ts=1744531200",
+        "vuln_id=V030,host=lnx-srv-21,cve=CVE-2024-21378,severity=Low,cvss=3.2,package=Outlook,category=App,status=Accepted,ts=1744444800"
+      ])
+      | kvParse()
+      | wildcard(field=severity, pattern=?sev_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=status, pattern=?status_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=category, pattern=?category_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | count(host, distinct=true, as=Hosts)
+    options:
+      background-color: '#0b6c84'
+      default: {}
+
+  # ─── Sankey: Severity → Remediation Status Flow ───────────────────────────────
+  sankey-vuln-flow:
+    type: query
+    title: "Severity → Status Flow"
+    description: "How each severity level maps to its remediation status. Link width = vuln count."
+    x: 0
+    y: 5
+    width: 4
+    height: 5
+    visualization: sankey
+    isLive: false
+    start: 60d
+    queryString: |
+      createEvents([
+        "vuln_id=V001,host=ws-london-01,cve=CVE-2024-21413,severity=Critical,cvss=9.8,package=MS_Office,category=App,status=Open,ts=1746950400",
+        "vuln_id=V002,host=ws-nyc-02,cve=CVE-2024-3400,severity=Critical,cvss=10.0,package=PAN-OS,category=OS,status=Open,ts=1746864000",
+        "vuln_id=V003,host=lnx-srv-04,cve=CVE-2023-44487,severity=Critical,cvss=9.3,package=nginx,category=App,status=Open,ts=1746777600",
+        "vuln_id=V004,host=ws-paris-07,cve=CVE-2024-21338,severity=Critical,cvss=9.8,package=Win_Kernel,category=OS,status=Patched,ts=1746691200",
+        "vuln_id=V005,host=ws-chicago-10,cve=CVE-2024-47575,severity=Critical,cvss=9.8,package=FortiOS,category=Config,status=Accepted,ts=1746604800",
+        "vuln_id=V006,host=ws-london-01,cve=CVE-2024-20767,severity=High,cvss=8.2,package=ColdFusion,category=App,status=Open,ts=1746518400",
+        "vuln_id=V007,host=ws-nyc-02,cve=CVE-2024-1709,severity=High,cvss=8.6,package=ConnectWise,category=App,status=Open,ts=1746432000",
+        "vuln_id=V008,host=mac-berlin-03,cve=CVE-2024-23225,severity=High,cvss=7.8,package=iOS_Kernel,category=OS,status=Patched,ts=1746345600",
+        "vuln_id=V009,host=lnx-srv-06,cve=CVE-2024-27198,severity=High,cvss=8.5,package=TeamCity,category=App,status=Open,ts=1746259200",
+        "vuln_id=V010,host=ws-sydney-05,cve=CVE-2024-30080,severity=High,cvss=7.5,package=MSMQ,category=OS,status=Accepted,ts=1746172800",
+        "vuln_id=V011,host=ws-boston-11,cve=CVE-2024-38112,severity=High,cvss=7.9,package=MSHTML,category=App,status=Open,ts=1746086400",
+        "vuln_id=V012,host=lnx-srv-09,cve=CVE-2023-4911,severity=High,cvss=8.4,package=glibc,category=OS,status=Patched,ts=1746000000",
+        "vuln_id=V013,host=ws-toronto-14,cve=CVE-2024-32896,severity=High,cvss=7.8,package=Android,category=OS,status=Open,ts=1745913600",
+        "vuln_id=V014,host=ws-seattle-18,cve=CVE-2024-49039,severity=High,cvss=8.8,package=WinTaskSched,category=OS,status=Accepted,ts=1745827200",
+        "vuln_id=V015,host=mac-sf-12,cve=CVE-2024-44308,severity=High,cvss=8.8,package=Safari,category=App,status=Patched,ts=1745740800",
+        "vuln_id=V016,host=ws-london-01,cve=CVE-2024-38021,severity=Medium,cvss=6.5,package=Outlook,category=App,status=Open,ts=1745654400",
+        "vuln_id=V017,host=ws-nyc-02,cve=CVE-2023-42793,severity=Medium,cvss=6.3,package=TeamCity,category=App,status=Patched,ts=1745568000",
+        "vuln_id=V018,host=lnx-srv-13,cve=CVE-2024-21626,severity=Medium,cvss=6.4,package=runc,category=Config,status=Patched,ts=1745481600",
+        "vuln_id=V019,host=ws-milan-15,cve=CVE-2024-27956,severity=Medium,cvss=5.5,package=WordPress,category=App,status=Open,ts=1745395200",
+        "vuln_id=V020,host=mac-tokyo-08,cve=CVE-2024-30090,severity=Medium,cvss=6.1,package=GStreamer,category=App,status=Patched,ts=1745308800",
+        "vuln_id=V021,host=ws-amsterdam-19,cve=CVE-2024-38213,severity=Medium,cvss=6.5,package=Win_SmartScreen,category=OS,status=Open,ts=1745222400",
+        "vuln_id=V022,host=lnx-srv-17,cve=CVE-2023-36664,severity=Medium,cvss=5.9,package=Ghostscript,category=App,status=Accepted,ts=1745136000",
+        "vuln_id=V023,host=ws-dallas-22,cve=CVE-2024-43461,severity=Medium,cvss=6.7,package=MSHTML,category=App,status=Patched,ts=1745049600",
+        "vuln_id=V024,host=mac-london-16,cve=CVE-2024-44309,severity=Medium,cvss=6.1,package=WebKit,category=App,status=Open,ts=1744963200",
+        "vuln_id=V025,host=ws-denver-25,cve=CVE-2024-38193,severity=Medium,cvss=6.8,package=WinSock,category=OS,status=Patched,ts=1744876800",
+        "vuln_id=V026,host=ws-boston-11,cve=CVE-2024-6387,severity=Low,cvss=3.5,package=OpenSSH,category=Config,status=Patched,ts=1744790400",
+        "vuln_id=V027,host=lnx-srv-24,cve=CVE-2023-29552,severity=Low,cvss=2.8,package=SLP,category=Config,status=Patched,ts=1744704000",
+        "vuln_id=V028,host=mac-paris-23,cve=CVE-2024-30052,severity=Low,cvss=3.8,package=VS_Debugger,category=App,status=Patched,ts=1744617600",
+        "vuln_id=V029,host=ws-chicago-10,cve=CVE-2024-26185,severity=Low,cvss=2.5,package=WinZip,category=App,status=Open,ts=1744531200",
+        "vuln_id=V030,host=lnx-srv-21,cve=CVE-2024-21378,severity=Low,cvss=3.2,package=Outlook,category=App,status=Accepted,ts=1744444800"
+      ])
+      | kvParse()
+      | wildcard(field=category, pattern=?category_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | sankey(source="severity", target="status", weight=count())
+    options:
+      labelLimit: 300
+      showAxes: true
+    interactions:
+      - name: Filter by Severity
+        titleTemplate: '▽ Filter to "{{ fields["source"] }}" severity'
+        type: updateparameters
+        useWidgetTimeWindow: false
+        arguments:
+          sev_filter: '["{{ fields["source"] }}"]'
+      - name: Filter by Status
+        titleTemplate: '▽ Filter to "{{ fields["target"] }}" status'
+        type: updateparameters
+        useWidgetTimeWindow: false
+        arguments:
+          status_filter: '["{{ fields["target"] }}"]'
+      - name: Reset filters
+        titleTemplate: '↻ Reset Severity and Status filters'
+        type: updateparameters
+        useWidgetTimeWindow: false
+        arguments:
+          sev_filter:    '["*"]'
+          status_filter: '["*"]'
+
+  # ─── Bar Chart: Vulns by Severity ─────────────────────────────────────────────
+  chart-vuln-by-sev:
+    type: query
+    title: "Vulns by Severity"
+    description: "Count of vulnerabilities per severity level — sorted Critical → Low"
+    x: 4
+    y: 5
+    width: 3
+    height: 5
+    visualization: bar-chart
+    isLive: false
+    start: 60d
+    queryString: |
+      createEvents([
+        "vuln_id=V001,host=ws-london-01,cve=CVE-2024-21413,severity=Critical,cvss=9.8,package=MS_Office,category=App,status=Open,ts=1746950400",
+        "vuln_id=V002,host=ws-nyc-02,cve=CVE-2024-3400,severity=Critical,cvss=10.0,package=PAN-OS,category=OS,status=Open,ts=1746864000",
+        "vuln_id=V003,host=lnx-srv-04,cve=CVE-2023-44487,severity=Critical,cvss=9.3,package=nginx,category=App,status=Open,ts=1746777600",
+        "vuln_id=V004,host=ws-paris-07,cve=CVE-2024-21338,severity=Critical,cvss=9.8,package=Win_Kernel,category=OS,status=Patched,ts=1746691200",
+        "vuln_id=V005,host=ws-chicago-10,cve=CVE-2024-47575,severity=Critical,cvss=9.8,package=FortiOS,category=Config,status=Accepted,ts=1746604800",
+        "vuln_id=V006,host=ws-london-01,cve=CVE-2024-20767,severity=High,cvss=8.2,package=ColdFusion,category=App,status=Open,ts=1746518400",
+        "vuln_id=V007,host=ws-nyc-02,cve=CVE-2024-1709,severity=High,cvss=8.6,package=ConnectWise,category=App,status=Open,ts=1746432000",
+        "vuln_id=V008,host=mac-berlin-03,cve=CVE-2024-23225,severity=High,cvss=7.8,package=iOS_Kernel,category=OS,status=Patched,ts=1746345600",
+        "vuln_id=V009,host=lnx-srv-06,cve=CVE-2024-27198,severity=High,cvss=8.5,package=TeamCity,category=App,status=Open,ts=1746259200",
+        "vuln_id=V010,host=ws-sydney-05,cve=CVE-2024-30080,severity=High,cvss=7.5,package=MSMQ,category=OS,status=Accepted,ts=1746172800",
+        "vuln_id=V011,host=ws-boston-11,cve=CVE-2024-38112,severity=High,cvss=7.9,package=MSHTML,category=App,status=Open,ts=1746086400",
+        "vuln_id=V012,host=lnx-srv-09,cve=CVE-2023-4911,severity=High,cvss=8.4,package=glibc,category=OS,status=Patched,ts=1746000000",
+        "vuln_id=V013,host=ws-toronto-14,cve=CVE-2024-32896,severity=High,cvss=7.8,package=Android,category=OS,status=Open,ts=1745913600",
+        "vuln_id=V014,host=ws-seattle-18,cve=CVE-2024-49039,severity=High,cvss=8.8,package=WinTaskSched,category=OS,status=Accepted,ts=1745827200",
+        "vuln_id=V015,host=mac-sf-12,cve=CVE-2024-44308,severity=High,cvss=8.8,package=Safari,category=App,status=Patched,ts=1745740800",
+        "vuln_id=V016,host=ws-london-01,cve=CVE-2024-38021,severity=Medium,cvss=6.5,package=Outlook,category=App,status=Open,ts=1745654400",
+        "vuln_id=V017,host=ws-nyc-02,cve=CVE-2023-42793,severity=Medium,cvss=6.3,package=TeamCity,category=App,status=Patched,ts=1745568000",
+        "vuln_id=V018,host=lnx-srv-13,cve=CVE-2024-21626,severity=Medium,cvss=6.4,package=runc,category=Config,status=Patched,ts=1745481600",
+        "vuln_id=V019,host=ws-milan-15,cve=CVE-2024-27956,severity=Medium,cvss=5.5,package=WordPress,category=App,status=Open,ts=1745395200",
+        "vuln_id=V020,host=mac-tokyo-08,cve=CVE-2024-30090,severity=Medium,cvss=6.1,package=GStreamer,category=App,status=Patched,ts=1745308800",
+        "vuln_id=V021,host=ws-amsterdam-19,cve=CVE-2024-38213,severity=Medium,cvss=6.5,package=Win_SmartScreen,category=OS,status=Open,ts=1745222400",
+        "vuln_id=V022,host=lnx-srv-17,cve=CVE-2023-36664,severity=Medium,cvss=5.9,package=Ghostscript,category=App,status=Accepted,ts=1745136000",
+        "vuln_id=V023,host=ws-dallas-22,cve=CVE-2024-43461,severity=Medium,cvss=6.7,package=MSHTML,category=App,status=Patched,ts=1745049600",
+        "vuln_id=V024,host=mac-london-16,cve=CVE-2024-44309,severity=Medium,cvss=6.1,package=WebKit,category=App,status=Open,ts=1744963200",
+        "vuln_id=V025,host=ws-denver-25,cve=CVE-2024-38193,severity=Medium,cvss=6.8,package=WinSock,category=OS,status=Patched,ts=1744876800",
+        "vuln_id=V026,host=ws-boston-11,cve=CVE-2024-6387,severity=Low,cvss=3.5,package=OpenSSH,category=Config,status=Patched,ts=1744790400",
+        "vuln_id=V027,host=lnx-srv-24,cve=CVE-2023-29552,severity=Low,cvss=2.8,package=SLP,category=Config,status=Patched,ts=1744704000",
+        "vuln_id=V028,host=mac-paris-23,cve=CVE-2024-30052,severity=Low,cvss=3.8,package=VS_Debugger,category=App,status=Patched,ts=1744617600",
+        "vuln_id=V029,host=ws-chicago-10,cve=CVE-2024-26185,severity=Low,cvss=2.5,package=WinZip,category=App,status=Open,ts=1744531200",
+        "vuln_id=V030,host=lnx-srv-21,cve=CVE-2024-21378,severity=Low,cvss=3.2,package=Outlook,category=App,status=Accepted,ts=1744444800"
+      ])
+      | kvParse()
+      | wildcard(field=status, pattern=?status_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=category, pattern=?category_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | groupBy([severity], function=count(as=Count), limit=max)
+      // Assign sort key: Critical > High > Medium > Low
+      | case {
+          severity = "Critical" | _ord := 1;
+          severity = "High"     | _ord := 2;
+          severity = "Medium"   | _ord := 3;
+          severity = "Low"      | _ord := 4;
+          *                     | _ord := 5;
+        }
+      | sort(_ord, order=asc)
+      | drop(_ord)
+    options:
+      barChartOrientation: horizontal
+      valuesOnBars: true
+      labelLimit: 150
+      series:
+        Critical:
+          color: '#DB2D24'
+        High:
+          color: '#F49125'
+        Medium:
+          color: '#FFC107'
+        Low:
+          color: '#34B248'
+    interactions:
+      - name: Filter by Severity
+        titleTemplate: '▽ Filter to "{{ fields["severity"] }}" severity'
+        type: updateparameters
+        useWidgetTimeWindow: false
+        arguments:
+          sev_filter: '["{{ fields["severity"] }}"]'
+      - name: Reset Severity filter
+        titleTemplate: '↻ Reset Severity filter'
+        type: updateparameters
+        useWidgetTimeWindow: false
+        arguments:
+          sev_filter: '["*"]'
+
+  # ─── Gauge: Patch Rate ───────────────────────────────────────────────────────
+  gauge-patch-rate:
+    type: query
+    title: "Patch Rate"
+    description: "Percentage of vulnerabilities that have been patched"
+    x: 0
+    y: 10
+    width: 3
+    height: 5
+    visualization: gauge
+    isLive: false
+    start: 60d
+    queryString: |
+      createEvents([
+        "vuln_id=V001,host=ws-london-01,cve=CVE-2024-21413,severity=Critical,cvss=9.8,package=MS_Office,category=App,status=Open,ts=1746950400",
+        "vuln_id=V002,host=ws-nyc-02,cve=CVE-2024-3400,severity=Critical,cvss=10.0,package=PAN-OS,category=OS,status=Open,ts=1746864000",
+        "vuln_id=V003,host=lnx-srv-04,cve=CVE-2023-44487,severity=Critical,cvss=9.3,package=nginx,category=App,status=Open,ts=1746777600",
+        "vuln_id=V004,host=ws-paris-07,cve=CVE-2024-21338,severity=Critical,cvss=9.8,package=Win_Kernel,category=OS,status=Patched,ts=1746691200",
+        "vuln_id=V005,host=ws-chicago-10,cve=CVE-2024-47575,severity=Critical,cvss=9.8,package=FortiOS,category=Config,status=Accepted,ts=1746604800",
+        "vuln_id=V006,host=ws-london-01,cve=CVE-2024-20767,severity=High,cvss=8.2,package=ColdFusion,category=App,status=Open,ts=1746518400",
+        "vuln_id=V007,host=ws-nyc-02,cve=CVE-2024-1709,severity=High,cvss=8.6,package=ConnectWise,category=App,status=Open,ts=1746432000",
+        "vuln_id=V008,host=mac-berlin-03,cve=CVE-2024-23225,severity=High,cvss=7.8,package=iOS_Kernel,category=OS,status=Patched,ts=1746345600",
+        "vuln_id=V009,host=lnx-srv-06,cve=CVE-2024-27198,severity=High,cvss=8.5,package=TeamCity,category=App,status=Open,ts=1746259200",
+        "vuln_id=V010,host=ws-sydney-05,cve=CVE-2024-30080,severity=High,cvss=7.5,package=MSMQ,category=OS,status=Accepted,ts=1746172800",
+        "vuln_id=V011,host=ws-boston-11,cve=CVE-2024-38112,severity=High,cvss=7.9,package=MSHTML,category=App,status=Open,ts=1746086400",
+        "vuln_id=V012,host=lnx-srv-09,cve=CVE-2023-4911,severity=High,cvss=8.4,package=glibc,category=OS,status=Patched,ts=1746000000",
+        "vuln_id=V013,host=ws-toronto-14,cve=CVE-2024-32896,severity=High,cvss=7.8,package=Android,category=OS,status=Open,ts=1745913600",
+        "vuln_id=V014,host=ws-seattle-18,cve=CVE-2024-49039,severity=High,cvss=8.8,package=WinTaskSched,category=OS,status=Accepted,ts=1745827200",
+        "vuln_id=V015,host=mac-sf-12,cve=CVE-2024-44308,severity=High,cvss=8.8,package=Safari,category=App,status=Patched,ts=1745740800",
+        "vuln_id=V016,host=ws-london-01,cve=CVE-2024-38021,severity=Medium,cvss=6.5,package=Outlook,category=App,status=Open,ts=1745654400",
+        "vuln_id=V017,host=ws-nyc-02,cve=CVE-2023-42793,severity=Medium,cvss=6.3,package=TeamCity,category=App,status=Patched,ts=1745568000",
+        "vuln_id=V018,host=lnx-srv-13,cve=CVE-2024-21626,severity=Medium,cvss=6.4,package=runc,category=Config,status=Patched,ts=1745481600",
+        "vuln_id=V019,host=ws-milan-15,cve=CVE-2024-27956,severity=Medium,cvss=5.5,package=WordPress,category=App,status=Open,ts=1745395200",
+        "vuln_id=V020,host=mac-tokyo-08,cve=CVE-2024-30090,severity=Medium,cvss=6.1,package=GStreamer,category=App,status=Patched,ts=1745308800",
+        "vuln_id=V021,host=ws-amsterdam-19,cve=CVE-2024-38213,severity=Medium,cvss=6.5,package=Win_SmartScreen,category=OS,status=Open,ts=1745222400",
+        "vuln_id=V022,host=lnx-srv-17,cve=CVE-2023-36664,severity=Medium,cvss=5.9,package=Ghostscript,category=App,status=Accepted,ts=1745136000",
+        "vuln_id=V023,host=ws-dallas-22,cve=CVE-2024-43461,severity=Medium,cvss=6.7,package=MSHTML,category=App,status=Patched,ts=1745049600",
+        "vuln_id=V024,host=mac-london-16,cve=CVE-2024-44309,severity=Medium,cvss=6.1,package=WebKit,category=App,status=Open,ts=1744963200",
+        "vuln_id=V025,host=ws-denver-25,cve=CVE-2024-38193,severity=Medium,cvss=6.8,package=WinSock,category=OS,status=Patched,ts=1744876800",
+        "vuln_id=V026,host=ws-boston-11,cve=CVE-2024-6387,severity=Low,cvss=3.5,package=OpenSSH,category=Config,status=Patched,ts=1744790400",
+        "vuln_id=V027,host=lnx-srv-24,cve=CVE-2023-29552,severity=Low,cvss=2.8,package=SLP,category=Config,status=Patched,ts=1744704000",
+        "vuln_id=V028,host=mac-paris-23,cve=CVE-2024-30052,severity=Low,cvss=3.8,package=VS_Debugger,category=App,status=Patched,ts=1744617600",
+        "vuln_id=V029,host=ws-chicago-10,cve=CVE-2024-26185,severity=Low,cvss=2.5,package=WinZip,category=App,status=Open,ts=1744531200",
+        "vuln_id=V030,host=lnx-srv-21,cve=CVE-2024-21378,severity=Low,cvss=3.2,package=Outlook,category=App,status=Accepted,ts=1744444800"
+      ])
+      | kvParse()
+      | wildcard(field=severity, pattern=?sev_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=status, pattern=?status_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=category, pattern=?category_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | stats([count(as=total), { status = "Patched" | count(as=patched_n) }])
+      | default(value=0, field=[patched_n])
+      | "Patch Rate %" := (patched_n / total) * 100
+      | drop([total, patched_n])
+    options:
+      gaugeType: radialNeedle
+      minVal: 0
+      maxVal: 100
+      thresholdConfig:
+        thresholds:
+          - value: 0
+            color: '#DB2D24'
+          - value: 40
+            color: '#F49125'
+          - value: 70
+            color: '#FFC107'
+          - value: 90
+            color: '#34B248'
+
+  # ─── Table: Top Vulnerable Hosts ─────────────────────────────────────────────
+  table-top-vuln-hosts:
+    type: query
+    title: "Top Vulnerable Hosts"
+    description: "Hosts ranked by open vulnerability count"
+    x: 3
+    y: 10
+    width: 4
+    height: 5
+    visualization: table-view
+    isLive: false
+    start: 60d
+    queryString: |
+      createEvents([
+        "vuln_id=V001,host=ws-london-01,cve=CVE-2024-21413,severity=Critical,cvss=9.8,package=MS_Office,category=App,status=Open,ts=1746950400",
+        "vuln_id=V002,host=ws-nyc-02,cve=CVE-2024-3400,severity=Critical,cvss=10.0,package=PAN-OS,category=OS,status=Open,ts=1746864000",
+        "vuln_id=V003,host=lnx-srv-04,cve=CVE-2023-44487,severity=Critical,cvss=9.3,package=nginx,category=App,status=Open,ts=1746777600",
+        "vuln_id=V004,host=ws-paris-07,cve=CVE-2024-21338,severity=Critical,cvss=9.8,package=Win_Kernel,category=OS,status=Patched,ts=1746691200",
+        "vuln_id=V005,host=ws-chicago-10,cve=CVE-2024-47575,severity=Critical,cvss=9.8,package=FortiOS,category=Config,status=Accepted,ts=1746604800",
+        "vuln_id=V006,host=ws-london-01,cve=CVE-2024-20767,severity=High,cvss=8.2,package=ColdFusion,category=App,status=Open,ts=1746518400",
+        "vuln_id=V007,host=ws-nyc-02,cve=CVE-2024-1709,severity=High,cvss=8.6,package=ConnectWise,category=App,status=Open,ts=1746432000",
+        "vuln_id=V008,host=mac-berlin-03,cve=CVE-2024-23225,severity=High,cvss=7.8,package=iOS_Kernel,category=OS,status=Patched,ts=1746345600",
+        "vuln_id=V009,host=lnx-srv-06,cve=CVE-2024-27198,severity=High,cvss=8.5,package=TeamCity,category=App,status=Open,ts=1746259200",
+        "vuln_id=V010,host=ws-sydney-05,cve=CVE-2024-30080,severity=High,cvss=7.5,package=MSMQ,category=OS,status=Accepted,ts=1746172800",
+        "vuln_id=V011,host=ws-boston-11,cve=CVE-2024-38112,severity=High,cvss=7.9,package=MSHTML,category=App,status=Open,ts=1746086400",
+        "vuln_id=V012,host=lnx-srv-09,cve=CVE-2023-4911,severity=High,cvss=8.4,package=glibc,category=OS,status=Patched,ts=1746000000",
+        "vuln_id=V013,host=ws-toronto-14,cve=CVE-2024-32896,severity=High,cvss=7.8,package=Android,category=OS,status=Open,ts=1745913600",
+        "vuln_id=V014,host=ws-seattle-18,cve=CVE-2024-49039,severity=High,cvss=8.8,package=WinTaskSched,category=OS,status=Accepted,ts=1745827200",
+        "vuln_id=V015,host=mac-sf-12,cve=CVE-2024-44308,severity=High,cvss=8.8,package=Safari,category=App,status=Patched,ts=1745740800",
+        "vuln_id=V016,host=ws-london-01,cve=CVE-2024-38021,severity=Medium,cvss=6.5,package=Outlook,category=App,status=Open,ts=1745654400",
+        "vuln_id=V017,host=ws-nyc-02,cve=CVE-2023-42793,severity=Medium,cvss=6.3,package=TeamCity,category=App,status=Patched,ts=1745568000",
+        "vuln_id=V018,host=lnx-srv-13,cve=CVE-2024-21626,severity=Medium,cvss=6.4,package=runc,category=Config,status=Patched,ts=1745481600",
+        "vuln_id=V019,host=ws-milan-15,cve=CVE-2024-27956,severity=Medium,cvss=5.5,package=WordPress,category=App,status=Open,ts=1745395200",
+        "vuln_id=V020,host=mac-tokyo-08,cve=CVE-2024-30090,severity=Medium,cvss=6.1,package=GStreamer,category=App,status=Patched,ts=1745308800",
+        "vuln_id=V021,host=ws-amsterdam-19,cve=CVE-2024-38213,severity=Medium,cvss=6.5,package=Win_SmartScreen,category=OS,status=Open,ts=1745222400",
+        "vuln_id=V022,host=lnx-srv-17,cve=CVE-2023-36664,severity=Medium,cvss=5.9,package=Ghostscript,category=App,status=Accepted,ts=1745136000",
+        "vuln_id=V023,host=ws-dallas-22,cve=CVE-2024-43461,severity=Medium,cvss=6.7,package=MSHTML,category=App,status=Patched,ts=1745049600",
+        "vuln_id=V024,host=mac-london-16,cve=CVE-2024-44309,severity=Medium,cvss=6.1,package=WebKit,category=App,status=Open,ts=1744963200",
+        "vuln_id=V025,host=ws-denver-25,cve=CVE-2024-38193,severity=Medium,cvss=6.8,package=WinSock,category=OS,status=Patched,ts=1744876800",
+        "vuln_id=V026,host=ws-boston-11,cve=CVE-2024-6387,severity=Low,cvss=3.5,package=OpenSSH,category=Config,status=Patched,ts=1744790400",
+        "vuln_id=V027,host=lnx-srv-24,cve=CVE-2023-29552,severity=Low,cvss=2.8,package=SLP,category=Config,status=Patched,ts=1744704000",
+        "vuln_id=V028,host=mac-paris-23,cve=CVE-2024-30052,severity=Low,cvss=3.8,package=VS_Debugger,category=App,status=Patched,ts=1744617600",
+        "vuln_id=V029,host=ws-chicago-10,cve=CVE-2024-26185,severity=Low,cvss=2.5,package=WinZip,category=App,status=Open,ts=1744531200",
+        "vuln_id=V030,host=lnx-srv-21,cve=CVE-2024-21378,severity=Low,cvss=3.2,package=Outlook,category=App,status=Accepted,ts=1744444800"
+      ])
+      | kvParse()
+      | wildcard(field=severity, pattern=?sev_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=status, pattern=?status_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=category, pattern=?category_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | groupBy([host], function=count(as=Vulns), limit=max)
+      | sort(Vulns, order=desc, limit=10)
+    options:
+      columns:
+        - name: host
+          header: Host
+        - name: Vulns
+          header: Total Vulns
+    interactions:
+      - name: Filter by Host
+        titleTemplate: '▽ Filter detail table to "{{ fields["host"] }}"'
+        type: updateparameters
+        useWidgetTimeWindow: false
+        arguments:
+          sev_filter: '["*"]'
+
+  # ─── Time Chart: Vulnerability Timeline ──────────────────────────────────────
+  chart-vuln-timeline:
+    type: query
+    title: "Vulnerability Trend (30d)"
+    description: "Volume of vulnerabilities over time, grouped by severity (doff-based synthetic timestamps)"
+    x: 0
+    y: 15
+    width: 12
+    height: 5
+    visualization: time-chart
+    isLive: false
+    start: 60d
+    queryString: |
+      createEvents([
+        "vuln_id=V001,severity=Critical,status=Open,category=App,doff=29",
+        "vuln_id=V002,severity=Critical,status=Open,category=OS,doff=28",
+        "vuln_id=V003,severity=Critical,status=Open,category=App,doff=27",
+        "vuln_id=V004,severity=Critical,status=Patched,category=OS,doff=26",
+        "vuln_id=V005,severity=Critical,status=Accepted,category=Config,doff=25",
+        "vuln_id=V006,severity=High,status=Open,category=App,doff=24",
+        "vuln_id=V007,severity=High,status=Open,category=App,doff=23",
+        "vuln_id=V008,severity=High,status=Patched,category=OS,doff=22",
+        "vuln_id=V009,severity=High,status=Open,category=App,doff=21",
+        "vuln_id=V010,severity=High,status=Accepted,category=OS,doff=20",
+        "vuln_id=V011,severity=High,status=Open,category=App,doff=19",
+        "vuln_id=V012,severity=High,status=Patched,category=OS,doff=18",
+        "vuln_id=V013,severity=High,status=Open,category=OS,doff=17",
+        "vuln_id=V014,severity=High,status=Accepted,category=OS,doff=16",
+        "vuln_id=V015,severity=High,status=Patched,category=App,doff=15",
+        "vuln_id=V016,severity=Medium,status=Open,category=App,doff=14",
+        "vuln_id=V017,severity=Medium,status=Patched,category=App,doff=13",
+        "vuln_id=V018,severity=Medium,status=Patched,category=Config,doff=12",
+        "vuln_id=V019,severity=Medium,status=Open,category=App,doff=11",
+        "vuln_id=V020,severity=Medium,status=Patched,category=App,doff=10",
+        "vuln_id=V021,severity=Medium,status=Open,category=OS,doff=9",
+        "vuln_id=V022,severity=Medium,status=Accepted,category=App,doff=8",
+        "vuln_id=V023,severity=Medium,status=Patched,category=App,doff=7",
+        "vuln_id=V024,severity=Medium,status=Open,category=App,doff=6",
+        "vuln_id=V025,severity=Medium,status=Patched,category=OS,doff=5",
+        "vuln_id=V026,severity=Low,status=Patched,category=Config,doff=4",
+        "vuln_id=V027,severity=Low,status=Patched,category=Config,doff=3",
+        "vuln_id=V028,severity=Low,status=Patched,category=App,doff=2",
+        "vuln_id=V029,severity=Low,status=Open,category=App,doff=1",
+        "vuln_id=V030,severity=Low,status=Accepted,category=App,doff=0"
+      ])
+      | kvParse()
+      | @timestamp := now() - (doff * 86400000)
+      | wildcard(field=severity, pattern=?sev_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=status, pattern=?status_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=category, pattern=?category_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | timeChart(series=severity, span=3d)
+    options:
+      plotType: area
+      stacking: normal
+      interpolation: monotone
+      lastBucketBehavior: exclude
+      series:
+        Critical:
+          color: '#DB2D24'
+        High:
+          color: '#F49125'
+        Medium:
+          color: '#FFC107'
+        Low:
+          color: '#34B248'
+
+  # ─── Table: Vulnerability Detail ─────────────────────────────────────────────
+  table-vuln-detail:
+    type: query
+    title: "Vulnerability Detail"
+    description: "Full vulnerability listing with severity and status indicators"
+    x: 0
+    y: 20
+    width: 12
+    height: 8
+    visualization: table-view
+    isLive: false
+    start: 60d
+    queryString: |
+      createEvents([
+        "vuln_id=V001,host=ws-london-01,cve=CVE-2024-21413,severity=Critical,cvss=9.8,package=MS_Office,category=App,status=Open,ts=1746950400",
+        "vuln_id=V002,host=ws-nyc-02,cve=CVE-2024-3400,severity=Critical,cvss=10.0,package=PAN-OS,category=OS,status=Open,ts=1746864000",
+        "vuln_id=V003,host=lnx-srv-04,cve=CVE-2023-44487,severity=Critical,cvss=9.3,package=nginx,category=App,status=Open,ts=1746777600",
+        "vuln_id=V004,host=ws-paris-07,cve=CVE-2024-21338,severity=Critical,cvss=9.8,package=Win_Kernel,category=OS,status=Patched,ts=1746691200",
+        "vuln_id=V005,host=ws-chicago-10,cve=CVE-2024-47575,severity=Critical,cvss=9.8,package=FortiOS,category=Config,status=Accepted,ts=1746604800",
+        "vuln_id=V006,host=ws-london-01,cve=CVE-2024-20767,severity=High,cvss=8.2,package=ColdFusion,category=App,status=Open,ts=1746518400",
+        "vuln_id=V007,host=ws-nyc-02,cve=CVE-2024-1709,severity=High,cvss=8.6,package=ConnectWise,category=App,status=Open,ts=1746432000",
+        "vuln_id=V008,host=mac-berlin-03,cve=CVE-2024-23225,severity=High,cvss=7.8,package=iOS_Kernel,category=OS,status=Patched,ts=1746345600",
+        "vuln_id=V009,host=lnx-srv-06,cve=CVE-2024-27198,severity=High,cvss=8.5,package=TeamCity,category=App,status=Open,ts=1746259200",
+        "vuln_id=V010,host=ws-sydney-05,cve=CVE-2024-30080,severity=High,cvss=7.5,package=MSMQ,category=OS,status=Accepted,ts=1746172800",
+        "vuln_id=V011,host=ws-boston-11,cve=CVE-2024-38112,severity=High,cvss=7.9,package=MSHTML,category=App,status=Open,ts=1746086400",
+        "vuln_id=V012,host=lnx-srv-09,cve=CVE-2023-4911,severity=High,cvss=8.4,package=glibc,category=OS,status=Patched,ts=1746000000",
+        "vuln_id=V013,host=ws-toronto-14,cve=CVE-2024-32896,severity=High,cvss=7.8,package=Android,category=OS,status=Open,ts=1745913600",
+        "vuln_id=V014,host=ws-seattle-18,cve=CVE-2024-49039,severity=High,cvss=8.8,package=WinTaskSched,category=OS,status=Accepted,ts=1745827200",
+        "vuln_id=V015,host=mac-sf-12,cve=CVE-2024-44308,severity=High,cvss=8.8,package=Safari,category=App,status=Patched,ts=1745740800",
+        "vuln_id=V016,host=ws-london-01,cve=CVE-2024-38021,severity=Medium,cvss=6.5,package=Outlook,category=App,status=Open,ts=1745654400",
+        "vuln_id=V017,host=ws-nyc-02,cve=CVE-2023-42793,severity=Medium,cvss=6.3,package=TeamCity,category=App,status=Patched,ts=1745568000",
+        "vuln_id=V018,host=lnx-srv-13,cve=CVE-2024-21626,severity=Medium,cvss=6.4,package=runc,category=Config,status=Patched,ts=1745481600",
+        "vuln_id=V019,host=ws-milan-15,cve=CVE-2024-27956,severity=Medium,cvss=5.5,package=WordPress,category=App,status=Open,ts=1745395200",
+        "vuln_id=V020,host=mac-tokyo-08,cve=CVE-2024-30090,severity=Medium,cvss=6.1,package=GStreamer,category=App,status=Patched,ts=1745308800",
+        "vuln_id=V021,host=ws-amsterdam-19,cve=CVE-2024-38213,severity=Medium,cvss=6.5,package=Win_SmartScreen,category=OS,status=Open,ts=1745222400",
+        "vuln_id=V022,host=lnx-srv-17,cve=CVE-2023-36664,severity=Medium,cvss=5.9,package=Ghostscript,category=App,status=Accepted,ts=1745136000",
+        "vuln_id=V023,host=ws-dallas-22,cve=CVE-2024-43461,severity=Medium,cvss=6.7,package=MSHTML,category=App,status=Patched,ts=1745049600",
+        "vuln_id=V024,host=mac-london-16,cve=CVE-2024-44309,severity=Medium,cvss=6.1,package=WebKit,category=App,status=Open,ts=1744963200",
+        "vuln_id=V025,host=ws-denver-25,cve=CVE-2024-38193,severity=Medium,cvss=6.8,package=WinSock,category=OS,status=Patched,ts=1744876800",
+        "vuln_id=V026,host=ws-boston-11,cve=CVE-2024-6387,severity=Low,cvss=3.5,package=OpenSSH,category=Config,status=Patched,ts=1744790400",
+        "vuln_id=V027,host=lnx-srv-24,cve=CVE-2023-29552,severity=Low,cvss=2.8,package=SLP,category=Config,status=Patched,ts=1744704000",
+        "vuln_id=V028,host=mac-paris-23,cve=CVE-2024-30052,severity=Low,cvss=3.8,package=VS_Debugger,category=App,status=Patched,ts=1744617600",
+        "vuln_id=V029,host=ws-chicago-10,cve=CVE-2024-26185,severity=Low,cvss=2.5,package=WinZip,category=App,status=Open,ts=1744531200",
+        "vuln_id=V030,host=lnx-srv-21,cve=CVE-2024-21378,severity=Low,cvss=3.2,package=Outlook,category=App,status=Accepted,ts=1744444800"
+      ])
+      | kvParse()
+      | findTimestamp(field=ts)
+      | wildcard(field=severity, pattern=?sev_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=status, pattern=?status_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=category, pattern=?category_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | case {
+          severity = "Critical" | sev_icon := "🔴 Critical";
+          severity = "High"     | sev_icon := "🟠 High";
+          severity = "Medium"   | sev_icon := "🟡 Medium";
+          severity = "Low"      | sev_icon := "🟢 Low";
+          *                     | sev_icon := severity;
+        }
+      | case {
+          status = "Open"     | status_icon := "🔓 Open";
+          status = "Patched"  | status_icon := "✅ Patched";
+          status = "Accepted" | status_icon := "📋 Accepted";
+          *                   | status_icon := status;
+        }
+      | table([vuln_id, host, cve, sev_icon, cvss, package, category, status_icon], limit=100)
+    options:
+      columns:
+        - name: vuln_id
+          header: ID
+        - name: host
+          header: Host
+        - name: cve
+          header: CVE
+        - name: sev_icon
+          header: Severity
+        - name: cvss
+          header: CVSS
+        - name: package
+          header: Package
+        - name: category
+          header: Category
+        - name: status_icon
+          header: Status
+    interactions:
+      - name: Filter by Severity
+        titleTemplate: '▽ Filter to "{{ fields["sev_icon"] }}" severity'
+        type: updateparameters
+        useWidgetTimeWindow: false
+        arguments:
+          sev_filter: '["{{ fields["severity"] }}"]'
+      - name: Filter by Status
+        titleTemplate: '▽ Filter to "{{ fields["status_icon"] }}" status'
+        type: updateparameters
+        useWidgetTimeWindow: false
+        arguments:
+          status_filter: '["{{ fields["status"] }}"]'
+      - name: Filter by Category
+        titleTemplate: '▽ Filter to "{{ fields["category"] }}" category'
+        type: updateparameters
+        useWidgetTimeWindow: false
+        arguments:
+          category_filter: '["{{ fields["category"] }}"]'
+      - name: Reset all Vuln filters
+        titleTemplate: '↻ Reset all vulnerability filters'
+        type: updateparameters
+        useWidgetTimeWindow: false
+        arguments:
+          sev_filter:      '["*"]'
+          status_filter:   '["*"]'
+          category_filter: '["*"]'

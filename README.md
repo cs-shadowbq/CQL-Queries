@@ -461,9 +461,16 @@ using default(), and test()
 
 ## Adhoc Tables Joining data - `defineTable()` vs `join()`
 
-In many scenarios, ad-hoc tables can be used in place of the join() function. However, LogScale generally recommends using ad-hoc tables.
+**Prefer `defineTable()` + `match()` over `join()`.** LogScale recommends ad-hoc tables for the following reasons:
 
-good for using against from repos. 
+* `join()` subqueries are hard-capped at **200,000 rows** — results silently truncate with no error when exceeded
+* `join()` does not work in **multi-cluster views**; `defineTable()` does
+* `defineTable()` subquery and primary query execute in parallel; `join()` is sequential
+* Ad-hoc tables are compressed in memory for live queries
+
+Only use `join()` when the subquery is guaranteed small (well under 200k rows) or when you specifically need right-join semantics.
+
+`defineTable()` is particularly effective when joining against data from other repos:
 
 ```f#
 defineTable(query={*}, name="custom_tablename", include=[field1, field2])

@@ -1,0 +1,1202 @@
+$schema: https://schemas.humio.com/dashboard/v0.23.0
+name: "CQL Demo — Synthetic IT Asset & Vulnerability Dashboard v1.0.1"
+timeSelector:
+  defaultTimeJumpInMs: 30000
+sharedTimeInterval:
+  enabled: true
+  isLive: false
+  start: 30d
+
+parameters:
+  os_filter:
+    label: OS
+    order: 1
+    type: list
+    defaultValue: '*'
+    width: 1
+    values:
+      '*': 'All'
+      Windows: Windows
+      macOS: macOS
+      Linux: Linux
+
+  dept_filter:
+    label: Department
+    order: 2
+    type: list
+    defaultValue: '*'
+    width: 1
+    values:
+      '*': 'All'
+      Eng: Engineering
+      Finance: Finance
+      HR: HR
+      IT: IT
+      Ops: Operations
+
+  managed_filter:
+    label: Managed
+    order: 3
+    type: list
+    defaultValue: '*'
+    width: 1
+    values:
+      '*': 'All'
+      'yes': Managed
+      'no': Unmanaged
+
+  sev_filter:
+    label: Severity
+    order: 4
+    type: list
+    defaultValue: '*'
+    width: 1
+    values:
+      '*': 'All'
+      Critical: Critical
+      High: High
+      Medium: Medium
+      Low: Low
+
+sections:
+  section-assets:
+    title: "Asset Inventory"
+    order: 0
+    collapsed: false
+    widgetIds:
+      - widget-params
+      - note-overview
+      - kpi-total-assets
+      - kpi-managed
+      - kpi-unmanaged
+      - kpi-locations
+      - chart-os-dist
+      - chart-dept-bar
+      - chart-managed-gauge
+      - chart-country-bar
+      - map-geo
+      - table-assets
+
+  section-vulns:
+    title: "Vulnerability Management"
+    order: 1
+    collapsed: false
+    widgetIds:
+      - note-vuln
+      - kpi-total-vulns
+      - kpi-critical
+      - kpi-unpatched
+      - kpi-patch-rate
+      - sankey-vuln-flow
+      - chart-vuln-by-os
+      - chart-patch-gauge
+      - table-vuln-detail
+
+widgets:
+
+  # ── Section 1 — Asset Inventory ───────────────────────────────────────────────
+
+  widget-params:
+    type: parameterPanel
+    title: ''
+    x: 0
+    y: 0
+    width: 7
+    height: 2
+    parameterIds:
+      - os_filter
+      - dept_filter
+      - managed_filter
+      - sev_filter
+
+  note-overview:
+    type: note
+    title: ''
+    x: 7
+    y: 0
+    width: 5
+    height: 15
+    text: |
+      ```
+      CQL Demo — Synthetic IT Asset & Vulnerability Dashboard
+      Version: 1.0.1  |  Data: createEvents() synthetic
+      ```
+
+      ## About This Dashboard
+
+      **Zero dependencies** — all 20 asset events and 24 vulnerability events
+      are generated inline via `createEvents()`. No repository, no CSV, no ingest needed.
+
+      ## Data Model
+
+      | Dataset         | Records | Key Fields                              |
+      |-----------------|---------|------------------------------------------|
+      | Assets          | 20      | host, os, dept, country, lat/lon, managed |
+      | Vulnerabilities | 24      | host, os, dept, cve, sev, status          |
+
+      ## CQL Patterns Demonstrated
+
+      | Widget         | Key Pattern                              |
+      |----------------|------------------------------------------|
+      | KPIs           | `count()`, `count(distinct=true)`        |
+      | OS Pie         | `groupBy([os])` donut (innerRadius)      |
+      | Dept Bar       | `groupBy([dept])` horizontal bar         |
+      | Managed Gauge  | `stats()` with subpipeline               |
+      | World Map      | `lat := lat * 1` coerce + `worldMap()`   |
+      | Asset Table    | `case{}` emoji + interactions            |
+      | Sankey         | `sankey(source="sev", target="status")`  |
+      | Patch Gauge    | `stats()` patched/total ratio            |
+
+      ## Filters
+      - **OS / Dept / Managed** — applied to Asset section widgets
+      - **OS / Dept / Severity** — applied to Vulnerability section widgets
+
+      ## Time Range
+      Last 30 days. All events use
+      `@timestamp := now() - (doff * 86400000)` so they
+      always fall within the active window.
+
+      ## Promoting to Production
+      Replace `createEvents([...]) | kvParse()` with your
+      real `#repo` and tag filters. Keep all downstream
+      pipeline steps unchanged.
+
+  # ── KPI Row ───────────────────────────────────────────────────────────────────
+
+  kpi-total-assets:
+    type: query
+    title: "Total Assets"
+    description: "All assets matching active filters"
+    x: 0
+    y: 2
+    width: 2
+    height: 3
+    visualization: single-value
+    isLive: false
+    start: 30d
+    queryString: |
+      createEvents([
+        "id=AST-001,host=win-nyc-01,os=Windows,dept=IT,city=NewYork,country=US,lat=40.71,lon=-74.00,managed=yes,doff=19",
+        "id=AST-002,host=mac-lon-01,os=macOS,dept=Finance,city=London,country=GB,lat=51.51,lon=-0.13,managed=yes,doff=18",
+        "id=AST-003,host=lnx-tok-01,os=Linux,dept=Eng,city=Tokyo,country=JP,lat=35.68,lon=139.69,managed=yes,doff=17",
+        "id=AST-004,host=win-syd-01,os=Windows,dept=Ops,city=Sydney,country=AU,lat=-33.87,lon=151.21,managed=yes,doff=16",
+        "id=AST-005,host=mac-par-01,os=macOS,dept=HR,city=Paris,country=FR,lat=48.85,lon=2.35,managed=yes,doff=15",
+        "id=AST-006,host=lnx-mum-01,os=Linux,dept=Eng,city=Mumbai,country=IN,lat=19.08,lon=72.88,managed=no,doff=14",
+        "id=AST-007,host=win-chi-01,os=Windows,dept=Finance,city=Chicago,country=US,lat=41.88,lon=-87.63,managed=yes,doff=13",
+        "id=AST-008,host=win-ber-01,os=Windows,dept=IT,city=Berlin,country=DE,lat=52.52,lon=13.40,managed=yes,doff=12",
+        "id=AST-009,host=lnx-sao-01,os=Linux,dept=Ops,city=SaoPaulo,country=BR,lat=-23.55,lon=-46.63,managed=no,doff=11",
+        "id=AST-010,host=mac-tor-01,os=macOS,dept=HR,city=Toronto,country=CA,lat=43.65,lon=-79.38,managed=yes,doff=10",
+        "id=AST-011,host=win-sin-01,os=Windows,dept=Finance,city=Singapore,country=SG,lat=1.35,lon=103.82,managed=yes,doff=9",
+        "id=AST-012,host=lnx-ams-01,os=Linux,dept=Eng,city=Amsterdam,country=NL,lat=52.37,lon=4.90,managed=yes,doff=8",
+        "id=AST-013,host=win-dub-01,os=Windows,dept=IT,city=Dubai,country=AE,lat=25.20,lon=55.27,managed=no,doff=7",
+        "id=AST-014,host=win-mex-01,os=Windows,dept=Ops,city=MexicoCity,country=MX,lat=19.43,lon=-99.13,managed=yes,doff=6",
+        "id=AST-015,host=mac-seo-01,os=macOS,dept=Eng,city=Seoul,country=KR,lat=37.57,lon=126.98,managed=yes,doff=5",
+        "id=AST-016,host=lnx-joh-01,os=Linux,dept=Finance,city=Johannesburg,country=ZA,lat=-26.20,lon=28.04,managed=no,doff=4",
+        "id=AST-017,host=win-mad-01,os=Windows,dept=HR,city=Madrid,country=ES,lat=40.42,lon=-3.70,managed=yes,doff=3",
+        "id=AST-018,host=win-sea-01,os=Windows,dept=IT,city=Seattle,country=US,lat=47.61,lon=-122.33,managed=yes,doff=2",
+        "id=AST-019,host=lnx-stk-01,os=Linux,dept=Ops,city=Stockholm,country=SE,lat=59.33,lon=18.07,managed=yes,doff=1",
+        "id=AST-020,host=win-dal-01,os=Windows,dept=Finance,city=Dallas,country=US,lat=32.78,lon=-96.80,managed=no,doff=0"
+      ])
+      | kvParse()
+      | @timestamp := now() - (doff * 86400000)
+      | wildcard(field=os, pattern=?os_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=dept, pattern=?dept_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=managed, pattern=?managed_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | count(as=Total)
+      | Total := format("%,.0f", field=Total)
+    options:
+      default: {}
+
+  kpi-managed:
+    type: query
+    title: "Managed Assets"
+    description: "Assets with managed=yes"
+    x: 2
+    y: 2
+    width: 2
+    height: 3
+    visualization: single-value
+    isLive: false
+    start: 30d
+    queryString: |
+      createEvents([
+        "id=AST-001,host=win-nyc-01,os=Windows,dept=IT,city=NewYork,country=US,lat=40.71,lon=-74.00,managed=yes,doff=19",
+        "id=AST-002,host=mac-lon-01,os=macOS,dept=Finance,city=London,country=GB,lat=51.51,lon=-0.13,managed=yes,doff=18",
+        "id=AST-003,host=lnx-tok-01,os=Linux,dept=Eng,city=Tokyo,country=JP,lat=35.68,lon=139.69,managed=yes,doff=17",
+        "id=AST-004,host=win-syd-01,os=Windows,dept=Ops,city=Sydney,country=AU,lat=-33.87,lon=151.21,managed=yes,doff=16",
+        "id=AST-005,host=mac-par-01,os=macOS,dept=HR,city=Paris,country=FR,lat=48.85,lon=2.35,managed=yes,doff=15",
+        "id=AST-006,host=lnx-mum-01,os=Linux,dept=Eng,city=Mumbai,country=IN,lat=19.08,lon=72.88,managed=no,doff=14",
+        "id=AST-007,host=win-chi-01,os=Windows,dept=Finance,city=Chicago,country=US,lat=41.88,lon=-87.63,managed=yes,doff=13",
+        "id=AST-008,host=win-ber-01,os=Windows,dept=IT,city=Berlin,country=DE,lat=52.52,lon=13.40,managed=yes,doff=12",
+        "id=AST-009,host=lnx-sao-01,os=Linux,dept=Ops,city=SaoPaulo,country=BR,lat=-23.55,lon=-46.63,managed=no,doff=11",
+        "id=AST-010,host=mac-tor-01,os=macOS,dept=HR,city=Toronto,country=CA,lat=43.65,lon=-79.38,managed=yes,doff=10",
+        "id=AST-011,host=win-sin-01,os=Windows,dept=Finance,city=Singapore,country=SG,lat=1.35,lon=103.82,managed=yes,doff=9",
+        "id=AST-012,host=lnx-ams-01,os=Linux,dept=Eng,city=Amsterdam,country=NL,lat=52.37,lon=4.90,managed=yes,doff=8",
+        "id=AST-013,host=win-dub-01,os=Windows,dept=IT,city=Dubai,country=AE,lat=25.20,lon=55.27,managed=no,doff=7",
+        "id=AST-014,host=win-mex-01,os=Windows,dept=Ops,city=MexicoCity,country=MX,lat=19.43,lon=-99.13,managed=yes,doff=6",
+        "id=AST-015,host=mac-seo-01,os=macOS,dept=Eng,city=Seoul,country=KR,lat=37.57,lon=126.98,managed=yes,doff=5",
+        "id=AST-016,host=lnx-joh-01,os=Linux,dept=Finance,city=Johannesburg,country=ZA,lat=-26.20,lon=28.04,managed=no,doff=4",
+        "id=AST-017,host=win-mad-01,os=Windows,dept=HR,city=Madrid,country=ES,lat=40.42,lon=-3.70,managed=yes,doff=3",
+        "id=AST-018,host=win-sea-01,os=Windows,dept=IT,city=Seattle,country=US,lat=47.61,lon=-122.33,managed=yes,doff=2",
+        "id=AST-019,host=lnx-stk-01,os=Linux,dept=Ops,city=Stockholm,country=SE,lat=59.33,lon=18.07,managed=yes,doff=1",
+        "id=AST-020,host=win-dal-01,os=Windows,dept=Finance,city=Dallas,country=US,lat=32.78,lon=-96.80,managed=no,doff=0"
+      ])
+      | kvParse()
+      | @timestamp := now() - (doff * 86400000)
+      | wildcard(field=os, pattern=?os_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=dept, pattern=?dept_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | managed = "yes"
+      | count(as=Managed)
+      | Managed := format("%,.0f", field=Managed)
+    options:
+      background-color: '#34B248'
+      default: {}
+
+  kpi-unmanaged:
+    type: query
+    title: "Unmanaged Assets"
+    description: "Assets with managed=no"
+    x: 4
+    y: 2
+    width: 2
+    height: 3
+    visualization: single-value
+    isLive: false
+    start: 30d
+    queryString: |
+      createEvents([
+        "id=AST-001,host=win-nyc-01,os=Windows,dept=IT,city=NewYork,country=US,lat=40.71,lon=-74.00,managed=yes,doff=19",
+        "id=AST-002,host=mac-lon-01,os=macOS,dept=Finance,city=London,country=GB,lat=51.51,lon=-0.13,managed=yes,doff=18",
+        "id=AST-003,host=lnx-tok-01,os=Linux,dept=Eng,city=Tokyo,country=JP,lat=35.68,lon=139.69,managed=yes,doff=17",
+        "id=AST-004,host=win-syd-01,os=Windows,dept=Ops,city=Sydney,country=AU,lat=-33.87,lon=151.21,managed=yes,doff=16",
+        "id=AST-005,host=mac-par-01,os=macOS,dept=HR,city=Paris,country=FR,lat=48.85,lon=2.35,managed=yes,doff=15",
+        "id=AST-006,host=lnx-mum-01,os=Linux,dept=Eng,city=Mumbai,country=IN,lat=19.08,lon=72.88,managed=no,doff=14",
+        "id=AST-007,host=win-chi-01,os=Windows,dept=Finance,city=Chicago,country=US,lat=41.88,lon=-87.63,managed=yes,doff=13",
+        "id=AST-008,host=win-ber-01,os=Windows,dept=IT,city=Berlin,country=DE,lat=52.52,lon=13.40,managed=yes,doff=12",
+        "id=AST-009,host=lnx-sao-01,os=Linux,dept=Ops,city=SaoPaulo,country=BR,lat=-23.55,lon=-46.63,managed=no,doff=11",
+        "id=AST-010,host=mac-tor-01,os=macOS,dept=HR,city=Toronto,country=CA,lat=43.65,lon=-79.38,managed=yes,doff=10",
+        "id=AST-011,host=win-sin-01,os=Windows,dept=Finance,city=Singapore,country=SG,lat=1.35,lon=103.82,managed=yes,doff=9",
+        "id=AST-012,host=lnx-ams-01,os=Linux,dept=Eng,city=Amsterdam,country=NL,lat=52.37,lon=4.90,managed=yes,doff=8",
+        "id=AST-013,host=win-dub-01,os=Windows,dept=IT,city=Dubai,country=AE,lat=25.20,lon=55.27,managed=no,doff=7",
+        "id=AST-014,host=win-mex-01,os=Windows,dept=Ops,city=MexicoCity,country=MX,lat=19.43,lon=-99.13,managed=yes,doff=6",
+        "id=AST-015,host=mac-seo-01,os=macOS,dept=Eng,city=Seoul,country=KR,lat=37.57,lon=126.98,managed=yes,doff=5",
+        "id=AST-016,host=lnx-joh-01,os=Linux,dept=Finance,city=Johannesburg,country=ZA,lat=-26.20,lon=28.04,managed=no,doff=4",
+        "id=AST-017,host=win-mad-01,os=Windows,dept=HR,city=Madrid,country=ES,lat=40.42,lon=-3.70,managed=yes,doff=3",
+        "id=AST-018,host=win-sea-01,os=Windows,dept=IT,city=Seattle,country=US,lat=47.61,lon=-122.33,managed=yes,doff=2",
+        "id=AST-019,host=lnx-stk-01,os=Linux,dept=Ops,city=Stockholm,country=SE,lat=59.33,lon=18.07,managed=yes,doff=1",
+        "id=AST-020,host=win-dal-01,os=Windows,dept=Finance,city=Dallas,country=US,lat=32.78,lon=-96.80,managed=no,doff=0"
+      ])
+      | kvParse()
+      | @timestamp := now() - (doff * 86400000)
+      | wildcard(field=os, pattern=?os_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=dept, pattern=?dept_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | managed = "no"
+      | count(as=Unmanaged)
+      | Unmanaged := format("%,.0f", field=Unmanaged)
+    options:
+      background-color: '#F49125'
+      default: {}
+
+  kpi-locations:
+    type: query
+    title: "Countries"
+    description: "Distinct countries with assets"
+    x: 6
+    y: 2
+    width: 1
+    height: 3
+    visualization: single-value
+    isLive: false
+    start: 30d
+    queryString: |
+      createEvents([
+        "id=AST-001,host=win-nyc-01,os=Windows,dept=IT,city=NewYork,country=US,lat=40.71,lon=-74.00,managed=yes,doff=19",
+        "id=AST-002,host=mac-lon-01,os=macOS,dept=Finance,city=London,country=GB,lat=51.51,lon=-0.13,managed=yes,doff=18",
+        "id=AST-003,host=lnx-tok-01,os=Linux,dept=Eng,city=Tokyo,country=JP,lat=35.68,lon=139.69,managed=yes,doff=17",
+        "id=AST-004,host=win-syd-01,os=Windows,dept=Ops,city=Sydney,country=AU,lat=-33.87,lon=151.21,managed=yes,doff=16",
+        "id=AST-005,host=mac-par-01,os=macOS,dept=HR,city=Paris,country=FR,lat=48.85,lon=2.35,managed=yes,doff=15",
+        "id=AST-006,host=lnx-mum-01,os=Linux,dept=Eng,city=Mumbai,country=IN,lat=19.08,lon=72.88,managed=no,doff=14",
+        "id=AST-007,host=win-chi-01,os=Windows,dept=Finance,city=Chicago,country=US,lat=41.88,lon=-87.63,managed=yes,doff=13",
+        "id=AST-008,host=win-ber-01,os=Windows,dept=IT,city=Berlin,country=DE,lat=52.52,lon=13.40,managed=yes,doff=12",
+        "id=AST-009,host=lnx-sao-01,os=Linux,dept=Ops,city=SaoPaulo,country=BR,lat=-23.55,lon=-46.63,managed=no,doff=11",
+        "id=AST-010,host=mac-tor-01,os=macOS,dept=HR,city=Toronto,country=CA,lat=43.65,lon=-79.38,managed=yes,doff=10",
+        "id=AST-011,host=win-sin-01,os=Windows,dept=Finance,city=Singapore,country=SG,lat=1.35,lon=103.82,managed=yes,doff=9",
+        "id=AST-012,host=lnx-ams-01,os=Linux,dept=Eng,city=Amsterdam,country=NL,lat=52.37,lon=4.90,managed=yes,doff=8",
+        "id=AST-013,host=win-dub-01,os=Windows,dept=IT,city=Dubai,country=AE,lat=25.20,lon=55.27,managed=no,doff=7",
+        "id=AST-014,host=win-mex-01,os=Windows,dept=Ops,city=MexicoCity,country=MX,lat=19.43,lon=-99.13,managed=yes,doff=6",
+        "id=AST-015,host=mac-seo-01,os=macOS,dept=Eng,city=Seoul,country=KR,lat=37.57,lon=126.98,managed=yes,doff=5",
+        "id=AST-016,host=lnx-joh-01,os=Linux,dept=Finance,city=Johannesburg,country=ZA,lat=-26.20,lon=28.04,managed=no,doff=4",
+        "id=AST-017,host=win-mad-01,os=Windows,dept=HR,city=Madrid,country=ES,lat=40.42,lon=-3.70,managed=yes,doff=3",
+        "id=AST-018,host=win-sea-01,os=Windows,dept=IT,city=Seattle,country=US,lat=47.61,lon=-122.33,managed=yes,doff=2",
+        "id=AST-019,host=lnx-stk-01,os=Linux,dept=Ops,city=Stockholm,country=SE,lat=59.33,lon=18.07,managed=yes,doff=1",
+        "id=AST-020,host=win-dal-01,os=Windows,dept=Finance,city=Dallas,country=US,lat=32.78,lon=-96.80,managed=no,doff=0"
+      ])
+      | kvParse()
+      | @timestamp := now() - (doff * 86400000)
+      | wildcard(field=os, pattern=?os_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=dept, pattern=?dept_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=managed, pattern=?managed_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | count(country, distinct=true, as=Countries)
+    options:
+      background-color: '#0b6c84'
+      default: {}
+
+  # ── Charts Row 1 ──────────────────────────────────────────────────────────────
+
+  chart-os-dist:
+    type: query
+    title: "OS Distribution"
+    description: "Asset breakdown by operating system"
+    x: 0
+    y: 5
+    width: 3
+    height: 5
+    visualization: pie-chart
+    isLive: false
+    start: 30d
+    queryString: |
+      createEvents([
+        "id=AST-001,host=win-nyc-01,os=Windows,dept=IT,city=NewYork,country=US,lat=40.71,lon=-74.00,managed=yes,doff=19",
+        "id=AST-002,host=mac-lon-01,os=macOS,dept=Finance,city=London,country=GB,lat=51.51,lon=-0.13,managed=yes,doff=18",
+        "id=AST-003,host=lnx-tok-01,os=Linux,dept=Eng,city=Tokyo,country=JP,lat=35.68,lon=139.69,managed=yes,doff=17",
+        "id=AST-004,host=win-syd-01,os=Windows,dept=Ops,city=Sydney,country=AU,lat=-33.87,lon=151.21,managed=yes,doff=16",
+        "id=AST-005,host=mac-par-01,os=macOS,dept=HR,city=Paris,country=FR,lat=48.85,lon=2.35,managed=yes,doff=15",
+        "id=AST-006,host=lnx-mum-01,os=Linux,dept=Eng,city=Mumbai,country=IN,lat=19.08,lon=72.88,managed=no,doff=14",
+        "id=AST-007,host=win-chi-01,os=Windows,dept=Finance,city=Chicago,country=US,lat=41.88,lon=-87.63,managed=yes,doff=13",
+        "id=AST-008,host=win-ber-01,os=Windows,dept=IT,city=Berlin,country=DE,lat=52.52,lon=13.40,managed=yes,doff=12",
+        "id=AST-009,host=lnx-sao-01,os=Linux,dept=Ops,city=SaoPaulo,country=BR,lat=-23.55,lon=-46.63,managed=no,doff=11",
+        "id=AST-010,host=mac-tor-01,os=macOS,dept=HR,city=Toronto,country=CA,lat=43.65,lon=-79.38,managed=yes,doff=10",
+        "id=AST-011,host=win-sin-01,os=Windows,dept=Finance,city=Singapore,country=SG,lat=1.35,lon=103.82,managed=yes,doff=9",
+        "id=AST-012,host=lnx-ams-01,os=Linux,dept=Eng,city=Amsterdam,country=NL,lat=52.37,lon=4.90,managed=yes,doff=8",
+        "id=AST-013,host=win-dub-01,os=Windows,dept=IT,city=Dubai,country=AE,lat=25.20,lon=55.27,managed=no,doff=7",
+        "id=AST-014,host=win-mex-01,os=Windows,dept=Ops,city=MexicoCity,country=MX,lat=19.43,lon=-99.13,managed=yes,doff=6",
+        "id=AST-015,host=mac-seo-01,os=macOS,dept=Eng,city=Seoul,country=KR,lat=37.57,lon=126.98,managed=yes,doff=5",
+        "id=AST-016,host=lnx-joh-01,os=Linux,dept=Finance,city=Johannesburg,country=ZA,lat=-26.20,lon=28.04,managed=no,doff=4",
+        "id=AST-017,host=win-mad-01,os=Windows,dept=HR,city=Madrid,country=ES,lat=40.42,lon=-3.70,managed=yes,doff=3",
+        "id=AST-018,host=win-sea-01,os=Windows,dept=IT,city=Seattle,country=US,lat=47.61,lon=-122.33,managed=yes,doff=2",
+        "id=AST-019,host=lnx-stk-01,os=Linux,dept=Ops,city=Stockholm,country=SE,lat=59.33,lon=18.07,managed=yes,doff=1",
+        "id=AST-020,host=win-dal-01,os=Windows,dept=Finance,city=Dallas,country=US,lat=32.78,lon=-96.80,managed=no,doff=0"
+      ])
+      | kvParse()
+      | @timestamp := now() - (doff * 86400000)
+      | wildcard(field=os, pattern=?os_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=dept, pattern=?dept_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=managed, pattern=?managed_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | groupBy([os], function=count(as=Count), limit=max)
+    options:
+      innerRadius: 0.4
+      legendTitle: OS
+      series:
+        Windows:
+          color: '#0073E6'
+        macOS:
+          color: '#9B59B6'
+        Linux:
+          color: '#F49125'
+        _count:
+          title: Assets
+
+  chart-dept-bar:
+    type: query
+    title: "Assets by Department"
+    description: "Asset count per department"
+    x: 3
+    y: 5
+    width: 4
+    height: 5
+    visualization: bar-chart
+    isLive: false
+    start: 30d
+    queryString: |
+      createEvents([
+        "id=AST-001,host=win-nyc-01,os=Windows,dept=IT,city=NewYork,country=US,lat=40.71,lon=-74.00,managed=yes,doff=19",
+        "id=AST-002,host=mac-lon-01,os=macOS,dept=Finance,city=London,country=GB,lat=51.51,lon=-0.13,managed=yes,doff=18",
+        "id=AST-003,host=lnx-tok-01,os=Linux,dept=Eng,city=Tokyo,country=JP,lat=35.68,lon=139.69,managed=yes,doff=17",
+        "id=AST-004,host=win-syd-01,os=Windows,dept=Ops,city=Sydney,country=AU,lat=-33.87,lon=151.21,managed=yes,doff=16",
+        "id=AST-005,host=mac-par-01,os=macOS,dept=HR,city=Paris,country=FR,lat=48.85,lon=2.35,managed=yes,doff=15",
+        "id=AST-006,host=lnx-mum-01,os=Linux,dept=Eng,city=Mumbai,country=IN,lat=19.08,lon=72.88,managed=no,doff=14",
+        "id=AST-007,host=win-chi-01,os=Windows,dept=Finance,city=Chicago,country=US,lat=41.88,lon=-87.63,managed=yes,doff=13",
+        "id=AST-008,host=win-ber-01,os=Windows,dept=IT,city=Berlin,country=DE,lat=52.52,lon=13.40,managed=yes,doff=12",
+        "id=AST-009,host=lnx-sao-01,os=Linux,dept=Ops,city=SaoPaulo,country=BR,lat=-23.55,lon=-46.63,managed=no,doff=11",
+        "id=AST-010,host=mac-tor-01,os=macOS,dept=HR,city=Toronto,country=CA,lat=43.65,lon=-79.38,managed=yes,doff=10",
+        "id=AST-011,host=win-sin-01,os=Windows,dept=Finance,city=Singapore,country=SG,lat=1.35,lon=103.82,managed=yes,doff=9",
+        "id=AST-012,host=lnx-ams-01,os=Linux,dept=Eng,city=Amsterdam,country=NL,lat=52.37,lon=4.90,managed=yes,doff=8",
+        "id=AST-013,host=win-dub-01,os=Windows,dept=IT,city=Dubai,country=AE,lat=25.20,lon=55.27,managed=no,doff=7",
+        "id=AST-014,host=win-mex-01,os=Windows,dept=Ops,city=MexicoCity,country=MX,lat=19.43,lon=-99.13,managed=yes,doff=6",
+        "id=AST-015,host=mac-seo-01,os=macOS,dept=Eng,city=Seoul,country=KR,lat=37.57,lon=126.98,managed=yes,doff=5",
+        "id=AST-016,host=lnx-joh-01,os=Linux,dept=Finance,city=Johannesburg,country=ZA,lat=-26.20,lon=28.04,managed=no,doff=4",
+        "id=AST-017,host=win-mad-01,os=Windows,dept=HR,city=Madrid,country=ES,lat=40.42,lon=-3.70,managed=yes,doff=3",
+        "id=AST-018,host=win-sea-01,os=Windows,dept=IT,city=Seattle,country=US,lat=47.61,lon=-122.33,managed=yes,doff=2",
+        "id=AST-019,host=lnx-stk-01,os=Linux,dept=Ops,city=Stockholm,country=SE,lat=59.33,lon=18.07,managed=yes,doff=1",
+        "id=AST-020,host=win-dal-01,os=Windows,dept=Finance,city=Dallas,country=US,lat=32.78,lon=-96.80,managed=no,doff=0"
+      ])
+      | kvParse()
+      | @timestamp := now() - (doff * 86400000)
+      | wildcard(field=os, pattern=?os_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=managed, pattern=?managed_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | groupBy([dept], function=count(as=Count), limit=max)
+      | sort(Count, order=desc)
+    options:
+      barChartOrientation: horizontal
+      valuesOnBars: true
+      labelLimit: 200
+
+  # ── Charts Row 2 ──────────────────────────────────────────────────────────────
+
+  chart-managed-gauge:
+    type: query
+    title: "Managed Compliance"
+    description: "Percentage of assets that are managed"
+    x: 0
+    y: 10
+    width: 3
+    height: 5
+    visualization: gauge
+    isLive: false
+    start: 30d
+    queryString: |
+      createEvents([
+        "id=AST-001,host=win-nyc-01,os=Windows,dept=IT,city=NewYork,country=US,lat=40.71,lon=-74.00,managed=yes,doff=19",
+        "id=AST-002,host=mac-lon-01,os=macOS,dept=Finance,city=London,country=GB,lat=51.51,lon=-0.13,managed=yes,doff=18",
+        "id=AST-003,host=lnx-tok-01,os=Linux,dept=Eng,city=Tokyo,country=JP,lat=35.68,lon=139.69,managed=yes,doff=17",
+        "id=AST-004,host=win-syd-01,os=Windows,dept=Ops,city=Sydney,country=AU,lat=-33.87,lon=151.21,managed=yes,doff=16",
+        "id=AST-005,host=mac-par-01,os=macOS,dept=HR,city=Paris,country=FR,lat=48.85,lon=2.35,managed=yes,doff=15",
+        "id=AST-006,host=lnx-mum-01,os=Linux,dept=Eng,city=Mumbai,country=IN,lat=19.08,lon=72.88,managed=no,doff=14",
+        "id=AST-007,host=win-chi-01,os=Windows,dept=Finance,city=Chicago,country=US,lat=41.88,lon=-87.63,managed=yes,doff=13",
+        "id=AST-008,host=win-ber-01,os=Windows,dept=IT,city=Berlin,country=DE,lat=52.52,lon=13.40,managed=yes,doff=12",
+        "id=AST-009,host=lnx-sao-01,os=Linux,dept=Ops,city=SaoPaulo,country=BR,lat=-23.55,lon=-46.63,managed=no,doff=11",
+        "id=AST-010,host=mac-tor-01,os=macOS,dept=HR,city=Toronto,country=CA,lat=43.65,lon=-79.38,managed=yes,doff=10",
+        "id=AST-011,host=win-sin-01,os=Windows,dept=Finance,city=Singapore,country=SG,lat=1.35,lon=103.82,managed=yes,doff=9",
+        "id=AST-012,host=lnx-ams-01,os=Linux,dept=Eng,city=Amsterdam,country=NL,lat=52.37,lon=4.90,managed=yes,doff=8",
+        "id=AST-013,host=win-dub-01,os=Windows,dept=IT,city=Dubai,country=AE,lat=25.20,lon=55.27,managed=no,doff=7",
+        "id=AST-014,host=win-mex-01,os=Windows,dept=Ops,city=MexicoCity,country=MX,lat=19.43,lon=-99.13,managed=yes,doff=6",
+        "id=AST-015,host=mac-seo-01,os=macOS,dept=Eng,city=Seoul,country=KR,lat=37.57,lon=126.98,managed=yes,doff=5",
+        "id=AST-016,host=lnx-joh-01,os=Linux,dept=Finance,city=Johannesburg,country=ZA,lat=-26.20,lon=28.04,managed=no,doff=4",
+        "id=AST-017,host=win-mad-01,os=Windows,dept=HR,city=Madrid,country=ES,lat=40.42,lon=-3.70,managed=yes,doff=3",
+        "id=AST-018,host=win-sea-01,os=Windows,dept=IT,city=Seattle,country=US,lat=47.61,lon=-122.33,managed=yes,doff=2",
+        "id=AST-019,host=lnx-stk-01,os=Linux,dept=Ops,city=Stockholm,country=SE,lat=59.33,lon=18.07,managed=yes,doff=1",
+        "id=AST-020,host=win-dal-01,os=Windows,dept=Finance,city=Dallas,country=US,lat=32.78,lon=-96.80,managed=no,doff=0"
+      ])
+      | kvParse()
+      | @timestamp := now() - (doff * 86400000)
+      | wildcard(field=os, pattern=?os_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=dept, pattern=?dept_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | stats([
+          count(as=total),
+          { managed = "yes" | count(as=managed_n) }
+        ])
+      | default(value=0, field=[managed_n])
+      | "Managed %" := (managed_n / total) * 100
+      | drop([total, managed_n])
+    options:
+      gaugeType: radialNeedle
+      minVal: 0
+      maxVal: 100
+      thresholdConfig:
+        thresholds:
+          - { value: 0,  color: '#DB2D24' }
+          - { value: 40, color: '#F49125' }
+          - { value: 60, color: '#FFC107' }
+          - { value: 80, color: '#34B248' }
+
+  chart-country-bar:
+    type: query
+    title: "Assets by Country"
+    description: "Top countries by asset count"
+    x: 3
+    y: 10
+    width: 4
+    height: 5
+    visualization: bar-chart
+    isLive: false
+    start: 30d
+    queryString: |
+      createEvents([
+        "id=AST-001,host=win-nyc-01,os=Windows,dept=IT,city=NewYork,country=US,lat=40.71,lon=-74.00,managed=yes,doff=19",
+        "id=AST-002,host=mac-lon-01,os=macOS,dept=Finance,city=London,country=GB,lat=51.51,lon=-0.13,managed=yes,doff=18",
+        "id=AST-003,host=lnx-tok-01,os=Linux,dept=Eng,city=Tokyo,country=JP,lat=35.68,lon=139.69,managed=yes,doff=17",
+        "id=AST-004,host=win-syd-01,os=Windows,dept=Ops,city=Sydney,country=AU,lat=-33.87,lon=151.21,managed=yes,doff=16",
+        "id=AST-005,host=mac-par-01,os=macOS,dept=HR,city=Paris,country=FR,lat=48.85,lon=2.35,managed=yes,doff=15",
+        "id=AST-006,host=lnx-mum-01,os=Linux,dept=Eng,city=Mumbai,country=IN,lat=19.08,lon=72.88,managed=no,doff=14",
+        "id=AST-007,host=win-chi-01,os=Windows,dept=Finance,city=Chicago,country=US,lat=41.88,lon=-87.63,managed=yes,doff=13",
+        "id=AST-008,host=win-ber-01,os=Windows,dept=IT,city=Berlin,country=DE,lat=52.52,lon=13.40,managed=yes,doff=12",
+        "id=AST-009,host=lnx-sao-01,os=Linux,dept=Ops,city=SaoPaulo,country=BR,lat=-23.55,lon=-46.63,managed=no,doff=11",
+        "id=AST-010,host=mac-tor-01,os=macOS,dept=HR,city=Toronto,country=CA,lat=43.65,lon=-79.38,managed=yes,doff=10",
+        "id=AST-011,host=win-sin-01,os=Windows,dept=Finance,city=Singapore,country=SG,lat=1.35,lon=103.82,managed=yes,doff=9",
+        "id=AST-012,host=lnx-ams-01,os=Linux,dept=Eng,city=Amsterdam,country=NL,lat=52.37,lon=4.90,managed=yes,doff=8",
+        "id=AST-013,host=win-dub-01,os=Windows,dept=IT,city=Dubai,country=AE,lat=25.20,lon=55.27,managed=no,doff=7",
+        "id=AST-014,host=win-mex-01,os=Windows,dept=Ops,city=MexicoCity,country=MX,lat=19.43,lon=-99.13,managed=yes,doff=6",
+        "id=AST-015,host=mac-seo-01,os=macOS,dept=Eng,city=Seoul,country=KR,lat=37.57,lon=126.98,managed=yes,doff=5",
+        "id=AST-016,host=lnx-joh-01,os=Linux,dept=Finance,city=Johannesburg,country=ZA,lat=-26.20,lon=28.04,managed=no,doff=4",
+        "id=AST-017,host=win-mad-01,os=Windows,dept=HR,city=Madrid,country=ES,lat=40.42,lon=-3.70,managed=yes,doff=3",
+        "id=AST-018,host=win-sea-01,os=Windows,dept=IT,city=Seattle,country=US,lat=47.61,lon=-122.33,managed=yes,doff=2",
+        "id=AST-019,host=lnx-stk-01,os=Linux,dept=Ops,city=Stockholm,country=SE,lat=59.33,lon=18.07,managed=yes,doff=1",
+        "id=AST-020,host=win-dal-01,os=Windows,dept=Finance,city=Dallas,country=US,lat=32.78,lon=-96.80,managed=no,doff=0"
+      ])
+      | kvParse()
+      | @timestamp := now() - (doff * 86400000)
+      | wildcard(field=os, pattern=?os_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=dept, pattern=?dept_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=managed, pattern=?managed_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | groupBy([country], function=count(as=Count), limit=max)
+      | sort(Count, order=desc)
+    options:
+      barChartOrientation: horizontal
+      valuesOnBars: true
+      labelLimit: 200
+
+  # ── World Map ─────────────────────────────────────────────────────────────────
+
+  map-geo:
+    type: query
+    title: "Asset Geo Distribution"
+    description: "World map of asset locations"
+    x: 0
+    y: 15
+    width: 12
+    height: 5
+    visualization: world-map
+    isLive: false
+    start: 30d
+    queryString: |
+      createEvents([
+        "id=AST-001,host=win-nyc-01,os=Windows,dept=IT,city=NewYork,country=US,lat=40.71,lon=-74.00,managed=yes,doff=19",
+        "id=AST-002,host=mac-lon-01,os=macOS,dept=Finance,city=London,country=GB,lat=51.51,lon=-0.13,managed=yes,doff=18",
+        "id=AST-003,host=lnx-tok-01,os=Linux,dept=Eng,city=Tokyo,country=JP,lat=35.68,lon=139.69,managed=yes,doff=17",
+        "id=AST-004,host=win-syd-01,os=Windows,dept=Ops,city=Sydney,country=AU,lat=-33.87,lon=151.21,managed=yes,doff=16",
+        "id=AST-005,host=mac-par-01,os=macOS,dept=HR,city=Paris,country=FR,lat=48.85,lon=2.35,managed=yes,doff=15",
+        "id=AST-006,host=lnx-mum-01,os=Linux,dept=Eng,city=Mumbai,country=IN,lat=19.08,lon=72.88,managed=no,doff=14",
+        "id=AST-007,host=win-chi-01,os=Windows,dept=Finance,city=Chicago,country=US,lat=41.88,lon=-87.63,managed=yes,doff=13",
+        "id=AST-008,host=win-ber-01,os=Windows,dept=IT,city=Berlin,country=DE,lat=52.52,lon=13.40,managed=yes,doff=12",
+        "id=AST-009,host=lnx-sao-01,os=Linux,dept=Ops,city=SaoPaulo,country=BR,lat=-23.55,lon=-46.63,managed=no,doff=11",
+        "id=AST-010,host=mac-tor-01,os=macOS,dept=HR,city=Toronto,country=CA,lat=43.65,lon=-79.38,managed=yes,doff=10",
+        "id=AST-011,host=win-sin-01,os=Windows,dept=Finance,city=Singapore,country=SG,lat=1.35,lon=103.82,managed=yes,doff=9",
+        "id=AST-012,host=lnx-ams-01,os=Linux,dept=Eng,city=Amsterdam,country=NL,lat=52.37,lon=4.90,managed=yes,doff=8",
+        "id=AST-013,host=win-dub-01,os=Windows,dept=IT,city=Dubai,country=AE,lat=25.20,lon=55.27,managed=no,doff=7",
+        "id=AST-014,host=win-mex-01,os=Windows,dept=Ops,city=MexicoCity,country=MX,lat=19.43,lon=-99.13,managed=yes,doff=6",
+        "id=AST-015,host=mac-seo-01,os=macOS,dept=Eng,city=Seoul,country=KR,lat=37.57,lon=126.98,managed=yes,doff=5",
+        "id=AST-016,host=lnx-joh-01,os=Linux,dept=Finance,city=Johannesburg,country=ZA,lat=-26.20,lon=28.04,managed=no,doff=4",
+        "id=AST-017,host=win-mad-01,os=Windows,dept=HR,city=Madrid,country=ES,lat=40.42,lon=-3.70,managed=yes,doff=3",
+        "id=AST-018,host=win-sea-01,os=Windows,dept=IT,city=Seattle,country=US,lat=47.61,lon=-122.33,managed=yes,doff=2",
+        "id=AST-019,host=lnx-stk-01,os=Linux,dept=Ops,city=Stockholm,country=SE,lat=59.33,lon=18.07,managed=yes,doff=1",
+        "id=AST-020,host=win-dal-01,os=Windows,dept=Finance,city=Dallas,country=US,lat=32.78,lon=-96.80,managed=no,doff=0"
+      ])
+      | kvParse()
+      | @timestamp := now() - (doff * 86400000)
+      | wildcard(field=os, pattern=?os_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=dept, pattern=?dept_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=managed, pattern=?managed_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | lat := lat * 1
+      | lon := lon * 1
+      | worldMap(lat=lat, lon=lon)
+    options:
+      default: {}
+
+  # ── Asset Detail Table ────────────────────────────────────────────────────────
+
+  table-assets:
+    type: query
+    title: "Asset Inventory Detail"
+    description: "All assets. Click rows to filter by OS or Department."
+    x: 0
+    y: 20
+    width: 12
+    height: 7
+    visualization: table-view
+    isLive: false
+    start: 30d
+    queryString: |
+      createEvents([
+        "id=AST-001,host=win-nyc-01,os=Windows,dept=IT,city=NewYork,country=US,lat=40.71,lon=-74.00,managed=yes,doff=19",
+        "id=AST-002,host=mac-lon-01,os=macOS,dept=Finance,city=London,country=GB,lat=51.51,lon=-0.13,managed=yes,doff=18",
+        "id=AST-003,host=lnx-tok-01,os=Linux,dept=Eng,city=Tokyo,country=JP,lat=35.68,lon=139.69,managed=yes,doff=17",
+        "id=AST-004,host=win-syd-01,os=Windows,dept=Ops,city=Sydney,country=AU,lat=-33.87,lon=151.21,managed=yes,doff=16",
+        "id=AST-005,host=mac-par-01,os=macOS,dept=HR,city=Paris,country=FR,lat=48.85,lon=2.35,managed=yes,doff=15",
+        "id=AST-006,host=lnx-mum-01,os=Linux,dept=Eng,city=Mumbai,country=IN,lat=19.08,lon=72.88,managed=no,doff=14",
+        "id=AST-007,host=win-chi-01,os=Windows,dept=Finance,city=Chicago,country=US,lat=41.88,lon=-87.63,managed=yes,doff=13",
+        "id=AST-008,host=win-ber-01,os=Windows,dept=IT,city=Berlin,country=DE,lat=52.52,lon=13.40,managed=yes,doff=12",
+        "id=AST-009,host=lnx-sao-01,os=Linux,dept=Ops,city=SaoPaulo,country=BR,lat=-23.55,lon=-46.63,managed=no,doff=11",
+        "id=AST-010,host=mac-tor-01,os=macOS,dept=HR,city=Toronto,country=CA,lat=43.65,lon=-79.38,managed=yes,doff=10",
+        "id=AST-011,host=win-sin-01,os=Windows,dept=Finance,city=Singapore,country=SG,lat=1.35,lon=103.82,managed=yes,doff=9",
+        "id=AST-012,host=lnx-ams-01,os=Linux,dept=Eng,city=Amsterdam,country=NL,lat=52.37,lon=4.90,managed=yes,doff=8",
+        "id=AST-013,host=win-dub-01,os=Windows,dept=IT,city=Dubai,country=AE,lat=25.20,lon=55.27,managed=no,doff=7",
+        "id=AST-014,host=win-mex-01,os=Windows,dept=Ops,city=MexicoCity,country=MX,lat=19.43,lon=-99.13,managed=yes,doff=6",
+        "id=AST-015,host=mac-seo-01,os=macOS,dept=Eng,city=Seoul,country=KR,lat=37.57,lon=126.98,managed=yes,doff=5",
+        "id=AST-016,host=lnx-joh-01,os=Linux,dept=Finance,city=Johannesburg,country=ZA,lat=-26.20,lon=28.04,managed=no,doff=4",
+        "id=AST-017,host=win-mad-01,os=Windows,dept=HR,city=Madrid,country=ES,lat=40.42,lon=-3.70,managed=yes,doff=3",
+        "id=AST-018,host=win-sea-01,os=Windows,dept=IT,city=Seattle,country=US,lat=47.61,lon=-122.33,managed=yes,doff=2",
+        "id=AST-019,host=lnx-stk-01,os=Linux,dept=Ops,city=Stockholm,country=SE,lat=59.33,lon=18.07,managed=yes,doff=1",
+        "id=AST-020,host=win-dal-01,os=Windows,dept=Finance,city=Dallas,country=US,lat=32.78,lon=-96.80,managed=no,doff=0"
+      ])
+      | kvParse()
+      | @timestamp := now() - (doff * 86400000)
+      | wildcard(field=os, pattern=?os_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=dept, pattern=?dept_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=managed, pattern=?managed_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | case {
+          managed = "yes" | _icon := "✅";
+          managed = "no"  | _icon := "❌";
+          *               | _icon := "❓";
+        }
+      | "Last Seen" := formatTime("%Y-%m-%d", field=@timestamp, locale=en_US, timezone=Z)
+      | sort(field=@timestamp, order=desc, limit=max)
+      | select([_icon, id, host, os, dept, city, country, "Last Seen"])
+      | rename([[_icon, ""], [id, "ID"], [host, "Host"], [os, "OS"],
+                [dept, "Dept"], [city, "City"], [country, "Country"]])
+    options:
+      row-numbers-enabled: true
+      cell-overflow: wrap-text
+      column-overflow: truncate
+      configured-columns:
+        '':
+          width: 40
+        OS:
+          color:
+            conditions:
+              - color: '#0073E644'
+                condition:
+                  type: Equal
+                  arg: Windows
+              - color: '#9B59B644'
+                condition:
+                  type: Equal
+                  arg: macOS
+              - color: '#F4912544'
+                condition:
+                  type: Equal
+                  arg: Linux
+    interactions:
+      - name: Filter by OS
+        titleTemplate: '▽ Filter to "{{ fields["OS"] }}" OS'
+        type: updateparameters
+        useWidgetTimeWindow: false
+        arguments:
+          os_filter: '["{{ fields["OS"] }}"]'
+      - name: Filter by Department
+        titleTemplate: '▽ Filter to "{{ fields["Dept"] }}" department'
+        type: updateparameters
+        useWidgetTimeWindow: false
+        arguments:
+          dept_filter: '["{{ fields["Dept"] }}"]'
+      - name: Reset all filters
+        titleTemplate: '↻ Reset all filters'
+        type: updateparameters
+        useWidgetTimeWindow: false
+        arguments:
+          os_filter: '["*"]'
+          dept_filter: '["*"]'
+          managed_filter: '["*"]'
+          sev_filter: '["*"]'
+
+  # ── Section 2 — Vulnerability Management ─────────────────────────────────────
+
+  note-vuln:
+    type: note
+    title: ''
+    x: 0
+    y: 0
+    width: 12
+    height: 2
+    text: |
+      ## Vulnerability Management  |  24 synthetic CVE records across 20 hosts
+      Sankey shows severity → remediation-status flow. Patch rate: **33%** (8/24 patched). Filter by OS or Severity above to drill down. Promote to production by replacing `createEvents()` with your real `#repo` filter.
+
+  # ── Vuln KPI Row ──────────────────────────────────────────────────────────────
+
+  kpi-total-vulns:
+    type: query
+    title: "Total Vulnerabilities"
+    description: "All vulnerabilities matching active filters"
+    x: 0
+    y: 2
+    width: 3
+    height: 3
+    visualization: single-value
+    isLive: false
+    start: 30d
+    queryString: |
+      createEvents([
+        "vid=VUL-001,host=win-nyc-01,os=Windows,dept=IT,cve=CVE-2024-1234,sev=Critical,status=Open,doff=23",
+        "vid=VUL-002,host=mac-lon-01,os=macOS,dept=Finance,cve=CVE-2024-2345,sev=High,status=Patched,doff=22",
+        "vid=VUL-003,host=lnx-tok-01,os=Linux,dept=Eng,cve=CVE-2024-3456,sev=Medium,status=Patched,doff=21",
+        "vid=VUL-004,host=win-syd-01,os=Windows,dept=Ops,cve=CVE-2024-4567,sev=Critical,status=Open,doff=20",
+        "vid=VUL-005,host=mac-par-01,os=macOS,dept=HR,cve=CVE-2024-5678,sev=High,status=Mitigating,doff=19",
+        "vid=VUL-006,host=lnx-mum-01,os=Linux,dept=Eng,cve=CVE-2024-6789,sev=Low,status=Accepted,doff=18",
+        "vid=VUL-007,host=win-chi-01,os=Windows,dept=Finance,cve=CVE-2024-7890,sev=Critical,status=Open,doff=17",
+        "vid=VUL-008,host=win-ber-01,os=Windows,dept=IT,cve=CVE-2024-8901,sev=High,status=Patched,doff=16",
+        "vid=VUL-009,host=lnx-sao-01,os=Linux,dept=Ops,cve=CVE-2024-9012,sev=Medium,status=Open,doff=15",
+        "vid=VUL-010,host=mac-tor-01,os=macOS,dept=HR,cve=CVE-2024-0123,sev=High,status=Patched,doff=14",
+        "vid=VUL-011,host=win-sin-01,os=Windows,dept=Finance,cve=CVE-2024-1235,sev=Critical,status=Mitigating,doff=13",
+        "vid=VUL-012,host=lnx-ams-01,os=Linux,dept=Eng,cve=CVE-2024-2346,sev=Medium,status=Patched,doff=12",
+        "vid=VUL-013,host=win-dub-01,os=Windows,dept=IT,cve=CVE-2024-3457,sev=High,status=Open,doff=11",
+        "vid=VUL-014,host=win-mex-01,os=Windows,dept=Ops,cve=CVE-2024-4568,sev=Low,status=Accepted,doff=10",
+        "vid=VUL-015,host=mac-seo-01,os=macOS,dept=Eng,cve=CVE-2024-5679,sev=Critical,status=Open,doff=9",
+        "vid=VUL-016,host=lnx-joh-01,os=Linux,dept=Finance,cve=CVE-2024-6780,sev=High,status=Patched,doff=8",
+        "vid=VUL-017,host=win-mad-01,os=Windows,dept=HR,cve=CVE-2024-7891,sev=Medium,status=Mitigating,doff=7",
+        "vid=VUL-018,host=win-sea-01,os=Windows,dept=IT,cve=CVE-2024-8902,sev=Critical,status=Open,doff=6",
+        "vid=VUL-019,host=lnx-stk-01,os=Linux,dept=Ops,cve=CVE-2024-9013,sev=High,status=Patched,doff=5",
+        "vid=VUL-020,host=win-dal-01,os=Windows,dept=Finance,cve=CVE-2024-0124,sev=Medium,status=Accepted,doff=4",
+        "vid=VUL-021,host=win-nyc-01,os=Windows,dept=IT,cve=CVE-2024-1236,sev=High,status=Open,doff=3",
+        "vid=VUL-022,host=lnx-tok-01,os=Linux,dept=Eng,cve=CVE-2024-2347,sev=Critical,status=Patched,doff=2",
+        "vid=VUL-023,host=win-chi-01,os=Windows,dept=Finance,cve=CVE-2024-3458,sev=Medium,status=Open,doff=1",
+        "vid=VUL-024,host=win-ber-01,os=Windows,dept=IT,cve=CVE-2024-4569,sev=Low,status=Mitigating,doff=0"
+      ])
+      | kvParse()
+      | @timestamp := now() - (doff * 86400000)
+      | wildcard(field=os, pattern=?os_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=dept, pattern=?dept_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=sev, pattern=?sev_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | count(as=Total)
+      | Total := format("%,.0f", field=Total)
+    options:
+      default: {}
+
+  kpi-critical:
+    type: query
+    title: "Critical Vulnerabilities"
+    description: "Vulnerabilities at Critical severity only"
+    x: 3
+    y: 2
+    width: 3
+    height: 3
+    visualization: single-value
+    isLive: false
+    start: 30d
+    queryString: |
+      createEvents([
+        "vid=VUL-001,host=win-nyc-01,os=Windows,dept=IT,cve=CVE-2024-1234,sev=Critical,status=Open,doff=23",
+        "vid=VUL-002,host=mac-lon-01,os=macOS,dept=Finance,cve=CVE-2024-2345,sev=High,status=Patched,doff=22",
+        "vid=VUL-003,host=lnx-tok-01,os=Linux,dept=Eng,cve=CVE-2024-3456,sev=Medium,status=Patched,doff=21",
+        "vid=VUL-004,host=win-syd-01,os=Windows,dept=Ops,cve=CVE-2024-4567,sev=Critical,status=Open,doff=20",
+        "vid=VUL-005,host=mac-par-01,os=macOS,dept=HR,cve=CVE-2024-5678,sev=High,status=Mitigating,doff=19",
+        "vid=VUL-006,host=lnx-mum-01,os=Linux,dept=Eng,cve=CVE-2024-6789,sev=Low,status=Accepted,doff=18",
+        "vid=VUL-007,host=win-chi-01,os=Windows,dept=Finance,cve=CVE-2024-7890,sev=Critical,status=Open,doff=17",
+        "vid=VUL-008,host=win-ber-01,os=Windows,dept=IT,cve=CVE-2024-8901,sev=High,status=Patched,doff=16",
+        "vid=VUL-009,host=lnx-sao-01,os=Linux,dept=Ops,cve=CVE-2024-9012,sev=Medium,status=Open,doff=15",
+        "vid=VUL-010,host=mac-tor-01,os=macOS,dept=HR,cve=CVE-2024-0123,sev=High,status=Patched,doff=14",
+        "vid=VUL-011,host=win-sin-01,os=Windows,dept=Finance,cve=CVE-2024-1235,sev=Critical,status=Mitigating,doff=13",
+        "vid=VUL-012,host=lnx-ams-01,os=Linux,dept=Eng,cve=CVE-2024-2346,sev=Medium,status=Patched,doff=12",
+        "vid=VUL-013,host=win-dub-01,os=Windows,dept=IT,cve=CVE-2024-3457,sev=High,status=Open,doff=11",
+        "vid=VUL-014,host=win-mex-01,os=Windows,dept=Ops,cve=CVE-2024-4568,sev=Low,status=Accepted,doff=10",
+        "vid=VUL-015,host=mac-seo-01,os=macOS,dept=Eng,cve=CVE-2024-5679,sev=Critical,status=Open,doff=9",
+        "vid=VUL-016,host=lnx-joh-01,os=Linux,dept=Finance,cve=CVE-2024-6780,sev=High,status=Patched,doff=8",
+        "vid=VUL-017,host=win-mad-01,os=Windows,dept=HR,cve=CVE-2024-7891,sev=Medium,status=Mitigating,doff=7",
+        "vid=VUL-018,host=win-sea-01,os=Windows,dept=IT,cve=CVE-2024-8902,sev=Critical,status=Open,doff=6",
+        "vid=VUL-019,host=lnx-stk-01,os=Linux,dept=Ops,cve=CVE-2024-9013,sev=High,status=Patched,doff=5",
+        "vid=VUL-020,host=win-dal-01,os=Windows,dept=Finance,cve=CVE-2024-0124,sev=Medium,status=Accepted,doff=4",
+        "vid=VUL-021,host=win-nyc-01,os=Windows,dept=IT,cve=CVE-2024-1236,sev=High,status=Open,doff=3",
+        "vid=VUL-022,host=lnx-tok-01,os=Linux,dept=Eng,cve=CVE-2024-2347,sev=Critical,status=Patched,doff=2",
+        "vid=VUL-023,host=win-chi-01,os=Windows,dept=Finance,cve=CVE-2024-3458,sev=Medium,status=Open,doff=1",
+        "vid=VUL-024,host=win-ber-01,os=Windows,dept=IT,cve=CVE-2024-4569,sev=Low,status=Mitigating,doff=0"
+      ])
+      | kvParse()
+      | @timestamp := now() - (doff * 86400000)
+      | wildcard(field=os, pattern=?os_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=dept, pattern=?dept_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | sev = "Critical"
+      | count(as=Critical)
+      | Critical := format("%,.0f", field=Critical)
+    options:
+      background-color: '#DB2D24'
+      default: {}
+
+  kpi-unpatched:
+    type: query
+    title: "Unpatched Vulnerabilities"
+    description: "Vulnerabilities with status=Open"
+    x: 6
+    y: 2
+    width: 3
+    height: 3
+    visualization: single-value
+    isLive: false
+    start: 30d
+    queryString: |
+      createEvents([
+        "vid=VUL-001,host=win-nyc-01,os=Windows,dept=IT,cve=CVE-2024-1234,sev=Critical,status=Open,doff=23",
+        "vid=VUL-002,host=mac-lon-01,os=macOS,dept=Finance,cve=CVE-2024-2345,sev=High,status=Patched,doff=22",
+        "vid=VUL-003,host=lnx-tok-01,os=Linux,dept=Eng,cve=CVE-2024-3456,sev=Medium,status=Patched,doff=21",
+        "vid=VUL-004,host=win-syd-01,os=Windows,dept=Ops,cve=CVE-2024-4567,sev=Critical,status=Open,doff=20",
+        "vid=VUL-005,host=mac-par-01,os=macOS,dept=HR,cve=CVE-2024-5678,sev=High,status=Mitigating,doff=19",
+        "vid=VUL-006,host=lnx-mum-01,os=Linux,dept=Eng,cve=CVE-2024-6789,sev=Low,status=Accepted,doff=18",
+        "vid=VUL-007,host=win-chi-01,os=Windows,dept=Finance,cve=CVE-2024-7890,sev=Critical,status=Open,doff=17",
+        "vid=VUL-008,host=win-ber-01,os=Windows,dept=IT,cve=CVE-2024-8901,sev=High,status=Patched,doff=16",
+        "vid=VUL-009,host=lnx-sao-01,os=Linux,dept=Ops,cve=CVE-2024-9012,sev=Medium,status=Open,doff=15",
+        "vid=VUL-010,host=mac-tor-01,os=macOS,dept=HR,cve=CVE-2024-0123,sev=High,status=Patched,doff=14",
+        "vid=VUL-011,host=win-sin-01,os=Windows,dept=Finance,cve=CVE-2024-1235,sev=Critical,status=Mitigating,doff=13",
+        "vid=VUL-012,host=lnx-ams-01,os=Linux,dept=Eng,cve=CVE-2024-2346,sev=Medium,status=Patched,doff=12",
+        "vid=VUL-013,host=win-dub-01,os=Windows,dept=IT,cve=CVE-2024-3457,sev=High,status=Open,doff=11",
+        "vid=VUL-014,host=win-mex-01,os=Windows,dept=Ops,cve=CVE-2024-4568,sev=Low,status=Accepted,doff=10",
+        "vid=VUL-015,host=mac-seo-01,os=macOS,dept=Eng,cve=CVE-2024-5679,sev=Critical,status=Open,doff=9",
+        "vid=VUL-016,host=lnx-joh-01,os=Linux,dept=Finance,cve=CVE-2024-6780,sev=High,status=Patched,doff=8",
+        "vid=VUL-017,host=win-mad-01,os=Windows,dept=HR,cve=CVE-2024-7891,sev=Medium,status=Mitigating,doff=7",
+        "vid=VUL-018,host=win-sea-01,os=Windows,dept=IT,cve=CVE-2024-8902,sev=Critical,status=Open,doff=6",
+        "vid=VUL-019,host=lnx-stk-01,os=Linux,dept=Ops,cve=CVE-2024-9013,sev=High,status=Patched,doff=5",
+        "vid=VUL-020,host=win-dal-01,os=Windows,dept=Finance,cve=CVE-2024-0124,sev=Medium,status=Accepted,doff=4",
+        "vid=VUL-021,host=win-nyc-01,os=Windows,dept=IT,cve=CVE-2024-1236,sev=High,status=Open,doff=3",
+        "vid=VUL-022,host=lnx-tok-01,os=Linux,dept=Eng,cve=CVE-2024-2347,sev=Critical,status=Patched,doff=2",
+        "vid=VUL-023,host=win-chi-01,os=Windows,dept=Finance,cve=CVE-2024-3458,sev=Medium,status=Open,doff=1",
+        "vid=VUL-024,host=win-ber-01,os=Windows,dept=IT,cve=CVE-2024-4569,sev=Low,status=Mitigating,doff=0"
+      ])
+      | kvParse()
+      | @timestamp := now() - (doff * 86400000)
+      | wildcard(field=os, pattern=?os_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=dept, pattern=?dept_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=sev, pattern=?sev_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | status = "Open"
+      | count(as=Unpatched)
+      | Unpatched := format("%,.0f", field=Unpatched)
+    options:
+      background-color: '#F49125'
+      default: {}
+
+  kpi-patch-rate:
+    type: query
+    title: "Patch Rate"
+    description: "Percentage of vulnerabilities patched"
+    x: 9
+    y: 2
+    width: 3
+    height: 3
+    visualization: single-value
+    isLive: false
+    start: 30d
+    queryString: |
+      createEvents([
+        "vid=VUL-001,host=win-nyc-01,os=Windows,dept=IT,cve=CVE-2024-1234,sev=Critical,status=Open,doff=23",
+        "vid=VUL-002,host=mac-lon-01,os=macOS,dept=Finance,cve=CVE-2024-2345,sev=High,status=Patched,doff=22",
+        "vid=VUL-003,host=lnx-tok-01,os=Linux,dept=Eng,cve=CVE-2024-3456,sev=Medium,status=Patched,doff=21",
+        "vid=VUL-004,host=win-syd-01,os=Windows,dept=Ops,cve=CVE-2024-4567,sev=Critical,status=Open,doff=20",
+        "vid=VUL-005,host=mac-par-01,os=macOS,dept=HR,cve=CVE-2024-5678,sev=High,status=Mitigating,doff=19",
+        "vid=VUL-006,host=lnx-mum-01,os=Linux,dept=Eng,cve=CVE-2024-6789,sev=Low,status=Accepted,doff=18",
+        "vid=VUL-007,host=win-chi-01,os=Windows,dept=Finance,cve=CVE-2024-7890,sev=Critical,status=Open,doff=17",
+        "vid=VUL-008,host=win-ber-01,os=Windows,dept=IT,cve=CVE-2024-8901,sev=High,status=Patched,doff=16",
+        "vid=VUL-009,host=lnx-sao-01,os=Linux,dept=Ops,cve=CVE-2024-9012,sev=Medium,status=Open,doff=15",
+        "vid=VUL-010,host=mac-tor-01,os=macOS,dept=HR,cve=CVE-2024-0123,sev=High,status=Patched,doff=14",
+        "vid=VUL-011,host=win-sin-01,os=Windows,dept=Finance,cve=CVE-2024-1235,sev=Critical,status=Mitigating,doff=13",
+        "vid=VUL-012,host=lnx-ams-01,os=Linux,dept=Eng,cve=CVE-2024-2346,sev=Medium,status=Patched,doff=12",
+        "vid=VUL-013,host=win-dub-01,os=Windows,dept=IT,cve=CVE-2024-3457,sev=High,status=Open,doff=11",
+        "vid=VUL-014,host=win-mex-01,os=Windows,dept=Ops,cve=CVE-2024-4568,sev=Low,status=Accepted,doff=10",
+        "vid=VUL-015,host=mac-seo-01,os=macOS,dept=Eng,cve=CVE-2024-5679,sev=Critical,status=Open,doff=9",
+        "vid=VUL-016,host=lnx-joh-01,os=Linux,dept=Finance,cve=CVE-2024-6780,sev=High,status=Patched,doff=8",
+        "vid=VUL-017,host=win-mad-01,os=Windows,dept=HR,cve=CVE-2024-7891,sev=Medium,status=Mitigating,doff=7",
+        "vid=VUL-018,host=win-sea-01,os=Windows,dept=IT,cve=CVE-2024-8902,sev=Critical,status=Open,doff=6",
+        "vid=VUL-019,host=lnx-stk-01,os=Linux,dept=Ops,cve=CVE-2024-9013,sev=High,status=Patched,doff=5",
+        "vid=VUL-020,host=win-dal-01,os=Windows,dept=Finance,cve=CVE-2024-0124,sev=Medium,status=Accepted,doff=4",
+        "vid=VUL-021,host=win-nyc-01,os=Windows,dept=IT,cve=CVE-2024-1236,sev=High,status=Open,doff=3",
+        "vid=VUL-022,host=lnx-tok-01,os=Linux,dept=Eng,cve=CVE-2024-2347,sev=Critical,status=Patched,doff=2",
+        "vid=VUL-023,host=win-chi-01,os=Windows,dept=Finance,cve=CVE-2024-3458,sev=Medium,status=Open,doff=1",
+        "vid=VUL-024,host=win-ber-01,os=Windows,dept=IT,cve=CVE-2024-4569,sev=Low,status=Mitigating,doff=0"
+      ])
+      | kvParse()
+      | @timestamp := now() - (doff * 86400000)
+      | wildcard(field=os, pattern=?os_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=dept, pattern=?dept_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=sev, pattern=?sev_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | stats([
+          count(as=total),
+          { status = "Patched" | count(as=patched) }
+        ])
+      | default(value=0, field=[patched])
+      | pct := (patched / total) * 100
+      | "Patch Rate" := format("%.0f%%", field=pct)
+      | drop([total, patched, pct])
+    options:
+      background-color: '#34B248'
+      default: {}
+
+  # ── Sankey + Charts Row ───────────────────────────────────────────────────────
+
+  sankey-vuln-flow:
+    type: query
+    title: "Vulnerability Severity → Remediation Flow"
+    description: "Link width = number of vulnerabilities. Click source nodes to filter severity."
+    x: 0
+    y: 5
+    width: 5
+    height: 6
+    visualization: sankey
+    isLive: false
+    start: 30d
+    queryString: |
+      createEvents([
+        "vid=VUL-001,host=win-nyc-01,os=Windows,dept=IT,cve=CVE-2024-1234,sev=Critical,status=Open,doff=23",
+        "vid=VUL-002,host=mac-lon-01,os=macOS,dept=Finance,cve=CVE-2024-2345,sev=High,status=Patched,doff=22",
+        "vid=VUL-003,host=lnx-tok-01,os=Linux,dept=Eng,cve=CVE-2024-3456,sev=Medium,status=Patched,doff=21",
+        "vid=VUL-004,host=win-syd-01,os=Windows,dept=Ops,cve=CVE-2024-4567,sev=Critical,status=Open,doff=20",
+        "vid=VUL-005,host=mac-par-01,os=macOS,dept=HR,cve=CVE-2024-5678,sev=High,status=Mitigating,doff=19",
+        "vid=VUL-006,host=lnx-mum-01,os=Linux,dept=Eng,cve=CVE-2024-6789,sev=Low,status=Accepted,doff=18",
+        "vid=VUL-007,host=win-chi-01,os=Windows,dept=Finance,cve=CVE-2024-7890,sev=Critical,status=Open,doff=17",
+        "vid=VUL-008,host=win-ber-01,os=Windows,dept=IT,cve=CVE-2024-8901,sev=High,status=Patched,doff=16",
+        "vid=VUL-009,host=lnx-sao-01,os=Linux,dept=Ops,cve=CVE-2024-9012,sev=Medium,status=Open,doff=15",
+        "vid=VUL-010,host=mac-tor-01,os=macOS,dept=HR,cve=CVE-2024-0123,sev=High,status=Patched,doff=14",
+        "vid=VUL-011,host=win-sin-01,os=Windows,dept=Finance,cve=CVE-2024-1235,sev=Critical,status=Mitigating,doff=13",
+        "vid=VUL-012,host=lnx-ams-01,os=Linux,dept=Eng,cve=CVE-2024-2346,sev=Medium,status=Patched,doff=12",
+        "vid=VUL-013,host=win-dub-01,os=Windows,dept=IT,cve=CVE-2024-3457,sev=High,status=Open,doff=11",
+        "vid=VUL-014,host=win-mex-01,os=Windows,dept=Ops,cve=CVE-2024-4568,sev=Low,status=Accepted,doff=10",
+        "vid=VUL-015,host=mac-seo-01,os=macOS,dept=Eng,cve=CVE-2024-5679,sev=Critical,status=Open,doff=9",
+        "vid=VUL-016,host=lnx-joh-01,os=Linux,dept=Finance,cve=CVE-2024-6780,sev=High,status=Patched,doff=8",
+        "vid=VUL-017,host=win-mad-01,os=Windows,dept=HR,cve=CVE-2024-7891,sev=Medium,status=Mitigating,doff=7",
+        "vid=VUL-018,host=win-sea-01,os=Windows,dept=IT,cve=CVE-2024-8902,sev=Critical,status=Open,doff=6",
+        "vid=VUL-019,host=lnx-stk-01,os=Linux,dept=Ops,cve=CVE-2024-9013,sev=High,status=Patched,doff=5",
+        "vid=VUL-020,host=win-dal-01,os=Windows,dept=Finance,cve=CVE-2024-0124,sev=Medium,status=Accepted,doff=4",
+        "vid=VUL-021,host=win-nyc-01,os=Windows,dept=IT,cve=CVE-2024-1236,sev=High,status=Open,doff=3",
+        "vid=VUL-022,host=lnx-tok-01,os=Linux,dept=Eng,cve=CVE-2024-2347,sev=Critical,status=Patched,doff=2",
+        "vid=VUL-023,host=win-chi-01,os=Windows,dept=Finance,cve=CVE-2024-3458,sev=Medium,status=Open,doff=1",
+        "vid=VUL-024,host=win-ber-01,os=Windows,dept=IT,cve=CVE-2024-4569,sev=Low,status=Mitigating,doff=0"
+      ])
+      | kvParse()
+      | @timestamp := now() - (doff * 86400000)
+      | wildcard(field=os, pattern=?os_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=dept, pattern=?dept_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=sev, pattern=?sev_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | sankey(source="sev", target="status", weight=count())
+    options:
+      labelLimit: 306
+      showAxes: true
+    interactions:
+      - name: Filter by Severity
+        titleTemplate: '▽ Filter to "{{ fields.source }}" severity'
+        type: updateparameters
+        useWidgetTimeWindow: false
+        arguments:
+          sev_filter: '["{{ fields.source }}"]'
+      - name: Reset severity filter
+        titleTemplate: '↻ Reset severity filter'
+        type: updateparameters
+        useWidgetTimeWindow: false
+        arguments:
+          sev_filter: '["*"]'
+
+  chart-vuln-by-os:
+    type: query
+    title: "Vulnerabilities by OS"
+    description: "Vulnerability count per operating system"
+    x: 5
+    y: 5
+    width: 4
+    height: 6
+    visualization: bar-chart
+    isLive: false
+    start: 30d
+    queryString: |
+      createEvents([
+        "vid=VUL-001,host=win-nyc-01,os=Windows,dept=IT,cve=CVE-2024-1234,sev=Critical,status=Open,doff=23",
+        "vid=VUL-002,host=mac-lon-01,os=macOS,dept=Finance,cve=CVE-2024-2345,sev=High,status=Patched,doff=22",
+        "vid=VUL-003,host=lnx-tok-01,os=Linux,dept=Eng,cve=CVE-2024-3456,sev=Medium,status=Patched,doff=21",
+        "vid=VUL-004,host=win-syd-01,os=Windows,dept=Ops,cve=CVE-2024-4567,sev=Critical,status=Open,doff=20",
+        "vid=VUL-005,host=mac-par-01,os=macOS,dept=HR,cve=CVE-2024-5678,sev=High,status=Mitigating,doff=19",
+        "vid=VUL-006,host=lnx-mum-01,os=Linux,dept=Eng,cve=CVE-2024-6789,sev=Low,status=Accepted,doff=18",
+        "vid=VUL-007,host=win-chi-01,os=Windows,dept=Finance,cve=CVE-2024-7890,sev=Critical,status=Open,doff=17",
+        "vid=VUL-008,host=win-ber-01,os=Windows,dept=IT,cve=CVE-2024-8901,sev=High,status=Patched,doff=16",
+        "vid=VUL-009,host=lnx-sao-01,os=Linux,dept=Ops,cve=CVE-2024-9012,sev=Medium,status=Open,doff=15",
+        "vid=VUL-010,host=mac-tor-01,os=macOS,dept=HR,cve=CVE-2024-0123,sev=High,status=Patched,doff=14",
+        "vid=VUL-011,host=win-sin-01,os=Windows,dept=Finance,cve=CVE-2024-1235,sev=Critical,status=Mitigating,doff=13",
+        "vid=VUL-012,host=lnx-ams-01,os=Linux,dept=Eng,cve=CVE-2024-2346,sev=Medium,status=Patched,doff=12",
+        "vid=VUL-013,host=win-dub-01,os=Windows,dept=IT,cve=CVE-2024-3457,sev=High,status=Open,doff=11",
+        "vid=VUL-014,host=win-mex-01,os=Windows,dept=Ops,cve=CVE-2024-4568,sev=Low,status=Accepted,doff=10",
+        "vid=VUL-015,host=mac-seo-01,os=macOS,dept=Eng,cve=CVE-2024-5679,sev=Critical,status=Open,doff=9",
+        "vid=VUL-016,host=lnx-joh-01,os=Linux,dept=Finance,cve=CVE-2024-6780,sev=High,status=Patched,doff=8",
+        "vid=VUL-017,host=win-mad-01,os=Windows,dept=HR,cve=CVE-2024-7891,sev=Medium,status=Mitigating,doff=7",
+        "vid=VUL-018,host=win-sea-01,os=Windows,dept=IT,cve=CVE-2024-8902,sev=Critical,status=Open,doff=6",
+        "vid=VUL-019,host=lnx-stk-01,os=Linux,dept=Ops,cve=CVE-2024-9013,sev=High,status=Patched,doff=5",
+        "vid=VUL-020,host=win-dal-01,os=Windows,dept=Finance,cve=CVE-2024-0124,sev=Medium,status=Accepted,doff=4",
+        "vid=VUL-021,host=win-nyc-01,os=Windows,dept=IT,cve=CVE-2024-1236,sev=High,status=Open,doff=3",
+        "vid=VUL-022,host=lnx-tok-01,os=Linux,dept=Eng,cve=CVE-2024-2347,sev=Critical,status=Patched,doff=2",
+        "vid=VUL-023,host=win-chi-01,os=Windows,dept=Finance,cve=CVE-2024-3458,sev=Medium,status=Open,doff=1",
+        "vid=VUL-024,host=win-ber-01,os=Windows,dept=IT,cve=CVE-2024-4569,sev=Low,status=Mitigating,doff=0"
+      ])
+      | kvParse()
+      | @timestamp := now() - (doff * 86400000)
+      | wildcard(field=dept, pattern=?dept_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=sev, pattern=?sev_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | groupBy([os], function=count(as=Count), limit=max)
+      | sort(Count, order=desc)
+    options:
+      barChartOrientation: horizontal
+      valuesOnBars: true
+      labelLimit: 200
+      series:
+        Windows:
+          color: '#0073E6'
+        macOS:
+          color: '#9B59B6'
+        Linux:
+          color: '#F49125'
+
+  chart-patch-gauge:
+    type: query
+    title: "Patch Compliance"
+    description: "Percentage of vulnerabilities with status=Patched"
+    x: 9
+    y: 5
+    width: 3
+    height: 6
+    visualization: gauge
+    isLive: false
+    start: 30d
+    queryString: |
+      createEvents([
+        "vid=VUL-001,host=win-nyc-01,os=Windows,dept=IT,cve=CVE-2024-1234,sev=Critical,status=Open,doff=23",
+        "vid=VUL-002,host=mac-lon-01,os=macOS,dept=Finance,cve=CVE-2024-2345,sev=High,status=Patched,doff=22",
+        "vid=VUL-003,host=lnx-tok-01,os=Linux,dept=Eng,cve=CVE-2024-3456,sev=Medium,status=Patched,doff=21",
+        "vid=VUL-004,host=win-syd-01,os=Windows,dept=Ops,cve=CVE-2024-4567,sev=Critical,status=Open,doff=20",
+        "vid=VUL-005,host=mac-par-01,os=macOS,dept=HR,cve=CVE-2024-5678,sev=High,status=Mitigating,doff=19",
+        "vid=VUL-006,host=lnx-mum-01,os=Linux,dept=Eng,cve=CVE-2024-6789,sev=Low,status=Accepted,doff=18",
+        "vid=VUL-007,host=win-chi-01,os=Windows,dept=Finance,cve=CVE-2024-7890,sev=Critical,status=Open,doff=17",
+        "vid=VUL-008,host=win-ber-01,os=Windows,dept=IT,cve=CVE-2024-8901,sev=High,status=Patched,doff=16",
+        "vid=VUL-009,host=lnx-sao-01,os=Linux,dept=Ops,cve=CVE-2024-9012,sev=Medium,status=Open,doff=15",
+        "vid=VUL-010,host=mac-tor-01,os=macOS,dept=HR,cve=CVE-2024-0123,sev=High,status=Patched,doff=14",
+        "vid=VUL-011,host=win-sin-01,os=Windows,dept=Finance,cve=CVE-2024-1235,sev=Critical,status=Mitigating,doff=13",
+        "vid=VUL-012,host=lnx-ams-01,os=Linux,dept=Eng,cve=CVE-2024-2346,sev=Medium,status=Patched,doff=12",
+        "vid=VUL-013,host=win-dub-01,os=Windows,dept=IT,cve=CVE-2024-3457,sev=High,status=Open,doff=11",
+        "vid=VUL-014,host=win-mex-01,os=Windows,dept=Ops,cve=CVE-2024-4568,sev=Low,status=Accepted,doff=10",
+        "vid=VUL-015,host=mac-seo-01,os=macOS,dept=Eng,cve=CVE-2024-5679,sev=Critical,status=Open,doff=9",
+        "vid=VUL-016,host=lnx-joh-01,os=Linux,dept=Finance,cve=CVE-2024-6780,sev=High,status=Patched,doff=8",
+        "vid=VUL-017,host=win-mad-01,os=Windows,dept=HR,cve=CVE-2024-7891,sev=Medium,status=Mitigating,doff=7",
+        "vid=VUL-018,host=win-sea-01,os=Windows,dept=IT,cve=CVE-2024-8902,sev=Critical,status=Open,doff=6",
+        "vid=VUL-019,host=lnx-stk-01,os=Linux,dept=Ops,cve=CVE-2024-9013,sev=High,status=Patched,doff=5",
+        "vid=VUL-020,host=win-dal-01,os=Windows,dept=Finance,cve=CVE-2024-0124,sev=Medium,status=Accepted,doff=4",
+        "vid=VUL-021,host=win-nyc-01,os=Windows,dept=IT,cve=CVE-2024-1236,sev=High,status=Open,doff=3",
+        "vid=VUL-022,host=lnx-tok-01,os=Linux,dept=Eng,cve=CVE-2024-2347,sev=Critical,status=Patched,doff=2",
+        "vid=VUL-023,host=win-chi-01,os=Windows,dept=Finance,cve=CVE-2024-3458,sev=Medium,status=Open,doff=1",
+        "vid=VUL-024,host=win-ber-01,os=Windows,dept=IT,cve=CVE-2024-4569,sev=Low,status=Mitigating,doff=0"
+      ])
+      | kvParse()
+      | @timestamp := now() - (doff * 86400000)
+      | wildcard(field=os, pattern=?os_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=dept, pattern=?dept_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=sev, pattern=?sev_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | stats([
+          count(as=total),
+          { status = "Patched" | count(as=patched) }
+        ])
+      | default(value=0, field=[patched])
+      | "Patch %" := (patched / total) * 100
+      | drop([total, patched])
+    options:
+      gaugeType: radialNeedle
+      minVal: 0
+      maxVal: 100
+      thresholdConfig:
+        thresholds:
+          - { value: 0,  color: '#DB2D24' }
+          - { value: 25, color: '#F49125' }
+          - { value: 50, color: '#FFC107' }
+          - { value: 75, color: '#34B248' }
+
+  # ── Vuln Detail Table ─────────────────────────────────────────────────────────
+
+  table-vuln-detail:
+    type: query
+    title: "Vulnerability Detail"
+    description: "All vulnerabilities. Click rows to filter by Severity or OS."
+    x: 0
+    y: 11
+    width: 12
+    height: 7
+    visualization: table-view
+    isLive: false
+    start: 30d
+    queryString: |
+      createEvents([
+        "vid=VUL-001,host=win-nyc-01,os=Windows,dept=IT,cve=CVE-2024-1234,sev=Critical,status=Open,doff=23",
+        "vid=VUL-002,host=mac-lon-01,os=macOS,dept=Finance,cve=CVE-2024-2345,sev=High,status=Patched,doff=22",
+        "vid=VUL-003,host=lnx-tok-01,os=Linux,dept=Eng,cve=CVE-2024-3456,sev=Medium,status=Patched,doff=21",
+        "vid=VUL-004,host=win-syd-01,os=Windows,dept=Ops,cve=CVE-2024-4567,sev=Critical,status=Open,doff=20",
+        "vid=VUL-005,host=mac-par-01,os=macOS,dept=HR,cve=CVE-2024-5678,sev=High,status=Mitigating,doff=19",
+        "vid=VUL-006,host=lnx-mum-01,os=Linux,dept=Eng,cve=CVE-2024-6789,sev=Low,status=Accepted,doff=18",
+        "vid=VUL-007,host=win-chi-01,os=Windows,dept=Finance,cve=CVE-2024-7890,sev=Critical,status=Open,doff=17",
+        "vid=VUL-008,host=win-ber-01,os=Windows,dept=IT,cve=CVE-2024-8901,sev=High,status=Patched,doff=16",
+        "vid=VUL-009,host=lnx-sao-01,os=Linux,dept=Ops,cve=CVE-2024-9012,sev=Medium,status=Open,doff=15",
+        "vid=VUL-010,host=mac-tor-01,os=macOS,dept=HR,cve=CVE-2024-0123,sev=High,status=Patched,doff=14",
+        "vid=VUL-011,host=win-sin-01,os=Windows,dept=Finance,cve=CVE-2024-1235,sev=Critical,status=Mitigating,doff=13",
+        "vid=VUL-012,host=lnx-ams-01,os=Linux,dept=Eng,cve=CVE-2024-2346,sev=Medium,status=Patched,doff=12",
+        "vid=VUL-013,host=win-dub-01,os=Windows,dept=IT,cve=CVE-2024-3457,sev=High,status=Open,doff=11",
+        "vid=VUL-014,host=win-mex-01,os=Windows,dept=Ops,cve=CVE-2024-4568,sev=Low,status=Accepted,doff=10",
+        "vid=VUL-015,host=mac-seo-01,os=macOS,dept=Eng,cve=CVE-2024-5679,sev=Critical,status=Open,doff=9",
+        "vid=VUL-016,host=lnx-joh-01,os=Linux,dept=Finance,cve=CVE-2024-6780,sev=High,status=Patched,doff=8",
+        "vid=VUL-017,host=win-mad-01,os=Windows,dept=HR,cve=CVE-2024-7891,sev=Medium,status=Mitigating,doff=7",
+        "vid=VUL-018,host=win-sea-01,os=Windows,dept=IT,cve=CVE-2024-8902,sev=Critical,status=Open,doff=6",
+        "vid=VUL-019,host=lnx-stk-01,os=Linux,dept=Ops,cve=CVE-2024-9013,sev=High,status=Patched,doff=5",
+        "vid=VUL-020,host=win-dal-01,os=Windows,dept=Finance,cve=CVE-2024-0124,sev=Medium,status=Accepted,doff=4",
+        "vid=VUL-021,host=win-nyc-01,os=Windows,dept=IT,cve=CVE-2024-1236,sev=High,status=Open,doff=3",
+        "vid=VUL-022,host=lnx-tok-01,os=Linux,dept=Eng,cve=CVE-2024-2347,sev=Critical,status=Patched,doff=2",
+        "vid=VUL-023,host=win-chi-01,os=Windows,dept=Finance,cve=CVE-2024-3458,sev=Medium,status=Open,doff=1",
+        "vid=VUL-024,host=win-ber-01,os=Windows,dept=IT,cve=CVE-2024-4569,sev=Low,status=Mitigating,doff=0"
+      ])
+      | kvParse()
+      | @timestamp := now() - (doff * 86400000)
+      | wildcard(field=os, pattern=?os_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=dept, pattern=?dept_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=sev, pattern=?sev_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | case {
+          sev = "Critical" | _icon := "🔴";
+          sev = "High"     | _icon := "🟠";
+          sev = "Medium"   | _icon := "🟡";
+          sev = "Low"      | _icon := "🟢";
+          *                | _icon := "⚪";
+        }
+      | case {
+          status = "Patched"    | _sticon := "✅";
+          status = "Open"       | _sticon := "🔓";
+          status = "Mitigating" | _sticon := "🛡️";
+          status = "Accepted"   | _sticon := "📋";
+          *                     | _sticon := "❓";
+        }
+      | "Detected" := formatTime("%Y-%m-%d", field=@timestamp, locale=en_US, timezone=Z)
+      | sort(field=@timestamp, order=desc, limit=max)
+      | select([_icon, vid, "Detected", host, os, dept, cve, sev, _sticon, status])
+      | rename([[_icon, ""], [vid, "ID"], [host, "Host"], [os, "OS"],
+                [dept, "Dept"], [cve, "CVE"], [sev, "Severity"],
+                [_sticon, " "], [status, "Status"]])
+    options:
+      row-numbers-enabled: true
+      cell-overflow: wrap-text
+      column-overflow: truncate
+      configured-columns:
+        '':
+          width: 40
+        ' ':
+          width: 40
+        Severity:
+          color:
+            conditions:
+              - color: '#DB2D2444'
+                condition:
+                  type: Equal
+                  arg: Critical
+              - color: '#F4912544'
+                condition:
+                  type: Equal
+                  arg: High
+              - color: '#FFC10744'
+                condition:
+                  type: Equal
+                  arg: Medium
+              - color: '#34B24844'
+                condition:
+                  type: Equal
+                  arg: Low
+    interactions:
+      - name: Filter by Severity
+        titleTemplate: '▽ Filter to "{{ fields["Severity"] }}" severity'
+        type: updateparameters
+        useWidgetTimeWindow: false
+        arguments:
+          sev_filter: '["{{ fields["Severity"] }}"]'
+      - name: Filter by OS
+        titleTemplate: '▽ Filter to "{{ fields["OS"] }}" OS'
+        type: updateparameters
+        useWidgetTimeWindow: false
+        arguments:
+          os_filter: '["{{ fields["OS"] }}"]'
+      - name: Reset all filters
+        titleTemplate: '↻ Reset all filters'
+        type: updateparameters
+        useWidgetTimeWindow: false
+        arguments:
+          os_filter: '["*"]'
+          dept_filter: '["*"]'
+          managed_filter: '["*"]'
+          sev_filter: '["*"]'
