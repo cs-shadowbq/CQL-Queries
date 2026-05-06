@@ -1,0 +1,1091 @@
+{
+  "documentation": "A dashboard template.",
+  "properties": {
+    "name": {
+      "documentation": "The name of the dashboard.",
+      "minLength": 1,
+      "type": "string",
+      "maxLength": 200
+    },
+    "updateFrequency": {
+      "documentation": "The frequency at which the dashboard should fetch new results.",
+      "oneOf": [{
+        "const": "real-time"
+      }, {
+        "const": "never"
+      }]
+    },
+    "description": {
+      "documentation": "A description of the dashboard.",
+      "type": "string",
+      "maxLength": 2000
+    },
+    "timeSelector": {
+      "documentation": "Configuration for the dashboard Time Selector UI.",
+      "properties": {
+        "defaultTimeJumpInMs": {
+          "documentation": "The amount of time the time interval will pan when clicking the time selector arrows.",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "sharedTimeInterval": {
+      "documentation": "Configuration for the dashboard Time Selector UI.",
+      "oneOf": [{
+        "properties": {
+          "isLive": {
+            "documentation": "[DEPRECATED] If true the time interval will be live. E.g. logs are live tailed and results are continuously updated.",
+            "deprecated": true,
+            "deprecationReason": "use updateFrequency instead",
+            "default": true,
+            "type": "boolean"
+          },
+          "start": {
+            "pattern": "(^calendar:.+)|(.+@.+)|(^(\\d+) ?(years?|y|yrs?|quarters?|q|qtrs?|months?|mon|weeks?|w|days?|d|hours?|hr?|hrs|minutes?|m|min|seconds?|s|secs?|milliseconds?|millis|ms))|(^now)$",
+            "documentation": "The start time (oldest) of the search interval in relative time format (e.g. 24h) string.",
+            "type": "string"
+          },
+          "end": {
+            "const": "now",
+            "deprecated": true,
+            "deprecationReason": "'now' is implied in a relative time interval"
+          },
+          "enabled": {
+            "type": "boolean",
+            "documentation": "If true the dashboard will load with shared time for all widget enabled.",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object"
+      }, {
+        "properties": {
+          "isLive": {
+            "const": false,
+            "deprecated": true,
+            "deprecationReason": "use updateFrequency instead"
+          },
+          "start": {
+            "documentation": "The start time (oldest) of the search interval in as milliseconds since the epoch.",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "end": {
+            "documentation": "The end time (newest) of the search interval in as milliseconds since the epoch. Must be after start.",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "enabled": {
+            "type": "boolean",
+            "documentation": "If true the dashboard will load with shared time for all widget enabled.",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["end", "start"]
+      }]
+    },
+    "labels": {
+      "type": "array",
+      "documentation": "A list of labels",
+      "items": {
+        "type": "string"
+      }
+    },
+    "filters": {
+      "type": "object",
+      "documentation": "A map from user defined id to dashboard filter.",
+      "propertyNames": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "additionalProperties": {
+        "properties": {
+          "title": {
+            "documentation": "The human-readable title (name) of the filter.",
+            "minLength": 1,
+            "type": "string",
+            "maxLength": 200
+          },
+          "queryPrefix": {
+            "documentation": "A filter expression placed in front of each query used on the dashboard.",
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["queryPrefix", "title"]
+      }
+    },
+    "seriesColorPalette": {
+      "documentation": "The name of a categorical color palette to use as default for relevant widgets",
+      "minLength": 1,
+      "type": "string",
+      "maxLength": 60
+    },
+    "widgets": {
+      "type": "object",
+      "documentation": "A map from user defined id to a widget configuration.",
+      "propertyNames": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "oneOf": [{
+          "required": ["height", "text", "title", "width", "x", "y"],
+          "additionalProperties": false,
+          "properties": {
+            "x": {
+              "documentation": "The horizontal position of the widget on the dashboard's 12 column layout, 0 is left-most, 11 is right most.",
+              "maximum": 11,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "backgroundColor": {
+              "pattern": "^#(?:[0-9a-fA-F]{6})|rgb\\((?:(?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]), ?(?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]), ?(?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))\\)$",
+              "documentation": "The text content of the note.",
+              "type": "string"
+            },
+            "y": {
+              "documentation": "The vertical position of the widget (row). Where 0 is top-most.",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "description": {
+              "documentation": "A description to help the viewer understand what is being displayed in the widget or other such information.",
+              "type": "string",
+              "maxLength": 10000
+            },
+            "text": {
+              "documentation": "The text content of the note.",
+              "type": "string",
+              "maxLength": 20000
+            },
+            "width": {
+              "documentation": "The width of the widget in number of dashboard layout grid columns (1-12, not columns in the Table Widget)",
+              "maximum": 12,
+              "default": 1,
+              "minimum": 1,
+              "type": "integer"
+            },
+            "height": {
+              "documentation": "The height of the widget in number of dashboard layout grid rows (not rows in the Table Widget).",
+              "default": 1,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "textColor": {
+              "pattern": "^#(?:[0-9a-fA-F]{6})|rgb\\((?:(?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]), ?(?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]), ?(?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))\\)$",
+              "documentation": "The color of the text.",
+              "type": "string"
+            },
+            "title": {
+              "documentation": "The title of the widget.",
+              "type": "string",
+              "maxLength": 100
+            },
+            "type": {
+              "const": "note"
+            }
+          }
+        }, {
+          "required": ["height", "queryString", "start", "title", "visualization", "width", "x", "y"],
+          "additionalProperties": false,
+          "properties": {
+            "x": {
+              "documentation": "The horizontal position of the widget on the dashboard's 12 column layout, 0 is left-most, 11 is right most.",
+              "maximum": 11,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "description": {
+              "documentation": "A description to help the viewer understand what is being displayed in the widget or other such information.",
+              "type": "string",
+              "maxLength": 10000
+            },
+            "height": {
+              "documentation": "The height of the widget in number of dashboard layout grid rows (not rows in the Table Widget).",
+              "default": 1,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "queryString": {
+              "documentation": "The query string used to execute the search.",
+              "type": "string"
+            },
+            "end": {
+              "documentation": "The search interval end time. (\"now\" by default, or time instant in millisecs since the epoch.",
+              "type": "string"
+            },
+            "start": {
+              "documentation": "The search interval start time. (in Humio relative time format, or time instant in millisecs since the epoch.",
+              "type": "string"
+            },
+            "width": {
+              "documentation": "The width of the widget in number of dashboard layout grid columns (1-12, not columns in the Table Widget)",
+              "maximum": 12,
+              "default": 1,
+              "minimum": 1,
+              "type": "integer"
+            },
+            "y": {
+              "documentation": "The vertical position of the widget (row). Where 0 is top-most.",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "interactions": {
+              "type": "array",
+              "documentation": "A list of user interactions available for this widget.",
+              "items": {
+                "type": "object",
+                "oneOf": [{
+                  "required": ["arguments", "dashboardReference", "name", "openInNewTab", "useWidgetTimeWindow"],
+                  "additionalProperties": false,
+                  "properties": {
+                    "conditions": {
+                      "type": "array",
+                      "documentation": "A list of conditions that needs to be fulfilled before this interaction is enabled.",
+                      "items": {
+                        "properties": {
+                          "argument": {
+                            "documentation": "Argument to apply.",
+                            "type": "string"
+                          },
+                          "fieldName": {
+                            "documentation": "Name of the field.",
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "operator": {
+                            "documentation": "Operator to apply.",
+                            "oneOf": [{
+                              "const": "equal"
+                            }, {
+                              "const": "not-equal"
+                            }, {
+                              "const": "contains"
+                            }, {
+                              "const": "not-contains"
+                            }, {
+                              "const": "starts-with"
+                            }, {
+                              "const": "ends-with"
+                            }, {
+                              "const": "present"
+                            }, {
+                              "const": "not-present"
+                            }, {
+                              "const": "unknown"
+                            }]
+                          }
+                        },
+                        "additionalProperties": false,
+                        "type": "object",
+                        "required": ["argument", "fieldName", "operator"]
+                      }
+                    },
+                    "name": {
+                      "documentation": "The name of the interaction, this will be the default title if no title template is provided.",
+                      "minLength": 1,
+                      "type": "string",
+                      "maxLength": 128
+                    },
+                    "titleTemplate": {
+                      "documentation": "A template used for producing the title shown when interacting. You can use template expressions like `{{myField}}` inside to insert values from the context.",
+                      "type": "string",
+                      "maxLength": 128
+                    },
+                    "useWidgetTimeWindow": {
+                      "type": "boolean",
+                      "documentation": "Setting whether or not to use the time window for the target dashboard",
+                      "default": true
+                    },
+                    "dashboardReference": {
+                      "documentation": "The name of the referenced dashboard. When set in an application package, whatever asset this interaction is assigned to will be connected to this dashboard upon installation, but only if the dashboard is inside the package. In library packages, this nas have no effect.",
+                      "properties": {
+                        "packageSpecifier": {
+                          "pattern": "^(?:([a-z][a-z0-9_-]+[a-z0-9]+)/([a-z][a-z0-9_-]+[a-z0-9]+))$",
+                          "documentation": "The optional package specifier of the referenced dashboard.",
+                          "type": "string",
+                          "maxLength": 114
+                        },
+                        "name": {
+                          "documentation": "The name of the referenced dashboard.",
+                          "minLength": 1,
+                          "type": "string"
+                        },
+                        "repoOrViewName": {
+                          "documentation": "The repository or view name of the referenced dashboard.",
+                          "minLength": 1,
+                          "type": "string"
+                        }
+                      },
+                      "additionalProperties": false,
+                      "type": "object",
+                      "required": ["name"]
+                    },
+                    "arguments": {
+                      "type": "object",
+                      "documentation": "Arguments to pass along to the dashboard.",
+                      "propertyNames": {
+                        "minLength": 1,
+                        "type": "string",
+                        "maxLength": 1024
+                      },
+                      "additionalProperties": {
+                        "minLength": 1,
+                        "type": "string",
+                        "maxLength": 1024
+                      }
+                    },
+                    "openInNewTab": {
+                      "type": "boolean",
+                      "documentation": "Setting whether or not to open the dashboard in a new tab.",
+                      "default": false
+                    },
+                    "type": {
+                      "const": "dashboardlink"
+                    }
+                  }
+                }, {
+                  "required": ["name", "openInNewTab", "urlTemplate"],
+                  "additionalProperties": false,
+                  "properties": {
+                    "conditions": {
+                      "type": "array",
+                      "documentation": "A list of conditions that needs to be fulfilled before this interaction is enabled.",
+                      "items": {
+                        "properties": {
+                          "argument": {
+                            "documentation": "Argument to apply.",
+                            "type": "string"
+                          },
+                          "fieldName": {
+                            "documentation": "Name of the field.",
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "operator": {
+                            "documentation": "Operator to apply.",
+                            "oneOf": [{
+                              "const": "equal"
+                            }, {
+                              "const": "not-equal"
+                            }, {
+                              "const": "contains"
+                            }, {
+                              "const": "not-contains"
+                            }, {
+                              "const": "starts-with"
+                            }, {
+                              "const": "ends-with"
+                            }, {
+                              "const": "present"
+                            }, {
+                              "const": "not-present"
+                            }, {
+                              "const": "unknown"
+                            }]
+                          }
+                        },
+                        "additionalProperties": false,
+                        "type": "object",
+                        "required": ["argument", "fieldName", "operator"]
+                      }
+                    },
+                    "name": {
+                      "documentation": "The name of the interaction, this will be the default title if no title template is provided.",
+                      "minLength": 1,
+                      "type": "string",
+                      "maxLength": 128
+                    },
+                    "urlEncodeArgs": {
+                      "type": "boolean",
+                      "documentation": "Url encode arguments injected into url template.",
+                      "default": true
+                    },
+                    "titleTemplate": {
+                      "documentation": "A template used for producing the title shown when interacting. You can use template expressions like `{{myField}}` inside to insert values from the context.",
+                      "type": "string",
+                      "maxLength": 128
+                    },
+                    "urlTemplate": {
+                      "documentation": "Url template. See documentation for dynamic parameters and variables.",
+                      "type": "string"
+                    },
+                    "openInNewTab": {
+                      "type": "boolean",
+                      "documentation": "Setting whether or not to open the link in a new tab.",
+                      "default": false
+                    },
+                    "type": {
+                      "const": "customlink"
+                    }
+                  }
+                }, {
+                  "required": ["arguments", "isLive", "name", "openInNewTab", "queryString", "useWidgetTimeWindow"],
+                  "additionalProperties": false,
+                  "properties": {
+                    "conditions": {
+                      "type": "array",
+                      "documentation": "A list of conditions that needs to be fulfilled before this interaction is enabled.",
+                      "items": {
+                        "properties": {
+                          "argument": {
+                            "documentation": "Argument to apply.",
+                            "type": "string"
+                          },
+                          "fieldName": {
+                            "documentation": "Name of the field.",
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "operator": {
+                            "documentation": "Operator to apply.",
+                            "oneOf": [{
+                              "const": "equal"
+                            }, {
+                              "const": "not-equal"
+                            }, {
+                              "const": "contains"
+                            }, {
+                              "const": "not-contains"
+                            }, {
+                              "const": "starts-with"
+                            }, {
+                              "const": "ends-with"
+                            }, {
+                              "const": "present"
+                            }, {
+                              "const": "not-present"
+                            }, {
+                              "const": "unknown"
+                            }]
+                          }
+                        },
+                        "additionalProperties": false,
+                        "type": "object",
+                        "required": ["argument", "fieldName", "operator"]
+                      }
+                    },
+                    "name": {
+                      "documentation": "The name of the interaction, this will be the default title if no title template is provided.",
+                      "minLength": 1,
+                      "type": "string",
+                      "maxLength": 128
+                    },
+                    "titleTemplate": {
+                      "documentation": "A template used for producing the title shown when interacting. You can use template expressions like `{{myField}}` inside to insert values from the context.",
+                      "type": "string",
+                      "maxLength": 128
+                    },
+                    "queryString": {
+                      "documentation": "The query to execute.",
+                      "type": "string"
+                    },
+                    "useWidgetTimeWindow": {
+                      "type": "boolean",
+                      "documentation": "Setting whether or not to use the time window for the target search.",
+                      "default": true
+                    },
+                    "repoOrViewName": {
+                      "documentation": "The repository or view name to link to. If nothing is specified then the repo or view that are parent to this interaction will be used.",
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "arguments": {
+                      "type": "object",
+                      "documentation": "Arguments to pass along to the search.",
+                      "propertyNames": {
+                        "minLength": 1,
+                        "type": "string",
+                        "maxLength": 1024
+                      },
+                      "additionalProperties": {
+                        "minLength": 1,
+                        "type": "string",
+                        "maxLength": 1024
+                      }
+                    },
+                    "openInNewTab": {
+                      "type": "boolean",
+                      "documentation": "Setting whether or not to open the search in a new tab.",
+                      "default": false
+                    },
+                    "isLive": {
+                      "type": "boolean",
+                      "documentation": "Setting whether or not the linked search should be live.",
+                      "default": false
+                    },
+                    "type": {
+                      "const": "searchlink"
+                    }
+                  }
+                }, {
+                  "required": ["arguments", "name", "useWidgetTimeWindow"],
+                  "additionalProperties": false,
+                  "properties": {
+                    "conditions": {
+                      "type": "array",
+                      "documentation": "A list of conditions that needs to be fulfilled before this interaction is enabled.",
+                      "items": {
+                        "properties": {
+                          "argument": {
+                            "documentation": "Argument to apply.",
+                            "type": "string"
+                          },
+                          "fieldName": {
+                            "documentation": "Name of the field.",
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "operator": {
+                            "documentation": "Operator to apply.",
+                            "oneOf": [{
+                              "const": "equal"
+                            }, {
+                              "const": "not-equal"
+                            }, {
+                              "const": "contains"
+                            }, {
+                              "const": "not-contains"
+                            }, {
+                              "const": "starts-with"
+                            }, {
+                              "const": "ends-with"
+                            }, {
+                              "const": "present"
+                            }, {
+                              "const": "not-present"
+                            }, {
+                              "const": "unknown"
+                            }]
+                          }
+                        },
+                        "additionalProperties": false,
+                        "type": "object",
+                        "required": ["argument", "fieldName", "operator"]
+                      }
+                    },
+                    "name": {
+                      "documentation": "The name of the interaction, this will be the default title if no title template is provided.",
+                      "minLength": 1,
+                      "type": "string",
+                      "maxLength": 128
+                    },
+                    "titleTemplate": {
+                      "documentation": "A template used for producing the title shown when interacting. You can use template expressions like `{{myField}}` inside to insert values from the context.",
+                      "type": "string",
+                      "maxLength": 128
+                    },
+                    "useWidgetTimeWindow": {
+                      "type": "boolean",
+                      "documentation": "Setting whether or not to use the widget time window.",
+                      "default": true
+                    },
+                    "type": {
+                      "const": "updateparameters"
+                    },
+                    "arguments": {
+                      "type": "object",
+                      "documentation": "Arguments for parameters to update.",
+                      "propertyNames": {
+                        "minLength": 1,
+                        "type": "string",
+                        "maxLength": 1024
+                      },
+                      "additionalProperties": {
+                        "minLength": 1,
+                        "type": "string",
+                        "maxLength": 1024
+                      }
+                    }
+                  }
+                }]
+              }
+            },
+            "options": {
+              "type": "object",
+              "propertyNames": {
+                "type": "string"
+              },
+              "documentation": "A object of visualization specific options. E.g. The background color or line style of a chart."
+            },
+            "visualization": {
+              "documentation": "The way the query results are displayed, e.g. in a time-chart or a bar-chart.",
+              "type": "string"
+            },
+            "title": {
+              "documentation": "The title of the widget.",
+              "type": "string",
+              "maxLength": 100
+            },
+            "isLive": {
+              "type": "boolean",
+              "documentation": "If true the time interval will be live. E.g. results are live tailed and results are continuously updated.",
+              "default": true
+            },
+            "type": {
+              "const": "query"
+            }
+          }
+        }, {
+          "required": ["height", "parameterIds", "title", "width", "x", "y"],
+          "additionalProperties": false,
+          "properties": {
+            "x": {
+              "documentation": "The horizontal position of the widget on the dashboard's 12 column layout, 0 is left-most, 11 is right most.",
+              "maximum": 11,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "y": {
+              "documentation": "The vertical position of the widget (row). Where 0 is top-most.",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "description": {
+              "documentation": "A description to help the viewer understand what is being displayed in the widget or other such information.",
+              "type": "string",
+              "maxLength": 10000
+            },
+            "parameterIds": {
+              "type": "array",
+              "documentation": "A list of parameter ids.",
+              "items": {
+                "type": "string"
+              }
+            },
+            "height": {
+              "documentation": "The height of the widget in number of dashboard layout grid rows (not rows in the Table Widget).",
+              "default": 1,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "width": {
+              "documentation": "The width of the widget in number of dashboard layout grid columns (1-12, not columns in the Table Widget)",
+              "maximum": 12,
+              "default": 1,
+              "minimum": 1,
+              "type": "integer"
+            },
+            "title": {
+              "documentation": "The title of the widget.",
+              "type": "string",
+              "maxLength": 100
+            },
+            "type": {
+              "const": "parameterPanel"
+            }
+          }
+        }]
+      }
+    },
+    "parameters": {
+      "type": "object",
+      "documentation": "A map from user defined id to a parameter configuration.",
+      "propertyNames": {
+        "pattern": "^([_a-zA-Z][-_a-zA-Z0-9]*)?$",
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "oneOf": [{
+          "required": ["fileName", "valueField"],
+          "additionalProperties": false,
+          "properties": {
+            "label": {
+              "documentation": "A human-readable name for the parameter. This is the value displayed next to the parameter's input field. It does not affect the parameter's ID (e.g. ?hostname) which is used in queries.",
+              "minLength": 1,
+              "type": "string",
+              "maxLength": 200
+            },
+            "valueFilters": {
+              "type": "object",
+              "documentation": "If specified, all entries loaded from the file will have one of the listed values in the associated field.",
+              "propertyNames": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "additionalProperties": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "maxLength": 2000
+                }
+              }
+            },
+            "fileName": {
+              "documentation": "The name of the file to use. This will be one of the file names that appear in the 'Files' sections of the UI.",
+              "minLength": 1,
+              "type": "string",
+              "maxLength": 500
+            },
+            "defaultValue": {
+              "documentation": "The default value used by the parameter if nothing else is set, e.i. no value has been passed in the URL and the user has not changed the parameter's value in the input field.",
+              "type": "string",
+              "maxLength": 2000
+            },
+            "invalidInputPatterns": {
+              "type": "array",
+              "documentation": "Regex patterns used to block parameter input.",
+              "items": {
+                "type": "string"
+              }
+            },
+            "invalidInputMessage": {
+              "documentation": "Regex patterns used to block parameter input.",
+              "type": "string"
+            },
+            "isMultiParam": {
+              "type": "boolean",
+              "documentation": "If true, then this parameter can support having multiple values simultaneously.",
+              "default": false
+            },
+            "order": {
+              "documentation": "An integer value used to sort the parameters in the UI. Parameters with lower order values are sorted before higher values.",
+              "type": "integer"
+            },
+            "valueField": {
+              "documentation": "The field (or column in CSV) used for the value of suggestions. If no `labelField`, this is also the text that will appear in the suggestions list for the parameter.",
+              "minLength": 1,
+              "type": "string",
+              "maxLength": 2000
+            },
+            "type": {
+              "const": "file"
+            },
+            "labelField": {
+              "documentation": "The field (or column in CSV) used to match of suggestions against and the value that is displayed in the suggestion list. If not set, `valueField` is used for these functions.",
+              "type": "string",
+              "maxLength": 2000
+            },
+            "defaultMultiValues": {
+              "type": "array",
+              "documentation": "If isMultiParam is true, then defaultMultiValues is used instead of defaultValue",
+              "items": {
+                "type": "string"
+              }
+            },
+            "width": {
+              "documentation": "An integer value describing the width of a parameter between 1 and 4.",
+              "maximum": 4,
+              "minimum": 1,
+              "type": "integer"
+            }
+          }
+        }, {
+          "required": ["query", "timeInterval", "valueField"],
+          "additionalProperties": false,
+          "properties": {
+            "label": {
+              "documentation": "A human-readable name for the parameter. This is the value displayed next to the parameter's input field. It does not affect the parameter's ID (e.g. ?hostname) which is used in queries.",
+              "minLength": 1,
+              "type": "string",
+              "maxLength": 200
+            },
+            "query": {
+              "documentation": "The query executed to find suggested values.",
+              "type": "string"
+            },
+            "timeInterval": {
+              "pattern": "(^(\\d+) ?(years?|y|yrs?|quarters?|q|qtrs?|months?|mon|weeks?|w|days?|d|hours?|hr?|hrs|minutes?|m|min|seconds?|s|secs?|milliseconds?|millis|ms))|(^now)$",
+              "documentation": "A string in Humio's relative time format, representing the time interval to search for suggestions in.",
+              "type": "string"
+            },
+            "useDashboardTimeIfSet": {
+              "type": "boolean",
+              "documentation": "If true the parameter's search interval will change as along with a dashboard's global time, e.g when you select a time interval on a time chart, the suggestions will only contain results from the selected time interval.",
+              "default": false
+            },
+            "defaultValue": {
+              "documentation": "The default value used by the parameter if nothing else is set, e.i. no value has been passed in the URL and the user has not changed the parameter's value in the input field.",
+              "type": "string",
+              "maxLength": 2000
+            },
+            "invalidInputPatterns": {
+              "type": "array",
+              "documentation": "Regex patterns used to block parameter input.",
+              "items": {
+                "type": "string"
+              }
+            },
+            "invalidInputMessage": {
+              "documentation": "Regex patterns used to block parameter input.",
+              "type": "string"
+            },
+            "isMultiParam": {
+              "type": "boolean",
+              "documentation": "If true, then this parameter can support having multiple values simultaneously.",
+              "default": false
+            },
+            "order": {
+              "documentation": "An integer value used to sort the parameters in the UI. Parameters with lower order values are sorted before higher values.",
+              "type": "integer"
+            },
+            "valueField": {
+              "documentation": "The name of the field in the result set to use for the value of the suggestion. E.g. it could be `host` if the results contained a field called `host` and one suggestion would be produced per row in the result.",
+              "minLength": 1,
+              "type": "string",
+              "maxLength": 2000
+            },
+            "type": {
+              "const": "query"
+            },
+            "labelField": {
+              "documentation": "The name of the field used for the text in the suggestions list for the parameter.",
+              "type": "string",
+              "maxLength": 2000
+            },
+            "defaultMultiValues": {
+              "type": "array",
+              "documentation": "If isMultiParam is true, then defaultMultiValues is used instead of defaultValue",
+              "items": {
+                "type": "string"
+              }
+            },
+            "width": {
+              "documentation": "An integer value describing the width of a parameter between 1 and 4.",
+              "maximum": 4,
+              "minimum": 1,
+              "type": "integer"
+            }
+          }
+        }, {
+          "required": [],
+          "additionalProperties": false,
+          "properties": {
+            "label": {
+              "documentation": "A human-readable name for the parameter. This is the value displayed next to the parameter's input field. It does not affect the parameter's ID (e.g. ?hostname) which is used in queries.",
+              "minLength": 1,
+              "type": "string",
+              "maxLength": 200
+            },
+            "order": {
+              "documentation": "An integer value used to sort the parameters in the UI. Parameters with lower order values are sorted before higher values.",
+              "type": "integer"
+            },
+            "type": {
+              "const": "text"
+            },
+            "defaultValue": {
+              "documentation": "The default value used by the parameter if nothing else is set, e.i. no value has been passed in the URL and the user has not changed the parameter's value in the input field.",
+              "type": "string",
+              "maxLength": 2000
+            },
+            "invalidInputPatterns": {
+              "type": "array",
+              "documentation": "Regex patterns used to block parameter input.",
+              "items": {
+                "type": "string"
+              }
+            },
+            "invalidInputMessage": {
+              "documentation": "Regex patterns used to block parameter input.",
+              "type": "string"
+            },
+            "isMultiParam": {
+              "type": "boolean",
+              "documentation": "If true, then this parameter can support having multiple values simultaneously.",
+              "default": false
+            },
+            "defaultMultiValues": {
+              "type": "array",
+              "documentation": "If isMultiParam is true, then defaultMultiValues is used instead of defaultValue",
+              "items": {
+                "type": "string"
+              }
+            },
+            "width": {
+              "documentation": "An integer value describing the width of a parameter between 1 and 4.",
+              "maximum": 4,
+              "minimum": 1,
+              "type": "integer"
+            }
+          }
+        }, {
+          "required": ["values"],
+          "additionalProperties": false,
+          "properties": {
+            "isMultiParam": {
+              "type": "boolean",
+              "documentation": "If true, then this parameter can support having multiple values simultaneously.",
+              "default": false
+            },
+            "label": {
+              "documentation": "A human-readable name for the parameter. This is the value displayed next to the parameter's input field. It does not affect the parameter's ID (e.g. ?hostname) which is used in queries.",
+              "minLength": 1,
+              "type": "string",
+              "maxLength": 200
+            },
+            "order": {
+              "documentation": "An integer value used to sort the parameters in the UI. Parameters with lower order values are sorted before higher values.",
+              "type": "integer"
+            },
+            "values": {
+              "documentation": "A map from string 'label' to string 'value'.",
+              "oneOf": [{
+                "type": "object",
+                "propertyNames": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "additionalProperties": {
+                  "type": "string",
+                  "maxLength": 1000
+                }
+              }, {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "maxLength": 1000
+                }
+              }]
+            },
+            "type": {
+              "const": "list"
+            },
+            "defaultValue": {
+              "documentation": "The default value used by the parameter if nothing else is set, e.i. no value has been passed in the URL and the user has not changed the parameter's value in the input field.",
+              "type": "string",
+              "maxLength": 2000
+            },
+            "defaultMultiValues": {
+              "type": "array",
+              "documentation": "If isMultiParam is true, then defaultMultiValues is used instead of defaultValue",
+              "items": {
+                "type": "string"
+              }
+            },
+            "width": {
+              "documentation": "An integer value describing the width of a parameter between 1 and 4.",
+              "maximum": 4,
+              "minimum": 1,
+              "type": "integer"
+            }
+          }
+        }]
+      }
+    },
+    "sections": {
+      "type": "object",
+      "documentation": "A map from section ids to section configurations.",
+      "propertyNames": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "additionalProperties": {
+        "properties": {
+          "description": {
+            "documentation": "A description to help the viewer understand what is being displayed in the section or other such information.",
+            "type": "string",
+            "maxLength": 10000
+          },
+          "collapsed": {
+            "type": "boolean",
+            "documentation": "If true the section is collapsed as the default when opening the dashboard.",
+            "default": false
+          },
+          "timeSelector": {
+            "documentation": "Defines whether the section has a time selector.",
+            "properties": {
+              "start": {
+                "documentation": "The default start time.",
+                "type": "string"
+              },
+              "end": {
+                "documentation": "The default end time.",
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "type": "object",
+            "required": ["end", "start"]
+          },
+          "widgetIds": {
+            "type": "array",
+            "documentation": "A list of widget ids in the section.",
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          "order": {
+            "documentation": "The order in which the section will appear",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "title": {
+            "documentation": "A title of the section.",
+            "type": "string",
+            "maxLength": 100
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["order"]
+      }
+    },
+    "series": {
+      "type": "object",
+      "documentation": "A map from series name to series configuration",
+      "propertyNames": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "additionalProperties": {
+        "properties": {
+          "color": {
+            "documentation": "Color for the series.",
+            "oneOf": [{
+              "properties": {
+                "light": {
+                  "pattern": "^#(?:[0-9a-fA-F]{6})|rgb\\((?:(?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]), ?(?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]), ?(?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))\\)$",
+                  "documentation": "Color for the light theme.",
+                  "type": "string"
+                },
+                "dark": {
+                  "pattern": "^#(?:[0-9a-fA-F]{6})|rgb\\((?:(?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]), ?(?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]), ?(?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))\\)$",
+                  "documentation": "Color for the dark theme.",
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["dark", "light"]
+            }, {
+              "pattern": "^#(?:[0-9a-fA-F]{6})|rgb\\((?:(?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]), ?(?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]), ?(?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))\\)$",
+              "type": "string"
+            }]
+          },
+          "title": {
+            "documentation": "Title for the series.",
+            "minLength": 1,
+            "type": "string",
+            "maxLength": 100
+          }
+        },
+        "additionalProperties": false,
+        "type": "object"
+      }
+    },
+    "$schema": {
+      "enum": ["https://schemas.humio.com/dashboard/v0.23.0"],
+      "type": "string"
+    },
+    "defaultFilterId": {
+      "documentation": "The id of the filter to be applied by default when the dashboard is opened.",
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["$schema", "name"]
+}

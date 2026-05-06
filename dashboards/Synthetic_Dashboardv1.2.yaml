@@ -1,0 +1,687 @@
+$schema: https://schemas.humio.com/dashboard/v0.23.0
+name: "CQL Demo — Synthetic Threat Detection Dashboard v1.2"
+timeSelector:
+  defaultTimeJumpInMs: 30000
+sharedTimeInterval:
+  enabled: true
+  isLive: false
+  start: 30d
+
+parameters:
+  sev_filter:
+    label: Severity
+    order: 1
+    type: list
+    defaultValue: '*'
+    width: 1
+    values:
+      '*': 'All'
+      Critical: Critical
+      High: High
+      Medium: Medium
+      Low: Low
+
+  plat_filter:
+    label: Platform
+    order: 2
+    type: list
+    defaultValue: '*'
+    width: 1
+    values:
+      '*': 'All'
+      Win: Windows
+      Mac: macOS
+      Lin: Linux
+
+  user_filter:
+    label: User
+    order: 3
+    type: text
+    defaultValue: '*'
+    width: 2
+
+sections:
+  section-summary:
+    title: "Summary"
+    order: 0
+    collapsed: false
+    widgetIds:
+      - chart-gauge
+      - widget-params
+      - widget-note
+      - kpi-total
+      - kpi-critical
+      - kpi-hosts
+      - kpi-users
+      - chart-severity
+      - chart-platform
+      - chart-tactic
+      - chart-timeline
+      - table-detail
+
+widgets:
+
+  # ─── Parameter Panel ─────────────────────────────────────────────────────────
+  widget-params:
+    type: parameterPanel
+    title: ''
+    x: 0
+    y: 0
+    width: 7
+    height: 2
+    parameterIds:
+      - plat_filter
+      - sev_filter
+      - user_filter
+
+  # ─── Documentation Note ──────────────────────────────────────────────────────
+  widget-note:
+    type: note
+    title: ''
+    x: 7
+    y: 0
+    width: 5
+    height: 15
+    text: |
+      ```
+      CQL Demo — Synthetic Threat Detection Dashboard
+      Version: 1.0.0  |  Data: createEvents() synthetic
+      ```
+
+      ## About This Dashboard
+
+      **Zero dependencies** — all 20 detection events are generated
+      inline via `createEvents()`. No repository, no CSV, no ingest needed.
+
+      ## CQL Patterns Demonstrated
+
+      | Widget | Key Pattern |
+      |--------|------------|
+      | Total / Critical KPIs | `count()`, severity filter |
+      | Hosts / Users KPIs | `count(distinct=true)` |
+      | Severity Bar | `groupBy()` + `case{}` sort key |
+      | Platform Pie | `groupBy()` + named series colors |
+      | Tactic Bar | `groupBy()` + `sort(_count, desc)` |
+      | Timeline | `timeChart()` + `findTimestamp()` |
+      | Detail Table | `select()` + severity emoji via `case{}` |
+
+      ## Filters
+      - **Severity / Platform** — `list` param → `wildcard(includeEverythingOnAsterisk=true)`
+      - **User** — `text` param → `wildcard(ignoreCase=true)`
+
+      ## Time Range Note
+      Set to **Last 60 days** — synthetic timestamps are fixed
+      in May 2025. `createEvents()` ignores repo time range,
+      but `timeChart()` buckets on `@timestamp`.
+
+      ## Promoting to Production
+      Replace `createEvents([...]) | kvParse() | findTimestamp(field=ts)`
+      with your real `#repo` and tag filters.
+
+  # ─── KPI: Total Detections ───────────────────────────────────────────────────
+  kpi-total:
+    type: query
+    title: "Total Detections"
+    description: "All detections matching active filters"
+    x: 0
+    y: 2
+    width: 2
+    height: 3
+    visualization: single-value
+    isLive: false
+    start: 60d
+    queryString: |
+      createEvents([
+        "id=DET-001,host=ws-alpha,sev=Critical,tactic=Execution,tech=PowerShell,plat=Win,user=alice,file=powershell.exe,ts=1745395200",
+        "id=DET-002,host=ws-beta,sev=High,tactic=Persistence,tech=RegistryRun,plat=Win,user=bob,file=reg.exe,ts=1745481600",
+        "id=DET-003,host=mac-gamma,sev=Medium,tactic=Discovery,tech=SystemInfo,plat=Mac,user=carol,file=system_profiler,ts=1745568000",
+        "id=DET-004,host=lnx-delta,sev=Low,tactic=Collection,tech=DataStaged,plat=Lin,user=dave,file=tar,ts=1745654400",
+        "id=DET-005,host=ws-alpha,sev=Critical,tactic=CredentialAccess,tech=LSASSDump,plat=Win,user=alice,file=lsass.exe,ts=1745740800",
+        "id=DET-006,host=ws-epsilon,sev=High,tactic=LateralMovement,tech=PSExec,plat=Win,user=eve,file=psexec.exe,ts=1745827200",
+        "id=DET-007,host=mac-zeta,sev=Medium,tactic=DefenseEvasion,tech=ScriptProxy,plat=Mac,user=frank,file=osascript,ts=1745913600",
+        "id=DET-008,host=ws-beta,sev=Critical,tactic=Exfiltration,tech=DataCompressed,plat=Win,user=bob,file=7z.exe,ts=1746000000",
+        "id=DET-009,host=lnx-eta,sev=High,tactic=Impact,tech=DataEncrypted,plat=Lin,user=grace,file=openssl,ts=1746086400",
+        "id=DET-010,host=ws-theta,sev=Medium,tactic=Execution,tech=WMI,plat=Win,user=heidi,file=wmic.exe,ts=1746172800",
+        "id=DET-011,host=ws-alpha,sev=Low,tactic=Reconnaissance,tech=NetworkScan,plat=Win,user=alice,file=nmap.exe,ts=1746259200",
+        "id=DET-012,host=mac-gamma,sev=Critical,tactic=InitialAccess,tech=PhishingMacro,plat=Mac,user=carol,file=winword.exe,ts=1746345600",
+        "id=DET-013,host=ws-iota,sev=High,tactic=Execution,tech=Cscript,plat=Win,user=ivan,file=cscript.exe,ts=1746432000",
+        "id=DET-014,host=lnx-delta,sev=Medium,tactic=Persistence,tech=Cron,plat=Lin,user=dave,file=crontab,ts=1746518400",
+        "id=DET-015,host=ws-kappa,sev=Low,tactic=Discovery,tech=FileEnum,plat=Win,user=judy,file=cmd.exe,ts=1746604800",
+        "id=DET-016,host=ws-beta,sev=High,tactic=Execution,tech=RunDLL32,plat=Win,user=bob,file=rundll32.exe,ts=1746691200",
+        "id=DET-017,host=mac-zeta,sev=Low,tactic=Reconnaissance,tech=Whois,plat=Mac,user=frank,file=whois,ts=1746777600",
+        "id=DET-018,host=lnx-eta,sev=Critical,tactic=CredentialAccess,tech=BruteForce,plat=Lin,user=grace,file=hydra,ts=1746864000",
+        "id=DET-019,host=ws-theta,sev=High,tactic=DefenseEvasion,tech=ProcessHollow,plat=Win,user=heidi,file=svchost.exe,ts=1746950400",
+        "id=DET-020,host=ws-alpha,sev=Medium,tactic=Collection,tech=Keylogger,plat=Win,user=alice,file=explorer.exe,ts=1747036800"
+      ])
+      | kvParse()
+      | findTimestamp(field=ts)
+      // Dashboard filters — wildcard passes all when default='*'
+      | wildcard(field=sev, pattern=?sev_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=plat, pattern=?plat_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=user, pattern=?user_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | count(as=Total)
+      | Total := format("%,.0f", field=Total)
+    options:
+      default: {}
+
+  # ─── KPI: Critical Detections ────────────────────────────────────────────────
+  kpi-critical:
+    type: query
+    title: "Critical Detections"
+    description: "Detections at Critical severity only"
+    x: 2
+    y: 2
+    width: 2
+    height: 3
+    visualization: single-value
+    isLive: false
+    start: 60d
+    queryString: |
+      createEvents([
+        "id=DET-001,host=ws-alpha,sev=Critical,tactic=Execution,tech=PowerShell,plat=Win,user=alice,file=powershell.exe,ts=1745395200",
+        "id=DET-002,host=ws-beta,sev=High,tactic=Persistence,tech=RegistryRun,plat=Win,user=bob,file=reg.exe,ts=1745481600",
+        "id=DET-003,host=mac-gamma,sev=Medium,tactic=Discovery,tech=SystemInfo,plat=Mac,user=carol,file=system_profiler,ts=1745568000",
+        "id=DET-004,host=lnx-delta,sev=Low,tactic=Collection,tech=DataStaged,plat=Lin,user=dave,file=tar,ts=1745654400",
+        "id=DET-005,host=ws-alpha,sev=Critical,tactic=CredentialAccess,tech=LSASSDump,plat=Win,user=alice,file=lsass.exe,ts=1745740800",
+        "id=DET-006,host=ws-epsilon,sev=High,tactic=LateralMovement,tech=PSExec,plat=Win,user=eve,file=psexec.exe,ts=1745827200",
+        "id=DET-007,host=mac-zeta,sev=Medium,tactic=DefenseEvasion,tech=ScriptProxy,plat=Mac,user=frank,file=osascript,ts=1745913600",
+        "id=DET-008,host=ws-beta,sev=Critical,tactic=Exfiltration,tech=DataCompressed,plat=Win,user=bob,file=7z.exe,ts=1746000000",
+        "id=DET-009,host=lnx-eta,sev=High,tactic=Impact,tech=DataEncrypted,plat=Lin,user=grace,file=openssl,ts=1746086400",
+        "id=DET-010,host=ws-theta,sev=Medium,tactic=Execution,tech=WMI,plat=Win,user=heidi,file=wmic.exe,ts=1746172800",
+        "id=DET-011,host=ws-alpha,sev=Low,tactic=Reconnaissance,tech=NetworkScan,plat=Win,user=alice,file=nmap.exe,ts=1746259200",
+        "id=DET-012,host=mac-gamma,sev=Critical,tactic=InitialAccess,tech=PhishingMacro,plat=Mac,user=carol,file=winword.exe,ts=1746345600",
+        "id=DET-013,host=ws-iota,sev=High,tactic=Execution,tech=Cscript,plat=Win,user=ivan,file=cscript.exe,ts=1746432000",
+        "id=DET-014,host=lnx-delta,sev=Medium,tactic=Persistence,tech=Cron,plat=Lin,user=dave,file=crontab,ts=1746518400",
+        "id=DET-015,host=ws-kappa,sev=Low,tactic=Discovery,tech=FileEnum,plat=Win,user=judy,file=cmd.exe,ts=1746604800",
+        "id=DET-016,host=ws-beta,sev=High,tactic=Execution,tech=RunDLL32,plat=Win,user=bob,file=rundll32.exe,ts=1746691200",
+        "id=DET-017,host=mac-zeta,sev=Low,tactic=Reconnaissance,tech=Whois,plat=Mac,user=frank,file=whois,ts=1746777600",
+        "id=DET-018,host=lnx-eta,sev=Critical,tactic=CredentialAccess,tech=BruteForce,plat=Lin,user=grace,file=hydra,ts=1746864000",
+        "id=DET-019,host=ws-theta,sev=High,tactic=DefenseEvasion,tech=ProcessHollow,plat=Win,user=heidi,file=svchost.exe,ts=1746950400",
+        "id=DET-020,host=ws-alpha,sev=Medium,tactic=Collection,tech=Keylogger,plat=Win,user=alice,file=explorer.exe,ts=1747036800"
+      ])
+      | kvParse()
+      | findTimestamp(field=ts)
+      | wildcard(field=plat, pattern=?plat_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=user, pattern=?user_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | sev = "Critical"
+      | count(as=Critical)
+      | Critical := format("%,.0f", field=Critical)
+    options:
+      background-color: '#DB2D24'
+      default: {}
+
+  # ─── KPI: Unique Hosts ───────────────────────────────────────────────────────
+  kpi-hosts:
+    type: query
+    title: "Hosts Affected"
+    description: "Distinct hosts with at least one detection"
+    x: 4
+    y: 2
+    width: 2
+    height: 3
+    visualization: single-value
+    isLive: false
+    start: 60d
+    queryString: |
+      createEvents([
+        "id=DET-001,host=ws-alpha,sev=Critical,tactic=Execution,tech=PowerShell,plat=Win,user=alice,file=powershell.exe,ts=1745395200",
+        "id=DET-002,host=ws-beta,sev=High,tactic=Persistence,tech=RegistryRun,plat=Win,user=bob,file=reg.exe,ts=1745481600",
+        "id=DET-003,host=mac-gamma,sev=Medium,tactic=Discovery,tech=SystemInfo,plat=Mac,user=carol,file=system_profiler,ts=1745568000",
+        "id=DET-004,host=lnx-delta,sev=Low,tactic=Collection,tech=DataStaged,plat=Lin,user=dave,file=tar,ts=1745654400",
+        "id=DET-005,host=ws-alpha,sev=Critical,tactic=CredentialAccess,tech=LSASSDump,plat=Win,user=alice,file=lsass.exe,ts=1745740800",
+        "id=DET-006,host=ws-epsilon,sev=High,tactic=LateralMovement,tech=PSExec,plat=Win,user=eve,file=psexec.exe,ts=1745827200",
+        "id=DET-007,host=mac-zeta,sev=Medium,tactic=DefenseEvasion,tech=ScriptProxy,plat=Mac,user=frank,file=osascript,ts=1745913600",
+        "id=DET-008,host=ws-beta,sev=Critical,tactic=Exfiltration,tech=DataCompressed,plat=Win,user=bob,file=7z.exe,ts=1746000000",
+        "id=DET-009,host=lnx-eta,sev=High,tactic=Impact,tech=DataEncrypted,plat=Lin,user=grace,file=openssl,ts=1746086400",
+        "id=DET-010,host=ws-theta,sev=Medium,tactic=Execution,tech=WMI,plat=Win,user=heidi,file=wmic.exe,ts=1746172800",
+        "id=DET-011,host=ws-alpha,sev=Low,tactic=Reconnaissance,tech=NetworkScan,plat=Win,user=alice,file=nmap.exe,ts=1746259200",
+        "id=DET-012,host=mac-gamma,sev=Critical,tactic=InitialAccess,tech=PhishingMacro,plat=Mac,user=carol,file=winword.exe,ts=1746345600",
+        "id=DET-013,host=ws-iota,sev=High,tactic=Execution,tech=Cscript,plat=Win,user=ivan,file=cscript.exe,ts=1746432000",
+        "id=DET-014,host=lnx-delta,sev=Medium,tactic=Persistence,tech=Cron,plat=Lin,user=dave,file=crontab,ts=1746518400",
+        "id=DET-015,host=ws-kappa,sev=Low,tactic=Discovery,tech=FileEnum,plat=Win,user=judy,file=cmd.exe,ts=1746604800",
+        "id=DET-016,host=ws-beta,sev=High,tactic=Execution,tech=RunDLL32,plat=Win,user=bob,file=rundll32.exe,ts=1746691200",
+        "id=DET-017,host=mac-zeta,sev=Low,tactic=Reconnaissance,tech=Whois,plat=Mac,user=frank,file=whois,ts=1746777600",
+        "id=DET-018,host=lnx-eta,sev=Critical,tactic=CredentialAccess,tech=BruteForce,plat=Lin,user=grace,file=hydra,ts=1746864000",
+        "id=DET-019,host=ws-theta,sev=High,tactic=DefenseEvasion,tech=ProcessHollow,plat=Win,user=heidi,file=svchost.exe,ts=1746950400",
+        "id=DET-020,host=ws-alpha,sev=Medium,tactic=Collection,tech=Keylogger,plat=Win,user=alice,file=explorer.exe,ts=1747036800"
+      ])
+      | kvParse()
+      | findTimestamp(field=ts)
+      | wildcard(field=sev, pattern=?sev_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=plat, pattern=?plat_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=user, pattern=?user_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | count(host, distinct=true, as=Hosts)
+    options:
+      background-color: '#0b6c84'
+      default: {}
+
+  # ─── KPI: Unique Users ───────────────────────────────────────────────────────
+  kpi-users:
+    type: query
+    title: "Users Involved"
+    description: "Distinct users across filtered detections"
+    x: 6
+    y: 2
+    width: 1
+    height: 3
+    visualization: single-value
+    isLive: false
+    start: 60d
+    queryString: |
+      createEvents([
+        "id=DET-001,host=ws-alpha,sev=Critical,tactic=Execution,tech=PowerShell,plat=Win,user=alice,file=powershell.exe,ts=1745395200",
+        "id=DET-002,host=ws-beta,sev=High,tactic=Persistence,tech=RegistryRun,plat=Win,user=bob,file=reg.exe,ts=1745481600",
+        "id=DET-003,host=mac-gamma,sev=Medium,tactic=Discovery,tech=SystemInfo,plat=Mac,user=carol,file=system_profiler,ts=1745568000",
+        "id=DET-004,host=lnx-delta,sev=Low,tactic=Collection,tech=DataStaged,plat=Lin,user=dave,file=tar,ts=1745654400",
+        "id=DET-005,host=ws-alpha,sev=Critical,tactic=CredentialAccess,tech=LSASSDump,plat=Win,user=alice,file=lsass.exe,ts=1745740800",
+        "id=DET-006,host=ws-epsilon,sev=High,tactic=LateralMovement,tech=PSExec,plat=Win,user=eve,file=psexec.exe,ts=1745827200",
+        "id=DET-007,host=mac-zeta,sev=Medium,tactic=DefenseEvasion,tech=ScriptProxy,plat=Mac,user=frank,file=osascript,ts=1745913600",
+        "id=DET-008,host=ws-beta,sev=Critical,tactic=Exfiltration,tech=DataCompressed,plat=Win,user=bob,file=7z.exe,ts=1746000000",
+        "id=DET-009,host=lnx-eta,sev=High,tactic=Impact,tech=DataEncrypted,plat=Lin,user=grace,file=openssl,ts=1746086400",
+        "id=DET-010,host=ws-theta,sev=Medium,tactic=Execution,tech=WMI,plat=Win,user=heidi,file=wmic.exe,ts=1746172800",
+        "id=DET-011,host=ws-alpha,sev=Low,tactic=Reconnaissance,tech=NetworkScan,plat=Win,user=alice,file=nmap.exe,ts=1746259200",
+        "id=DET-012,host=mac-gamma,sev=Critical,tactic=InitialAccess,tech=PhishingMacro,plat=Mac,user=carol,file=winword.exe,ts=1746345600",
+        "id=DET-013,host=ws-iota,sev=High,tactic=Execution,tech=Cscript,plat=Win,user=ivan,file=cscript.exe,ts=1746432000",
+        "id=DET-014,host=lnx-delta,sev=Medium,tactic=Persistence,tech=Cron,plat=Lin,user=dave,file=crontab,ts=1746518400",
+        "id=DET-015,host=ws-kappa,sev=Low,tactic=Discovery,tech=FileEnum,plat=Win,user=judy,file=cmd.exe,ts=1746604800",
+        "id=DET-016,host=ws-beta,sev=High,tactic=Execution,tech=RunDLL32,plat=Win,user=bob,file=rundll32.exe,ts=1746691200",
+        "id=DET-017,host=mac-zeta,sev=Low,tactic=Reconnaissance,tech=Whois,plat=Mac,user=frank,file=whois,ts=1746777600",
+        "id=DET-018,host=lnx-eta,sev=Critical,tactic=CredentialAccess,tech=BruteForce,plat=Lin,user=grace,file=hydra,ts=1746864000",
+        "id=DET-019,host=ws-theta,sev=High,tactic=DefenseEvasion,tech=ProcessHollow,plat=Win,user=heidi,file=svchost.exe,ts=1746950400",
+        "id=DET-020,host=ws-alpha,sev=Medium,tactic=Collection,tech=Keylogger,plat=Win,user=alice,file=explorer.exe,ts=1747036800"
+      ])
+      | kvParse()
+      | findTimestamp(field=ts)
+      | wildcard(field=sev, pattern=?sev_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=plat, pattern=?plat_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | count(user, distinct=true, as=Users)
+    options:
+      background-color: '#34B248'
+      default: {}
+
+  # ─── Bar Chart: Detections by Severity ───────────────────────────────────────
+  chart-severity:
+    type: query
+    title: "Detections by Severity"
+    description: "Sorted Critical → Low. Filter by Platform or User above."
+    x: 0
+    y: 5
+    width: 4
+    height: 5
+    visualization: bar-chart
+    isLive: false
+    start: 60d
+    queryString: |
+      createEvents([
+        "id=DET-001,host=ws-alpha,sev=Critical,tactic=Execution,tech=PowerShell,plat=Win,user=alice,file=powershell.exe,ts=1745395200",
+        "id=DET-002,host=ws-beta,sev=High,tactic=Persistence,tech=RegistryRun,plat=Win,user=bob,file=reg.exe,ts=1745481600",
+        "id=DET-003,host=mac-gamma,sev=Medium,tactic=Discovery,tech=SystemInfo,plat=Mac,user=carol,file=system_profiler,ts=1745568000",
+        "id=DET-004,host=lnx-delta,sev=Low,tactic=Collection,tech=DataStaged,plat=Lin,user=dave,file=tar,ts=1745654400",
+        "id=DET-005,host=ws-alpha,sev=Critical,tactic=CredentialAccess,tech=LSASSDump,plat=Win,user=alice,file=lsass.exe,ts=1745740800",
+        "id=DET-006,host=ws-epsilon,sev=High,tactic=LateralMovement,tech=PSExec,plat=Win,user=eve,file=psexec.exe,ts=1745827200",
+        "id=DET-007,host=mac-zeta,sev=Medium,tactic=DefenseEvasion,tech=ScriptProxy,plat=Mac,user=frank,file=osascript,ts=1745913600",
+        "id=DET-008,host=ws-beta,sev=Critical,tactic=Exfiltration,tech=DataCompressed,plat=Win,user=bob,file=7z.exe,ts=1746000000",
+        "id=DET-009,host=lnx-eta,sev=High,tactic=Impact,tech=DataEncrypted,plat=Lin,user=grace,file=openssl,ts=1746086400",
+        "id=DET-010,host=ws-theta,sev=Medium,tactic=Execution,tech=WMI,plat=Win,user=heidi,file=wmic.exe,ts=1746172800",
+        "id=DET-011,host=ws-alpha,sev=Low,tactic=Reconnaissance,tech=NetworkScan,plat=Win,user=alice,file=nmap.exe,ts=1746259200",
+        "id=DET-012,host=mac-gamma,sev=Critical,tactic=InitialAccess,tech=PhishingMacro,plat=Mac,user=carol,file=winword.exe,ts=1746345600",
+        "id=DET-013,host=ws-iota,sev=High,tactic=Execution,tech=Cscript,plat=Win,user=ivan,file=cscript.exe,ts=1746432000",
+        "id=DET-014,host=lnx-delta,sev=Medium,tactic=Persistence,tech=Cron,plat=Lin,user=dave,file=crontab,ts=1746518400",
+        "id=DET-015,host=ws-kappa,sev=Low,tactic=Discovery,tech=FileEnum,plat=Win,user=judy,file=cmd.exe,ts=1746604800",
+        "id=DET-016,host=ws-beta,sev=High,tactic=Execution,tech=RunDLL32,plat=Win,user=bob,file=rundll32.exe,ts=1746691200",
+        "id=DET-017,host=mac-zeta,sev=Low,tactic=Reconnaissance,tech=Whois,plat=Mac,user=frank,file=whois,ts=1746777600",
+        "id=DET-018,host=lnx-eta,sev=Critical,tactic=CredentialAccess,tech=BruteForce,plat=Lin,user=grace,file=hydra,ts=1746864000",
+        "id=DET-019,host=ws-theta,sev=High,tactic=DefenseEvasion,tech=ProcessHollow,plat=Win,user=heidi,file=svchost.exe,ts=1746950400",
+        "id=DET-020,host=ws-alpha,sev=Medium,tactic=Collection,tech=Keylogger,plat=Win,user=alice,file=explorer.exe,ts=1747036800"
+      ])
+      | kvParse()
+      | findTimestamp(field=ts)
+      | wildcard(field=plat, pattern=?plat_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=user, pattern=?user_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | groupBy([sev], function=count(as=Count), limit=max)
+      // Assign sort key so bar order is Critical > High > Medium > Low
+      | case {
+          sev = "Critical" | _ord := 1;
+          sev = "High"     | _ord := 2;
+          sev = "Medium"   | _ord := 3;
+          sev = "Low"      | _ord := 4;
+          *                | _ord := 5;
+        }
+      | sort(_ord, order=asc)
+      | drop(_ord)
+    options:
+      barChartOrientation: horizontal
+      valuesOnBars: true
+      labelLimit: 100
+      series:
+        Critical:
+          color: '#DB2D24'
+        High:
+          color: '#F49125'
+        Medium:
+          color: '#FFC107'
+        Low:
+          color: '#34B248'
+
+  # ─── Pie Chart: Platform Distribution ────────────────────────────────────────
+  chart-platform:
+    type: query
+    title: "Platform Distribution"
+    description: "Breakdown of detections by OS platform"
+    x: 4
+    y: 5
+    width: 3
+    height: 5
+    visualization: pie-chart
+    isLive: false
+    start: 60d
+    queryString: |
+      createEvents([
+        "id=DET-001,host=ws-alpha,sev=Critical,tactic=Execution,tech=PowerShell,plat=Win,user=alice,file=powershell.exe,ts=1745395200",
+        "id=DET-002,host=ws-beta,sev=High,tactic=Persistence,tech=RegistryRun,plat=Win,user=bob,file=reg.exe,ts=1745481600",
+        "id=DET-003,host=mac-gamma,sev=Medium,tactic=Discovery,tech=SystemInfo,plat=Mac,user=carol,file=system_profiler,ts=1745568000",
+        "id=DET-004,host=lnx-delta,sev=Low,tactic=Collection,tech=DataStaged,plat=Lin,user=dave,file=tar,ts=1745654400",
+        "id=DET-005,host=ws-alpha,sev=Critical,tactic=CredentialAccess,tech=LSASSDump,plat=Win,user=alice,file=lsass.exe,ts=1745740800",
+        "id=DET-006,host=ws-epsilon,sev=High,tactic=LateralMovement,tech=PSExec,plat=Win,user=eve,file=psexec.exe,ts=1745827200",
+        "id=DET-007,host=mac-zeta,sev=Medium,tactic=DefenseEvasion,tech=ScriptProxy,plat=Mac,user=frank,file=osascript,ts=1745913600",
+        "id=DET-008,host=ws-beta,sev=Critical,tactic=Exfiltration,tech=DataCompressed,plat=Win,user=bob,file=7z.exe,ts=1746000000",
+        "id=DET-009,host=lnx-eta,sev=High,tactic=Impact,tech=DataEncrypted,plat=Lin,user=grace,file=openssl,ts=1746086400",
+        "id=DET-010,host=ws-theta,sev=Medium,tactic=Execution,tech=WMI,plat=Win,user=heidi,file=wmic.exe,ts=1746172800",
+        "id=DET-011,host=ws-alpha,sev=Low,tactic=Reconnaissance,tech=NetworkScan,plat=Win,user=alice,file=nmap.exe,ts=1746259200",
+        "id=DET-012,host=mac-gamma,sev=Critical,tactic=InitialAccess,tech=PhishingMacro,plat=Mac,user=carol,file=winword.exe,ts=1746345600",
+        "id=DET-013,host=ws-iota,sev=High,tactic=Execution,tech=Cscript,plat=Win,user=ivan,file=cscript.exe,ts=1746432000",
+        "id=DET-014,host=lnx-delta,sev=Medium,tactic=Persistence,tech=Cron,plat=Lin,user=dave,file=crontab,ts=1746518400",
+        "id=DET-015,host=ws-kappa,sev=Low,tactic=Discovery,tech=FileEnum,plat=Win,user=judy,file=cmd.exe,ts=1746604800",
+        "id=DET-016,host=ws-beta,sev=High,tactic=Execution,tech=RunDLL32,plat=Win,user=bob,file=rundll32.exe,ts=1746691200",
+        "id=DET-017,host=mac-zeta,sev=Low,tactic=Reconnaissance,tech=Whois,plat=Mac,user=frank,file=whois,ts=1746777600",
+        "id=DET-018,host=lnx-eta,sev=Critical,tactic=CredentialAccess,tech=BruteForce,plat=Lin,user=grace,file=hydra,ts=1746864000",
+        "id=DET-019,host=ws-theta,sev=High,tactic=DefenseEvasion,tech=ProcessHollow,plat=Win,user=heidi,file=svchost.exe,ts=1746950400",
+        "id=DET-020,host=ws-alpha,sev=Medium,tactic=Collection,tech=Keylogger,plat=Win,user=alice,file=explorer.exe,ts=1747036800"
+      ])
+      | kvParse()
+      | findTimestamp(field=ts)
+      | wildcard(field=sev, pattern=?sev_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=user, pattern=?user_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | groupBy([plat], function=count(as=Count), limit=max)
+    options:
+      innerRadius: 0.4
+      legendTitle: Platform
+      series:
+        Win:
+          color: '#0073E6'
+        Mac:
+          color: '#9B59B6'
+        Lin:
+          color: '#F49125'
+        _count:
+          title: Detections
+
+  # ─── Bar Chart: Top Tactics ───────────────────────────────────────────────────
+  chart-tactic:
+    type: query
+    title: "Top MITRE Tactics"
+    description: "Detection count by ATT&CK tactic — sorted by frequency"
+    x: 0
+    y: 10
+    width: 4
+    height: 5
+    visualization: bar-chart
+    isLive: false
+    start: 60d
+    queryString: |
+      createEvents([
+        "id=DET-001,host=ws-alpha,sev=Critical,tactic=Execution,tech=PowerShell,plat=Win,user=alice,file=powershell.exe,ts=1745395200",
+        "id=DET-002,host=ws-beta,sev=High,tactic=Persistence,tech=RegistryRun,plat=Win,user=bob,file=reg.exe,ts=1745481600",
+        "id=DET-003,host=mac-gamma,sev=Medium,tactic=Discovery,tech=SystemInfo,plat=Mac,user=carol,file=system_profiler,ts=1745568000",
+        "id=DET-004,host=lnx-delta,sev=Low,tactic=Collection,tech=DataStaged,plat=Lin,user=dave,file=tar,ts=1745654400",
+        "id=DET-005,host=ws-alpha,sev=Critical,tactic=CredentialAccess,tech=LSASSDump,plat=Win,user=alice,file=lsass.exe,ts=1745740800",
+        "id=DET-006,host=ws-epsilon,sev=High,tactic=LateralMovement,tech=PSExec,plat=Win,user=eve,file=psexec.exe,ts=1745827200",
+        "id=DET-007,host=mac-zeta,sev=Medium,tactic=DefenseEvasion,tech=ScriptProxy,plat=Mac,user=frank,file=osascript,ts=1745913600",
+        "id=DET-008,host=ws-beta,sev=Critical,tactic=Exfiltration,tech=DataCompressed,plat=Win,user=bob,file=7z.exe,ts=1746000000",
+        "id=DET-009,host=lnx-eta,sev=High,tactic=Impact,tech=DataEncrypted,plat=Lin,user=grace,file=openssl,ts=1746086400",
+        "id=DET-010,host=ws-theta,sev=Medium,tactic=Execution,tech=WMI,plat=Win,user=heidi,file=wmic.exe,ts=1746172800",
+        "id=DET-011,host=ws-alpha,sev=Low,tactic=Reconnaissance,tech=NetworkScan,plat=Win,user=alice,file=nmap.exe,ts=1746259200",
+        "id=DET-012,host=mac-gamma,sev=Critical,tactic=InitialAccess,tech=PhishingMacro,plat=Mac,user=carol,file=winword.exe,ts=1746345600",
+        "id=DET-013,host=ws-iota,sev=High,tactic=Execution,tech=Cscript,plat=Win,user=ivan,file=cscript.exe,ts=1746432000",
+        "id=DET-014,host=lnx-delta,sev=Medium,tactic=Persistence,tech=Cron,plat=Lin,user=dave,file=crontab,ts=1746518400",
+        "id=DET-015,host=ws-kappa,sev=Low,tactic=Discovery,tech=FileEnum,plat=Win,user=judy,file=cmd.exe,ts=1746604800",
+        "id=DET-016,host=ws-beta,sev=High,tactic=Execution,tech=RunDLL32,plat=Win,user=bob,file=rundll32.exe,ts=1746691200",
+        "id=DET-017,host=mac-zeta,sev=Low,tactic=Reconnaissance,tech=Whois,plat=Mac,user=frank,file=whois,ts=1746777600",
+        "id=DET-018,host=lnx-eta,sev=Critical,tactic=CredentialAccess,tech=BruteForce,plat=Lin,user=grace,file=hydra,ts=1746864000",
+        "id=DET-019,host=ws-theta,sev=High,tactic=DefenseEvasion,tech=ProcessHollow,plat=Win,user=heidi,file=svchost.exe,ts=1746950400",
+        "id=DET-020,host=ws-alpha,sev=Medium,tactic=Collection,tech=Keylogger,plat=Win,user=alice,file=explorer.exe,ts=1747036800"
+      ])
+      | kvParse()
+      | findTimestamp(field=ts)
+      | wildcard(field=sev, pattern=?sev_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=plat, pattern=?plat_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=user, pattern=?user_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | groupBy([tactic], function=count(as=Count), limit=max)
+      | sort(Count, order=desc)
+    options:
+      barChartOrientation: horizontal
+      valuesOnBars: true
+      labelLimit: 200
+
+  # ─── Gauge: Critical Ratio ───────────────────────────────────────────────────
+  chart-gauge:
+    type: query
+    title: "Critical Severity Ratio"
+    description: "Percentage of detections that are Critical severity"
+    x: 4
+    y: 10
+    width: 3
+    height: 5
+    visualization: gauge
+    isLive: false
+    start: 60d
+    queryString: |
+      createEvents([
+        "id=DET-001,host=ws-alpha,sev=Critical,tactic=Execution,tech=PowerShell,plat=Win,user=alice,file=powershell.exe,ts=1745395200",
+        "id=DET-002,host=ws-beta,sev=High,tactic=Persistence,tech=RegistryRun,plat=Win,user=bob,file=reg.exe,ts=1745481600",
+        "id=DET-003,host=mac-gamma,sev=Medium,tactic=Discovery,tech=SystemInfo,plat=Mac,user=carol,file=system_profiler,ts=1745568000",
+        "id=DET-004,host=lnx-delta,sev=Low,tactic=Collection,tech=DataStaged,plat=Lin,user=dave,file=tar,ts=1745654400",
+        "id=DET-005,host=ws-alpha,sev=Critical,tactic=CredentialAccess,tech=LSASSDump,plat=Win,user=alice,file=lsass.exe,ts=1745740800",
+        "id=DET-006,host=ws-epsilon,sev=High,tactic=LateralMovement,tech=PSExec,plat=Win,user=eve,file=psexec.exe,ts=1745827200",
+        "id=DET-007,host=mac-zeta,sev=Medium,tactic=DefenseEvasion,tech=ScriptProxy,plat=Mac,user=frank,file=osascript,ts=1745913600",
+        "id=DET-008,host=ws-beta,sev=Critical,tactic=Exfiltration,tech=DataCompressed,plat=Win,user=bob,file=7z.exe,ts=1746000000",
+        "id=DET-009,host=lnx-eta,sev=High,tactic=Impact,tech=DataEncrypted,plat=Lin,user=grace,file=openssl,ts=1746086400",
+        "id=DET-010,host=ws-theta,sev=Medium,tactic=Execution,tech=WMI,plat=Win,user=heidi,file=wmic.exe,ts=1746172800",
+        "id=DET-011,host=ws-alpha,sev=Low,tactic=Reconnaissance,tech=NetworkScan,plat=Win,user=alice,file=nmap.exe,ts=1746259200",
+        "id=DET-012,host=mac-gamma,sev=Critical,tactic=InitialAccess,tech=PhishingMacro,plat=Mac,user=carol,file=winword.exe,ts=1746345600",
+        "id=DET-013,host=ws-iota,sev=High,tactic=Execution,tech=Cscript,plat=Win,user=ivan,file=cscript.exe,ts=1746432000",
+        "id=DET-014,host=lnx-delta,sev=Medium,tactic=Persistence,tech=Cron,plat=Lin,user=dave,file=crontab,ts=1746518400",
+        "id=DET-015,host=ws-kappa,sev=Low,tactic=Discovery,tech=FileEnum,plat=Win,user=judy,file=cmd.exe,ts=1746604800",
+        "id=DET-016,host=ws-beta,sev=High,tactic=Execution,tech=RunDLL32,plat=Win,user=bob,file=rundll32.exe,ts=1746691200",
+        "id=DET-017,host=mac-zeta,sev=Low,tactic=Reconnaissance,tech=Whois,plat=Mac,user=frank,file=whois,ts=1746777600",
+        "id=DET-018,host=lnx-eta,sev=Critical,tactic=CredentialAccess,tech=BruteForce,plat=Lin,user=grace,file=hydra,ts=1746864000",
+        "id=DET-019,host=ws-theta,sev=High,tactic=DefenseEvasion,tech=ProcessHollow,plat=Win,user=heidi,file=svchost.exe,ts=1746950400",
+        "id=DET-020,host=ws-alpha,sev=Medium,tactic=Collection,tech=Keylogger,plat=Win,user=alice,file=explorer.exe,ts=1747036800"
+      ])
+      | kvParse()
+      | findTimestamp(field=ts)
+      | wildcard(field=plat, pattern=?plat_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=user, pattern=?user_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | stats([
+          count(as=total),
+          { sev = "Critical" | count(as=critical_n) }
+        ])
+      | default(value=0, field=[critical_n])
+      | "Critical %" := (critical_n / total) * 100
+      | drop([total, critical_n])
+    options:
+      gaugeType: radialNeedle
+      minVal: 0
+      maxVal: 100
+      thresholdConfig:
+        thresholds:
+          - { value: 0,  color: '#34B248' }
+          - { value: 20, color: '#FFC107' }
+          - { value: 35, color: '#F49125' }
+          - { value: 50, color: '#DB2D24' }
+
+  # ─── Time Chart: Detections Over Time ────────────────────────────────────────
+  chart-timeline:
+    type: query
+    title: "Detection Timeline (by Severity)"
+    description: "Events are always relative to now() — doff=days ago. Window: last 30d."
+    x: 0
+    y: 15
+    width: 12
+    height: 5
+    visualization: time-chart
+    isLive: false
+    start: 30d
+    queryString: |
+      createEvents([
+        "id=DET-001,host=ws-alpha,sev=Critical,tactic=Execution,tech=PowerShell,plat=Win,user=alice,file=powershell.exe,doff=19",
+        "id=DET-002,host=ws-beta,sev=High,tactic=Persistence,tech=RegistryRun,plat=Win,user=bob,file=reg.exe,doff=18",
+        "id=DET-003,host=mac-gamma,sev=Medium,tactic=Discovery,tech=SystemInfo,plat=Mac,user=carol,file=system_profiler,doff=17",
+        "id=DET-004,host=lnx-delta,sev=Low,tactic=Collection,tech=DataStaged,plat=Lin,user=dave,file=tar,doff=16",
+        "id=DET-005,host=ws-alpha,sev=Critical,tactic=CredentialAccess,tech=LSASSDump,plat=Win,user=alice,file=lsass.exe,doff=15",
+        "id=DET-006,host=ws-epsilon,sev=High,tactic=LateralMovement,tech=PSExec,plat=Win,user=eve,file=psexec.exe,doff=14",
+        "id=DET-007,host=mac-zeta,sev=Medium,tactic=DefenseEvasion,tech=ScriptProxy,plat=Mac,user=frank,file=osascript,doff=13",
+        "id=DET-008,host=ws-beta,sev=Critical,tactic=Exfiltration,tech=DataCompressed,plat=Win,user=bob,file=7z.exe,doff=12",
+        "id=DET-009,host=lnx-eta,sev=High,tactic=Impact,tech=DataEncrypted,plat=Lin,user=grace,file=openssl,doff=11",
+        "id=DET-010,host=ws-theta,sev=Medium,tactic=Execution,tech=WMI,plat=Win,user=heidi,file=wmic.exe,doff=10",
+        "id=DET-011,host=ws-alpha,sev=Low,tactic=Reconnaissance,tech=NetworkScan,plat=Win,user=alice,file=nmap.exe,doff=9",
+        "id=DET-012,host=mac-gamma,sev=Critical,tactic=InitialAccess,tech=PhishingMacro,plat=Mac,user=carol,file=winword.exe,doff=8",
+        "id=DET-013,host=ws-iota,sev=High,tactic=Execution,tech=Cscript,plat=Win,user=ivan,file=cscript.exe,doff=7",
+        "id=DET-014,host=lnx-delta,sev=Medium,tactic=Persistence,tech=Cron,plat=Lin,user=dave,file=crontab,doff=6",
+        "id=DET-015,host=ws-kappa,sev=Low,tactic=Discovery,tech=FileEnum,plat=Win,user=judy,file=cmd.exe,doff=5",
+        "id=DET-016,host=ws-beta,sev=High,tactic=Execution,tech=RunDLL32,plat=Win,user=bob,file=rundll32.exe,doff=4",
+        "id=DET-017,host=mac-zeta,sev=Low,tactic=Reconnaissance,tech=Whois,plat=Mac,user=frank,file=whois,doff=3",
+        "id=DET-018,host=lnx-eta,sev=Critical,tactic=CredentialAccess,tech=BruteForce,plat=Lin,user=grace,file=hydra,doff=2",
+        "id=DET-019,host=ws-theta,sev=High,tactic=DefenseEvasion,tech=ProcessHollow,plat=Win,user=heidi,file=svchost.exe,doff=1",
+        "id=DET-020,host=ws-alpha,sev=Medium,tactic=Collection,tech=Keylogger,plat=Win,user=alice,file=explorer.exe,doff=0"
+      ])
+      | kvParse()
+      | @timestamp := now() - (doff * 86400000)
+      | wildcard(field=sev, pattern=?sev_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=plat, pattern=?plat_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=user, pattern=?user_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | timeChart(series=sev, span=2d)
+    options:
+      plotType: area
+      stacking: normal
+      interpolation: monotone
+      lastBucketBehavior: exclude
+      connect-points: false
+      series:
+        Critical:
+          color: '#DB2D24'
+        High:
+          color: '#F49125'
+        Medium:
+          color: '#FFC107'
+        Low:
+          color: '#34B248'
+
+  # ─── Detail Table ─────────────────────────────────────────────────────────────
+  table-detail:
+    type: query
+    title: "Detection Detail"
+    description: "All filtered detections. Emoji icon column = severity. Click rows to filter."
+    x: 0
+    y: 20
+    width: 12
+    height: 8
+    visualization: table-view
+    isLive: false
+    start: 60d
+    queryString: |
+      createEvents([
+        "id=DET-001,host=ws-alpha,sev=Critical,tactic=Execution,tech=PowerShell,plat=Win,user=alice,file=powershell.exe,ts=1745395200",
+        "id=DET-002,host=ws-beta,sev=High,tactic=Persistence,tech=RegistryRun,plat=Win,user=bob,file=reg.exe,ts=1745481600",
+        "id=DET-003,host=mac-gamma,sev=Medium,tactic=Discovery,tech=SystemInfo,plat=Mac,user=carol,file=system_profiler,ts=1745568000",
+        "id=DET-004,host=lnx-delta,sev=Low,tactic=Collection,tech=DataStaged,plat=Lin,user=dave,file=tar,ts=1745654400",
+        "id=DET-005,host=ws-alpha,sev=Critical,tactic=CredentialAccess,tech=LSASSDump,plat=Win,user=alice,file=lsass.exe,ts=1745740800",
+        "id=DET-006,host=ws-epsilon,sev=High,tactic=LateralMovement,tech=PSExec,plat=Win,user=eve,file=psexec.exe,ts=1745827200",
+        "id=DET-007,host=mac-zeta,sev=Medium,tactic=DefenseEvasion,tech=ScriptProxy,plat=Mac,user=frank,file=osascript,ts=1745913600",
+        "id=DET-008,host=ws-beta,sev=Critical,tactic=Exfiltration,tech=DataCompressed,plat=Win,user=bob,file=7z.exe,ts=1746000000",
+        "id=DET-009,host=lnx-eta,sev=High,tactic=Impact,tech=DataEncrypted,plat=Lin,user=grace,file=openssl,ts=1746086400",
+        "id=DET-010,host=ws-theta,sev=Medium,tactic=Execution,tech=WMI,plat=Win,user=heidi,file=wmic.exe,ts=1746172800",
+        "id=DET-011,host=ws-alpha,sev=Low,tactic=Reconnaissance,tech=NetworkScan,plat=Win,user=alice,file=nmap.exe,ts=1746259200",
+        "id=DET-012,host=mac-gamma,sev=Critical,tactic=InitialAccess,tech=PhishingMacro,plat=Mac,user=carol,file=winword.exe,ts=1746345600",
+        "id=DET-013,host=ws-iota,sev=High,tactic=Execution,tech=Cscript,plat=Win,user=ivan,file=cscript.exe,ts=1746432000",
+        "id=DET-014,host=lnx-delta,sev=Medium,tactic=Persistence,tech=Cron,plat=Lin,user=dave,file=crontab,ts=1746518400",
+        "id=DET-015,host=ws-kappa,sev=Low,tactic=Discovery,tech=FileEnum,plat=Win,user=judy,file=cmd.exe,ts=1746604800",
+        "id=DET-016,host=ws-beta,sev=High,tactic=Execution,tech=RunDLL32,plat=Win,user=bob,file=rundll32.exe,ts=1746691200",
+        "id=DET-017,host=mac-zeta,sev=Low,tactic=Reconnaissance,tech=Whois,plat=Mac,user=frank,file=whois,ts=1746777600",
+        "id=DET-018,host=lnx-eta,sev=Critical,tactic=CredentialAccess,tech=BruteForce,plat=Lin,user=grace,file=hydra,ts=1746864000",
+        "id=DET-019,host=ws-theta,sev=High,tactic=DefenseEvasion,tech=ProcessHollow,plat=Win,user=heidi,file=svchost.exe,ts=1746950400",
+        "id=DET-020,host=ws-alpha,sev=Medium,tactic=Collection,tech=Keylogger,plat=Win,user=alice,file=explorer.exe,ts=1747036800"
+      ])
+      | kvParse()
+      | findTimestamp(field=ts)
+      | wildcard(field=sev, pattern=?sev_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=plat, pattern=?plat_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      | wildcard(field=user, pattern=?user_filter, ignoreCase=true, includeEverythingOnAsterisk=true)
+      // Severity emoji icon — narrow indicator column
+      | case {
+          sev = "Critical" | _icon := "🔴";
+          sev = "High"     | _icon := "🟠";
+          sev = "Medium"   | _icon := "🟡";
+          sev = "Low"      | _icon := "🟢";
+          *                | _icon := "⚪";
+        }
+      // Human-readable timestamp
+      | "Detected" := formatTime("%Y-%m-%d %H:%M", field=@timestamp, locale=en_US, timezone=Z)
+      | sort(field=@timestamp, order=desc, limit=max)
+      | select([_icon, id, "Detected", host, user, plat, sev, tactic, tech, file])
+      | rename([[_icon, ""], [id, "ID"], [host, "Host"], [user, "User"],
+                [plat, "Platform"], [sev, "Severity"], [tactic, "Tactic"],
+                [tech, "Technique"], [file, "File"]])
+    options:
+      row-numbers-enabled: true
+      cell-overflow: wrap-text
+      column-overflow: truncate
+      configured-columns:
+        '':
+          width: 40
+        Severity:
+          color:
+            conditions:
+              - color: '#DB2D2444'
+                condition:
+                  type: Equal
+                  arg: Critical
+              - color: '#F4912544'
+                condition:
+                  type: Equal
+                  arg: High
+              - color: '#FFC10744'
+                condition:
+                  type: Equal
+                  arg: Medium
+              - color: '#34B24844'
+                condition:
+                  type: Equal
+                  arg: Low
+    interactions:
+      - name: Filter by Severity
+        titleTemplate: '▽ Filter to "{{ fields["Severity"] }}" severity'
+        type: updateparameters
+        useWidgetTimeWindow: false
+        arguments:
+          sev_filter: '["{{ fields["Severity"] }}"]'
+      - name: Filter by Platform
+        titleTemplate: '▽ Filter to "{{ fields["Platform"] }}" platform'
+        type: updateparameters
+        useWidgetTimeWindow: false
+        arguments:
+          plat_filter: '["{{ fields["Platform"] }}"]'
+      - name: Filter by User
+        titleTemplate: '▽ Filter to user "{{ fields["User"] }}"'
+        type: updateparameters
+        useWidgetTimeWindow: false
+        arguments:
+          user_filter: '["{{ fields["User"] }}"]'
+      - name: Reset all filters
+        titleTemplate: '↻ Reset all filters'
+        type: updateparameters
+        useWidgetTimeWindow: false
+        arguments:
+          sev_filter:  '["*"]'
+          plat_filter: '["*"]'
+          user_filter: '["*"]'

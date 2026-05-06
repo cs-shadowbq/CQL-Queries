@@ -154,6 +154,23 @@ if fieldName value is equal to regex (AND n more matches) then do X (often assig
 | default(field=behaviorWeight, value=1)
 ```
 
+### enrichment via case range with colored circle indicator
+
+Assign a colored circle emoji based on a numeric score range. The `case {}` branches are evaluated in order, so `< 25` is checked before `< 50`, etc. The symbol column is renamed to `""` to create a narrow icon-only column with no header.
+
+```f#
+| case {
+    _maxScore < 25  | _symbol := "🟢";
+    _maxScore < 50  | _symbol := "🟡";
+    _maxScore < 75  | _symbol := "🟠";
+    _maxScore >= 75 | _symbol := "🔴";
+  }
+| table([_symbol, Name, _maxScore], limit=max)
+| rename([[_symbol, ""], [_maxScore, Score]])
+```
+
+> **Source:** `dashboards/CrowdStrikeFalcon-AutomatedLeadsSummary.yaml` — used to visualize threat signal scores in a table with an at-a-glance severity indicator column.
+
 ### enrichment with match
 
 `severity` of 3 means "error" so put that text in a new field `severity_level`
