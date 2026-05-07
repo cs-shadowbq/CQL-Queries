@@ -59,3 +59,30 @@ On the backend, timeChart() creates buckets for you..
 |...|
 |...|
 |...|
+
+## Stacked Bar Chart over Time
+
+Group detection events by `DetectName` into daily buckets and display as a stacked bar chart over 30 days.
+
+### Using timeChart()
+
+```f#
+#event_simpleName!=* OR #streamingApiEvent=Event_DetectionSummaryEvent
+| EventType=Event_ExternalApiEvent
+| ExternalApiType=Event_DetectionSummaryEvent
+| timeChart(series=DetectName, span=1d, limit=20)
+```
+
+In the visualization settings, change **Interpolation > Type** to `Step after` to render as a stacked bar chart.
+
+### Using groupBy()
+
+```f#
+#event_simpleName!=* OR #streamingApiEvent=Event_DetectionSummaryEvent
+| EventType=Event_ExternalApiEvent
+| ExternalApiType=Event_DetectionSummaryEvent
+| dateBucket:=formatTime("%Y-%m-%d", field=@timestamp)
+| groupBy([dateBucket, DetectName], limit=max)
+```
+
+Select **Bar Chart** for the visualization and **Stacked** for the Type. The `formatTime()` approach gives you a human-readable `dateBucket` field (e.g. `2025-04-15`) in the results table, whereas `timeChart()` handles bucketing internally.

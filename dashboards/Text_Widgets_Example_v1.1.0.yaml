@@ -1,0 +1,142 @@
+$schema: https://schemas.humio.com/dashboard/v0.23.0
+name: "CQL Demo — Synthetic Text Widgets Examples v1.1.0"
+timeSelector: {}
+sharedTimeInterval:
+  enabled: true
+  isLive: false
+  start: 1h
+
+widgets:
+
+  # 1. Colored banner note — type: note with backgroundColor + textColor
+  note-banner:
+    x: 0
+    y: 0
+    width: 12
+    height: 1
+    type: note
+    title: ' '
+    backgroundColor: '#b52026'
+    textColor: '#f5f5f5'
+    text: '### **Text Widgets Demo** — note widgets (plain, colored banner, URL image,
+      base64 image) and createEvents() query widgets'
+
+  # 2. Plain markdown note — type: note with literal block text
+  note-intro:
+    x: 0
+    y: 1
+    width: 7
+    height: 5
+    type: note
+    title: Widget Types
+    text: |
+      ## LogScale Text Widgets
+
+      Two widget types display static or curated text content:
+
+      ### `note` widget
+      - Renders markdown — always visible on the dashboard
+      - Supports `backgroundColor` and `textColor` for banners
+      - Images via URL or base64 data URI using `![alt](url)` syntax
+
+      ### `createEvents()` query widget
+      - Embeds static JSON rows directly in the query string
+      - Rows are parsed and displayed as a filterable, styled table
+      - Supports column coloring, link rendering, and parameter filtering
+
+  # 3. Base64 embedded image note — self-contained, no external URL needed
+  note-b64-image:
+    x: 7
+    y: 1
+    width: 5
+    height: 5
+    type: note
+    title: Base64 Embedded Image
+    text: "![Example base64 image](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAIAAADTED8xAAADMElEQVR4nOzVwQnAIBQFQYXff81RUkQCOyDj1YOPnbXWPmeTRef+/3O/OyBjzh3CD95BfqICMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMO0TAAD//2Anhf4QtqobAAAAAElFTkSuQmCC)"
+
+  # 4. URL image note — external HTTPS link with query parameters
+  note-url-image:
+    x: 0
+    y: 0
+    width: 6
+    height: 4
+    type: note
+    title: ''
+    text: "![Banished Kitten](https://assets.falcon.crowdstrike.com/2023/11/02135436/2025_CS_Actor_Icons_Kitten_Circle.png)"
+
+  # CSP warning note — placed alongside the URL image widget
+  note-url-csp:
+    x: 0
+    y: 0
+    width: 12
+    height: 4
+    type: note
+    title: '⚠️ CSP Restriction (US-1)'
+    backgroundColor: '#3d2b00'
+    textColor: '#f5f5f5'
+    text: |
+      ### ⚠️ This image may not load in Logscale based on CSP restrictions
+
+      `xxx.yyy.com` is **not** on the `img-src` Content Security Policy allowlist for the US-1 Falcon cloud.
+
+      **What works instead:**
+      - `data:` URIs — base64-embedded images always load (see section 📝)
+      - `https://assets.falcon.crowdstrike.com`
+      - `https://assets-public.falcon.crowdstrike.com`
+      - `https://storage.googleapis.com`
+
+      > Convert images to base64 for production dashboards if that image is not hosted on an approved CSP domain.
+
+  # 5. createEvents() query widget — static JSON rows rendered as a styled table
+  query-widget-types:
+    x: 0
+    y: 6
+    width: 12
+    height: 6
+    type: query
+    title: Text Widget Type Reference
+    isLive: false
+    start: 1h
+    end: now
+    visualization: table-view
+    options:
+      cell-overflow: wrap-text
+      column-overflow: truncate
+      row-numbers-enabled: false
+      configured-columns:
+        Widget Type:
+          color: '#29a34bff'
+        Purpose:
+          color: '#126CC6FF'
+        Example YAML Key:
+          color: '#8661D1'
+    queryString: |-
+      createEvents([
+        "{\"Widget Type\": \"note\", \"Purpose\": \"Static markdown text panel — always visible\", \"Example YAML Key\": \"text: |\"}",
+        "{\"Widget Type\": \"note (banner)\", \"Purpose\": \"Colored callout banner\", \"Example YAML Key\": \"backgroundColor: '#b52026'\"}",
+        "{\"Widget Type\": \"note (URL image)\", \"Purpose\": \"Inline image from external URL\", \"Example YAML Key\": \"text: '![alt](https://...)'\"}",
+        "{\"Widget Type\": \"note (base64 image)\", \"Purpose\": \"Self-contained image — no network required\", \"Example YAML Key\": \"text: '![alt](data:image/png;base64,...)'\"}",
+        "{\"Widget Type\": \"createEvents() query\", \"Purpose\": \"Static tabular data with column styling and parameter filtering\", \"Example YAML Key\": \"visualization: table-view\"}"
+      ])
+      | parseJson()
+      | table(["Widget Type", "Purpose", "Example YAML Key"], sortby="Widget Type", order=asc)
+
+sections:
+  section-note-widgets:
+    title: "📝 Note & Query Widgets"
+    order: 0
+    collapsed: false
+    description: Demonstrates plain note, colored banner, base64 image, and createEvents() table widgets.
+    widgetIds:
+    - note-banner
+    - note-intro
+    - note-b64-image
+    - query-widget-types
+
+  section-url-image:
+    title: "🌐 URL Image Widgets"
+    order: 1
+    collapsed: false
+    description: Demonstrates embedding an external HTTPS image in a note widget.
+    widgetIds:
+    - note-url-image

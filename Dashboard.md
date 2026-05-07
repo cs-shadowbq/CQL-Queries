@@ -1040,9 +1040,70 @@ sections:
     - table-uuid-1
 ```
 
+#### Section field reference
+
+| Field | Type | Notes |
+| ----- | ---- | ----- |
+| `title` | string | Display name shown in the section header. Supports full UTF-8 including emoji. |
+| `order` | int | Render order — sections sort ascending by this value. |
+| `collapsed` | bool | `true` = section starts collapsed; analysts expand on demand. |
+| `description` | string | Subtitle shown beneath the section title in the header bar. |
+| `timeSelector` | object | Adds a per-section time picker. Use `start:`/`end:` to set a default range, or `{}` to show the picker with no default override. |
+| `widgetIds` | list | IDs of widgets that belong to this section, in display order. |
+
+#### Emoji and UTF-8 in section titles
+
+Section `title` values accept the full Unicode character set — emoji, arrows, symbols, and non-Latin scripts all render correctly in the LogScale UI. Using emoji as visual prefixes makes sections easier to scan and navigate at a glance:
+
+```yaml
+sections:
+  section-onboarding:
+    title: "📈 Onboarding documentation and Data connector info"
+    order: 0
+    collapsed: true
+    description: This section provides information on the setup of data connectors
+      and monitoring their ingestion.
+    timeSelector:
+      end: now
+      start: 1d
+    widgetIds:
+    - note-1768928387118-2
+    - note-1757277502792-1
+
+  section-detections:
+    title: "🚨 Active Detections"
+    order: 1
+    collapsed: false
+    widgetIds:
+    - kpi-uuid-1
+    - table-uuid-1
+
+  section-hunting:
+    title: "🔍 Threat Hunting"
+    order: 2
+    collapsed: true
+    widgetIds:
+    - chart-uuid-1
+```
+
+**Common emoji conventions across NGSIEM dashboards:**
+
+| Emoji | Typical meaning |
+|-------|----------------|
+| 📈 / 📊 | Onboarding, metrics, dashboards overview |
+| 🚨 / ⚠️ | Alerts, detections, high-severity content |
+| 🔍 / 🔎 | Threat hunting, investigation |
+| ⚙️ | Configuration, SOAR, automation |
+| 📚 | Documentation, resources, help |
+| 🗺️ / 🌍 | Geographic / world map sections |
+| ✅ / ❌ | Status, compliance, health checks |
+
 Widget `x`/`y` coordinates are **section-relative** — each section's grid starts at `y: 0`. Sections are purely for display grouping (collapsible) and optional per-section time override. All widgets in a section must have `y` values that begin at `0` and increase within that section only; do **not** carry over the `y` totals from a preceding section.
 
-Add `description:` to widgets (not sections) for tooltip text that guides analysts on what to expect and how to interact with a widget.
+The `description:` field is available on **both** sections and query widgets:
+
+- On a **section** — renders as a subtitle in the collapsible section header bar.
+- On a **query widget** — renders as a tooltip shown on hover over the widget title.
 
 ### Widget Grid Layout
 
